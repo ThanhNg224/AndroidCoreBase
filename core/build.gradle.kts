@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
+    `maven-publish`
 }
 
 android {
@@ -13,6 +14,12 @@ android {
     resourcePrefix = "core_"
     compileSdk {
         version = release(37)
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     defaultConfig {
@@ -33,6 +40,20 @@ android {
     lint {
         abortOnError = false
         checkReleaseBuilds = false
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.github.ThanhNg224.AndroidXmlBase"
+            artifactId = "core"
+            version = System.getenv("VERSION_NAME") ?: "0.1.0-local"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
     }
 }
 
