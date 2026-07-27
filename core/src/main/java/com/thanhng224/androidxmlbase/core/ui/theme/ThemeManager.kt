@@ -25,9 +25,9 @@ interface ThemeManager {
 }
 
 @Singleton
-class AndroidThemeManager
+internal class AndroidThemeManager
     @Inject
-    constructor(
+    internal constructor(
         private val settingsStore: SettingsStore,
     ) : ThemeManager {
         private val themeAppliedState = MutableStateFlow(false)

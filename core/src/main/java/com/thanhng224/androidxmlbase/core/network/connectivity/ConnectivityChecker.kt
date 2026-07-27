@@ -4,11 +4,11 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 
-interface ConnectivityChecker {
+internal interface ConnectivityChecker {
     fun isConnected(): Boolean
 }
 
-class AndroidConnectivityChecker(
+internal class AndroidConnectivityChecker(
     private val context: Context,
 ) : ConnectivityChecker {
     override fun isConnected(): Boolean {

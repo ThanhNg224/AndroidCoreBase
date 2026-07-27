@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-class DataStoreSettingsStore(
+internal class DataStoreSettingsStore(
     private val dataStore: DataStore<Preferences>,
 ) : SettingsStore {
     override fun <T> observe(key: SettingsKey<T>): Flow<T> {

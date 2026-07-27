@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ThemeApplyInitializer : Initializer<Unit> {
+internal class ThemeApplyInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         val entryPoint =
             EntryPointAccessors.fromApplication(context.applicationContext, AppStartupEntryPoint::class.java)

@@ -14,26 +14,26 @@ import com.thanhng224.androidxmlbase.core.ui.window.setImmersiveMode as applyImm
 
 /** Compatibility aliases for APIs moved out of the former `core.ui.util` catch-all package. */
 @Deprecated("Use DrawableShape from core.ui.drawable.")
-typealias Shape = DrawableShape
+internal typealias Shape = DrawableShape
 
 @Deprecated("Use IntentExtraDelegate from core.navigation.")
-typealias IntentExtraDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.IntentExtraDelegate<T>
+internal typealias IntentExtraDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.IntentExtraDelegate<T>
 
 @Deprecated("Use IntentExtraNullableDelegate from core.navigation.")
-typealias IntentExtraNullableDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.IntentExtraNullableDelegate<T>
+internal typealias IntentExtraNullableDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.IntentExtraNullableDelegate<T>
 
 @Deprecated("Use FragmentArgumentDelegate from core.navigation.")
-typealias FragmentArgumentDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.FragmentArgumentDelegate<T>
+internal typealias FragmentArgumentDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.FragmentArgumentDelegate<T>
 
 @Deprecated("Use FragmentArgumentNullableDelegate from core.navigation.")
-typealias FragmentArgumentNullableDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.FragmentArgumentNullableDelegate<T>
+internal typealias FragmentArgumentNullableDelegate<T> = com.thanhng224.androidxmlbase.core.navigation.FragmentArgumentNullableDelegate<T>
 
 /** Compatibility facade for [ShapeDrawableFactory]. New code must use the factory directly. */
 @Deprecated(
     message = "Use ShapeDrawableFactory from core.ui.drawable.",
     replaceWith = ReplaceWith("ShapeDrawableFactory"),
 )
-object ShapeUtils {
+internal object ShapeUtils {
     fun buildDrawable(
         shape: DrawableShape,
         cornerRadiusPx: Float,
@@ -50,7 +50,7 @@ object ShapeUtils {
 }
 
 @Deprecated("Use intentExtra from core.navigation.")
-inline fun <reified T> intentExtra(
+internal inline fun <reified T> intentExtra(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Activity, T> =
@@ -58,12 +58,12 @@ inline fun <reified T> intentExtra(
         .intentExtra(key, defaultValue)
 
 @Deprecated("Use intentExtraNullable from core.navigation.")
-inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> =
+internal inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> =
     com.thanhng224.androidxmlbase.core.navigation
         .intentExtraNullable(key)
 
 @Deprecated("Use fragmentArg from core.navigation.")
-inline fun <reified T> fragmentArg(
+internal inline fun <reified T> fragmentArg(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Fragment, T> =
@@ -71,15 +71,15 @@ inline fun <reified T> fragmentArg(
         .fragmentArg(key, defaultValue)
 
 @Deprecated("Use fragmentArgNullable from core.navigation.")
-inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
+internal inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
     com.thanhng224.androidxmlbase.core.navigation
         .fragmentArgNullable(key)
 
 @Deprecated("Use getTyped from core.navigation.")
-fun <T> Bundle.getTyped(
+internal fun <T> Bundle.getTyped(
     key: String,
     clazz: Class<T>,
 ): T? = this.navigationGetTyped(key, clazz)
 
 @Deprecated("Use setImmersiveMode from core.ui.window.")
-fun Window.setImmersiveMode(enabled: Boolean) = applyImmersiveMode(enabled)
+internal fun Window.setImmersiveMode(enabled: Boolean) = applyImmersiveMode(enabled)

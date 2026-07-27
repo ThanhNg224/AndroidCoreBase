@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class AppCoreBindingsModule {
+internal abstract class AppCoreBindingsModule {
     @Binds
     @Singleton
     abstract fun bindAppDispatchers(implementation: DefaultAppDispatchers): AppDispatchers
@@ -49,7 +49,7 @@ abstract class AppCoreBindingsModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppCoreModule {
+internal object AppCoreModule {
     @Provides
     @Singleton
     fun provideSettingsStore(

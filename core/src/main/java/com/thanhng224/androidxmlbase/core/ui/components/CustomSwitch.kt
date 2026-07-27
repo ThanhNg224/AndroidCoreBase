@@ -8,7 +8,7 @@ import android.util.AttributeSet
     message = "Use ThemedSwitch.",
     replaceWith = ReplaceWith("ThemedSwitch(context, attrs, defStyleAttr)"),
 )
-class CustomSwitch
+internal class CustomSwitch
     @JvmOverloads
     constructor(
         context: Context,

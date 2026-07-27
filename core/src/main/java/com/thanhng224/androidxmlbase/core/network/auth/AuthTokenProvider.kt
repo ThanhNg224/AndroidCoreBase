@@ -1,9 +1,9 @@
 package com.thanhng224.androidxmlbase.core.network.auth
 
-interface AuthTokenProvider {
+internal interface AuthTokenProvider {
     suspend fun getToken(): String?
 }
 
-class NoOpAuthTokenProvider : AuthTokenProvider {
+internal class NoOpAuthTokenProvider : AuthTokenProvider {
     override suspend fun getToken(): String? = null
 }

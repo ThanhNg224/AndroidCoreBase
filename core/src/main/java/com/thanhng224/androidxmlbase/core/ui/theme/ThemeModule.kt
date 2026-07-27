@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ThemeModule {
+internal abstract class ThemeModule {
     @Binds
     @Singleton
     abstract fun bindThemeManager(implementation: AndroidThemeManager): ThemeManager

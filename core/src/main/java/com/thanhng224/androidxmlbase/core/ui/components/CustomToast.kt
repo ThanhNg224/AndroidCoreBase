@@ -8,7 +8,7 @@ import com.google.android.material.snackbar.Snackbar
     message = "Use StyledSnackbar.",
     replaceWith = ReplaceWith("StyledSnackbar"),
 )
-object CustomToast {
+internal object CustomToast {
     fun show(
         anchorView: View,
         message: String,

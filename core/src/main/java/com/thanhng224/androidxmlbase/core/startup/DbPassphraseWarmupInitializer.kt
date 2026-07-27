@@ -6,7 +6,7 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class DbPassphraseWarmupInitializer : Initializer<Unit> {
+internal class DbPassphraseWarmupInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         val entryPoint =
             EntryPointAccessors.fromApplication(context.applicationContext, AppStartupEntryPoint::class.java)

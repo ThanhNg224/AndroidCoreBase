@@ -5,9 +5,9 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
-class NoConnectivityException : IOException("No network connection")
+internal class NoConnectivityException : IOException("No network connection")
 
-class ConnectivityInterceptor(
+internal class ConnectivityInterceptor(
     private val connectivityChecker: ConnectivityChecker,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

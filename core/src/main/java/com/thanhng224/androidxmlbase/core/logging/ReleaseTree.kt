@@ -9,7 +9,7 @@ import timber.log.Timber
  * this base picks one — kept as plain `Log.println` until then so no reporting vendor is
  * hardcoded into the base.
  */
-class ReleaseTree : Timber.Tree() {
+internal class ReleaseTree : Timber.Tree() {
     public override fun isLoggable(
         tag: String?,
         priority: Int,

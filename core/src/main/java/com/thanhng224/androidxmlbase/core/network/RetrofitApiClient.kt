@@ -5,9 +5,9 @@ import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
-class RetrofitApiClient
+internal class RetrofitApiClient
     @Inject
-    constructor() : ApiClient {
+    internal constructor() : ApiClient {
         override suspend fun <T> execute(call: suspend () -> Response<T>): ApiResult<T> =
             try {
                 val response = call()

@@ -24,7 +24,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class NetworkBindingsModule {
+internal abstract class NetworkBindingsModule {
     @Binds
     @Singleton
     abstract fun bindApiClient(implementation: RetrofitApiClient): ApiClient
@@ -36,7 +36,7 @@ abstract class NetworkBindingsModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+internal object NetworkModule {
     @Provides
     @Singleton
     fun provideApiConfig(): ApiConfig =

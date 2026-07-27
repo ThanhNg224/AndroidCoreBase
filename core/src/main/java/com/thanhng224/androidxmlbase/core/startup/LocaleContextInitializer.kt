@@ -9,7 +9,7 @@ import com.thanhng224.androidxmlbase.core.localization.LocaleAppContext
  * `AppCompatLocaleApplier.currentLocaleTags()` can read the current per-app locale without
  * depending on any [androidx.appcompat.app.AppCompatDelegate] being alive.
  */
-class LocaleContextInitializer : Initializer<Unit> {
+internal class LocaleContextInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         LocaleAppContext.applicationContext = context.applicationContext
     }

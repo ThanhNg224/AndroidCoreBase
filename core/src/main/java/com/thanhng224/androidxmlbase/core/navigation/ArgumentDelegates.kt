@@ -12,7 +12,7 @@ import kotlin.reflect.KProperty
 /**
  * Type-safe reified factory to extract non-null extras from an Activity Intent.
  */
-inline fun <reified T> intentExtra(
+internal inline fun <reified T> intentExtra(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Activity, T> = IntentExtraDelegate(key, T::class.java, defaultValue)
@@ -20,12 +20,13 @@ inline fun <reified T> intentExtra(
 /**
  * Type-safe reified factory to extract nullable extras from an Activity Intent.
  */
-inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> = IntentExtraNullableDelegate(key, T::class.java)
+internal inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> =
+    IntentExtraNullableDelegate(key, T::class.java)
 
 /**
  * Type-safe reified factory to extract non-null arguments from a Fragment bundle.
  */
-inline fun <reified T> fragmentArg(
+internal inline fun <reified T> fragmentArg(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Fragment, T> = FragmentArgumentDelegate(key, T::class.java, defaultValue)
@@ -33,10 +34,10 @@ inline fun <reified T> fragmentArg(
 /**
  * Type-safe reified factory to extract nullable arguments from a Fragment bundle.
  */
-inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
+internal inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
     FragmentArgumentNullableDelegate(key, T::class.java)
 
-class IntentExtraDelegate<T>(
+internal class IntentExtraDelegate<T>(
     private val key: String,
     private val clazz: Class<T>,
     private val defaultValue: T? = null,
@@ -53,7 +54,7 @@ class IntentExtraDelegate<T>(
     }
 }
 
-class IntentExtraNullableDelegate<T>(
+internal class IntentExtraNullableDelegate<T>(
     private val key: String,
     private val clazz: Class<T>,
 ) : ReadOnlyProperty<Activity, T?> {
@@ -63,7 +64,7 @@ class IntentExtraNullableDelegate<T>(
     ): T? = thisRef.intent?.extras?.getTyped(key, clazz)
 }
 
-class FragmentArgumentDelegate<T>(
+internal class FragmentArgumentDelegate<T>(
     private val key: String,
     private val clazz: Class<T>,
     private val defaultValue: T? = null,
@@ -80,7 +81,7 @@ class FragmentArgumentDelegate<T>(
     }
 }
 
-class FragmentArgumentNullableDelegate<T>(
+internal class FragmentArgumentNullableDelegate<T>(
     private val key: String,
     private val clazz: Class<T>,
 ) : ReadOnlyProperty<Fragment, T?> {

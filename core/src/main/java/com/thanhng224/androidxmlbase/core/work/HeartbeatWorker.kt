@@ -14,9 +14,9 @@ import timber.log.Timber
  * shape for real background work — this worker itself is not scheduled anywhere by default.
  */
 @HiltWorker
-class HeartbeatWorker
+internal class HeartbeatWorker
     @AssistedInject
-    constructor(
+    internal constructor(
         @Assisted context: Context,
         @Assisted workerParameters: WorkerParameters,
     ) : CoroutineWorker(context, workerParameters) {

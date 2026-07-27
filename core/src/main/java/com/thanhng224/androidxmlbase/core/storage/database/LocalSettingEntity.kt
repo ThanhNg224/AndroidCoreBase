@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
  * Reusable DB setting entity for demonstration.
  */
 @Entity(tableName = "local_settings")
-data class LocalSettingEntity(
+internal data class LocalSettingEntity(
     @PrimaryKey
     val key: String,
     @ColumnInfo(name = "value")

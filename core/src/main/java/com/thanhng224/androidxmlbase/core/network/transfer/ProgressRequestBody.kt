@@ -8,7 +8,7 @@ import okio.ForwardingSink
 import okio.buffer
 import java.io.IOException
 
-class ProgressRequestBody(
+internal class ProgressRequestBody(
     private val delegate: RequestBody,
     private val onProgress: (bytesWritten: Long, totalBytes: Long) -> Unit,
 ) : RequestBody() {

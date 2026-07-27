@@ -13,9 +13,9 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
-class OkHttpFileTransferClient
+internal class OkHttpFileTransferClient
     @Inject
-    constructor(
+    internal constructor(
         private val okHttpClient: OkHttpClient,
         private val dispatchers: AppDispatchers,
     ) : FileTransferClient {

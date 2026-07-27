@@ -8,7 +8,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.Flow
 
-abstract class BaseBottomSheetDialogFragment<VB : ViewBinding> : BottomSheetDialogFragment() {
+internal abstract class BaseBottomSheetDialogFragment<VB : ViewBinding> : BottomSheetDialogFragment() {
     private var bindingOrNull: VB? = null
     protected val binding: VB
         get() = requireNotNull(bindingOrNull) { "binding accessed outside the BottomSheet view lifecycle" }

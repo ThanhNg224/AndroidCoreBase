@@ -16,7 +16,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @EntryPoint
 @InstallIn(SingletonComponent::class)
-interface AppStartupEntryPoint {
+internal interface AppStartupEntryPoint {
     fun dbPassphraseProvider(): DbPassphraseProvider
 
     fun themeManager(): ThemeManager

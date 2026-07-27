@@ -5,7 +5,7 @@ import android.graphics.drawable.GradientDrawable
 import kotlin.math.roundToInt
 
 /** Shapes [ShapeDrawableFactory.buildDrawable] can render. */
-enum class DrawableShape {
+internal enum class DrawableShape {
     RECTANGLE,
     OVAL,
 }
@@ -14,7 +14,7 @@ enum class DrawableShape {
  * Builds runtime [GradientDrawable]s for custom Views (buttons, shadow cards, toasts, ...) from
  * plain values, so each component doesn't hand-roll [GradientDrawable] setup individually.
  */
-object ShapeDrawableFactory {
+internal object ShapeDrawableFactory {
     fun buildDrawable(
         shape: DrawableShape,
         cornerRadiusPx: Float,

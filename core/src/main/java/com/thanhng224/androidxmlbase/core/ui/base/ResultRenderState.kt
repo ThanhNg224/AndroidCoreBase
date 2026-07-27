@@ -42,7 +42,7 @@ fun <T> ResultState<T>.toRenderState(): ResultRenderState =
  * unit-tested directly (needs a real [View]); the mapping it applies is covered by
  * [toRenderState]'s tests.
  */
-fun ResultRenderState.applyVisibilityTo(
+internal fun ResultRenderState.applyVisibilityTo(
     loadingView: View,
     contentView: View,
     errorView: View,

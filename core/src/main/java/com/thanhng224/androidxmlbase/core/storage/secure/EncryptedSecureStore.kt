@@ -24,9 +24,9 @@ import javax.inject.Inject
  * Google's guidance is to use the platform Keystore directly instead. The key never leaves the
  * TEE/StrongBox, so only ciphertext (IV-prefixed, Base64-encoded) is ever written to disk.
  */
-class EncryptedSecureStore
+internal class EncryptedSecureStore
     @Inject
-    constructor(
+    internal constructor(
         @param:ApplicationContext private val context: Context,
         private val dispatchers: AppDispatchers,
     ) : SecureStore {

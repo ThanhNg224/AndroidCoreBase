@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  * Reusable DAO contract for local settings database transactions.
  */
 @Dao
-interface LocalSettingDao {
+internal interface LocalSettingDao {
     @Query("SELECT * FROM local_settings WHERE `key` = :key LIMIT 1")
     suspend fun getSetting(key: String): LocalSettingEntity?
 

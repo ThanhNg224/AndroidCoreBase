@@ -17,7 +17,7 @@ import com.thanhng224.androidxmlbase.core.R
  * than merely clever. Depth is controlled with the standard `android:elevation` attribute — no
  * custom attr is added for it.
  */
-class ShadowLayout
+internal class ShadowLayout
     @JvmOverloads
     constructor(
         context: Context,

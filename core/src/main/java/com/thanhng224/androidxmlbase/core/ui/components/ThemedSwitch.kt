@@ -8,7 +8,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.thanhng224.androidxmlbase.core.R
 
 /** [MaterialSwitch] wrapped to apply design system color tokens. */
-open class ThemedSwitch
+internal open class ThemedSwitch
     @JvmOverloads
     constructor(
         context: Context,

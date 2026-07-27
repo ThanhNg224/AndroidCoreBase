@@ -12,11 +12,11 @@ import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ApplicationScope
+internal annotation class ApplicationScope
 
 @Module
 @InstallIn(SingletonComponent::class)
-object CoroutineScopeModule {
+internal object CoroutineScopeModule {
     @Provides
     @Singleton
     @ApplicationScope

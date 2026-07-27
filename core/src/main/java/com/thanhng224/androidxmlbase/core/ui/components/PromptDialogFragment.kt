@@ -11,14 +11,14 @@ import com.thanhng224.androidxmlbase.core.ui.base.BaseDialogFragment
 import com.thanhng224.androidxmlbase.core.ui.base.DialogAnimation
 import com.thanhng224.androidxmlbase.core.ui.base.setOnDebouncedClickListener
 
-enum class PromptType {
+internal enum class PromptType {
     SUCCESS,
     ERROR,
     INFO,
 }
 
 /** Reusable status dialog (Success, Error, Info) with customizable actions. */
-class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() {
+internal class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() {
     override val dialogAnimation: DialogAnimation = DialogAnimation.SCALE
 
     override fun inflateBinding(

@@ -11,6 +11,6 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = false,
 )
-abstract class AppDatabase : RoomDatabase() {
+internal abstract class AppDatabase : RoomDatabase() {
     abstract fun localSettingDao(): LocalSettingDao
 }

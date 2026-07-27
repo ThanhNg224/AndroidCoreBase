@@ -5,9 +5,9 @@ import androidx.annotation.StringRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class AndroidStringProvider
+internal class AndroidStringProvider
     @Inject
-    constructor(
+    internal constructor(
         @param:ApplicationContext private val context: Context,
     ) : StringProvider {
         override fun getString(

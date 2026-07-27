@@ -15,9 +15,9 @@ import javax.inject.Singleton
  * blocking on encrypted-prefs disk I/O.
  */
 @Singleton
-class DbPassphraseProvider
+internal class DbPassphraseProvider
     @Inject
-    constructor(
+    internal constructor(
         private val secureStore: SecureStore,
     ) {
         private val mutex = Mutex()

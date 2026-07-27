@@ -11,7 +11,7 @@ import androidx.core.view.isVisible
 import com.thanhng224.androidxmlbase.core.R
 
 /** Full-screen blocking loader shown during async operations (e.g. API calls). */
-class FullScreenLoaderView
+internal class FullScreenLoaderView
     @JvmOverloads
     constructor(
         context: Context,

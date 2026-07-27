@@ -13,9 +13,9 @@ import javax.inject.Singleton
  * Automatically intercepts 401 HTTP responses to attempt a token refresh cycle.
  */
 @Singleton
-class TokenAuthenticator
+internal class TokenAuthenticator
     @Inject
-    constructor(
+    internal constructor(
         private val tokenProvider: Provider<AuthTokenProvider>,
     ) : Authenticator {
         override fun authenticate(

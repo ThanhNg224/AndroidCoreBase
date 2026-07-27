@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.viewbinding.ViewBinding
 import com.thanhng224.androidxmlbase.core.R
 
-enum class DialogAnimation {
+internal enum class DialogAnimation {
     NONE,
     FADE,
     SLIDE,
@@ -19,7 +19,7 @@ enum class DialogAnimation {
  * Base class for all customized DialogFragments. Handles standard margins,
  * tablet width limits, corner rounding, and entry/exit animation styling.
  */
-abstract class BaseDialogFragment<VB : ViewBinding> : DialogFragment() {
+internal abstract class BaseDialogFragment<VB : ViewBinding> : DialogFragment() {
     private var bindingOrNull: VB? = null
     protected val binding: VB
         get() = requireNotNull(bindingOrNull) { "binding accessed before onViewCreated() completed" }
