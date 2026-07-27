@@ -59,16 +59,16 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_48sdp"
             android:layout_marginTop="@dimen/_16sdp"
-            app:buttonBackgroundColor="@color/color_primary"
-            app:buttonCornerRadius="@dimen/_8sdp"
-            app:buttonShape="rectangle">
+            app:coreButtonBackgroundColor="@color/core_color_primary"
+            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonShape="rectangle">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/design_system_primary_button"
-                android:textColor="@color/color_on_primary" />
+                android:textColor="@color/core_color_on_primary" />
 
         </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 
@@ -77,18 +77,18 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_48sdp"
             android:layout_marginTop="@dimen/_12sdp"
-            app:buttonBackgroundColor="@color/color_surface"
-            app:buttonCornerRadius="@dimen/_8sdp"
-            app:buttonShape="rectangle"
-            app:buttonStrokeColor="@color/color_primary"
-            app:buttonStrokeWidth="@dimen/_1sdp">
+            app:coreButtonBackgroundColor="@color/core_color_surface"
+            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonShape="rectangle"
+            app:coreButtonStrokeColor="@color/core_color_primary"
+            app:coreButtonStrokeWidth="@dimen/_1sdp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/design_system_outlined_button"
-                android:textColor="@color/color_primary" />
+                android:textColor="@color/core_color_primary" />
 
         </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 
@@ -102,8 +102,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_16sdp"
             android:elevation="@dimen/_4sdp"
-            app:shadowBackgroundColor="@color/color_surface"
-            app:shadowCornerRadius="@dimen/_8sdp">
+            app:coreShadowBackgroundColor="@color/core_color_surface"
+            app:coreShadowCornerRadius="@dimen/_8sdp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -126,16 +126,16 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_48sdp"
             android:layout_marginTop="@dimen/_16sdp"
-            app:buttonBackgroundColor="@color/color_primary"
-            app:buttonCornerRadius="@dimen/_8sdp"
-            app:buttonShape="rectangle">
+            app:coreButtonBackgroundColor="@color/core_color_primary"
+            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonShape="rectangle">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/design_system_show_snackbar"
-                android:textColor="@color/color_on_primary" />
+                android:textColor="@color/core_color_on_primary" />
 
         </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 

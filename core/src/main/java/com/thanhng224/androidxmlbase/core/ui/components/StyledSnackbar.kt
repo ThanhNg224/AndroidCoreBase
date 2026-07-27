@@ -18,13 +18,13 @@ object StyledSnackbar {
         val density = context.resources.displayMetrics.density
 
         val snackbar = Snackbar.make(anchorView, message, duration)
-        snackbar.setTextColor(ContextCompat.getColor(context, R.color.color_surface))
+        snackbar.setTextColor(ContextCompat.getColor(context, R.color.core_color_surface))
         snackbar.view.backgroundTintList = null
         snackbar.view.background =
             ShapeDrawableFactory.buildDrawable(
                 shape = DrawableShape.RECTANGLE,
                 cornerRadiusPx = CORNER_RADIUS_DP * density,
-                fillColor = ContextCompat.getColor(context, R.color.color_on_surface),
+                fillColor = ContextCompat.getColor(context, R.color.core_color_on_surface),
             )
         snackbar.show()
         return snackbar

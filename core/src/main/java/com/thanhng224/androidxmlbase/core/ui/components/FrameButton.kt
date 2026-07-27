@@ -27,12 +27,12 @@ class FrameButton
         defStyleAttr: Int = 0,
     ) : FrameLayout(context, attrs, defStyleAttr) {
         init {
-            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.FrameButton, defStyleAttr, 0)
-            val shapeOrdinal = typedArray.getInt(R.styleable.FrameButton_buttonShape, 0)
-            val backgroundColor = typedArray.getColor(R.styleable.FrameButton_buttonBackgroundColor, Color.TRANSPARENT)
-            val cornerRadiusPx = typedArray.getDimension(R.styleable.FrameButton_buttonCornerRadius, 0f)
-            val strokeWidthPx = typedArray.getDimension(R.styleable.FrameButton_buttonStrokeWidth, 0f)
-            val strokeColor = typedArray.getColor(R.styleable.FrameButton_buttonStrokeColor, Color.TRANSPARENT)
+            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CoreFrameButton, defStyleAttr, 0)
+            val shapeOrdinal = typedArray.getInt(R.styleable.CoreFrameButton_coreButtonShape, 0)
+            val backgroundColor = typedArray.getColor(R.styleable.CoreFrameButton_coreButtonBackgroundColor, Color.TRANSPARENT)
+            val cornerRadiusPx = typedArray.getDimension(R.styleable.CoreFrameButton_coreButtonCornerRadius, 0f)
+            val strokeWidthPx = typedArray.getDimension(R.styleable.CoreFrameButton_coreButtonStrokeWidth, 0f)
+            val strokeColor = typedArray.getColor(R.styleable.CoreFrameButton_coreButtonStrokeColor, Color.TRANSPARENT)
             typedArray.recycle()
 
             val shape = if (shapeOrdinal == SHAPE_OVAL_ORDINAL) DrawableShape.OVAL else DrawableShape.RECTANGLE

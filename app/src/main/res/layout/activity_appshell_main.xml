@@ -11,14 +11,14 @@
         style="@style/Widget.AndroidXmlBase.Toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/color_surface"
+        android:background="@color/core_color_surface"
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/main_top_app_bar"
         app:title="@string/home_title"
-        app:titleTextColor="@color/color_on_surface" />
+        app:titleTextColor="@color/core_color_on_surface" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"
@@ -38,13 +38,13 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/_16sdp"
         android:layout_marginBottom="@dimen/_12sdp"
-        app:cardBackgroundColor="@color/color_surface"
+        app:cardBackgroundColor="@color/core_color_surface"
         app:cardCornerRadius="@dimen/_28sdp"
         app:cardElevation="@dimen/_6sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:strokeColor="@color/color_outline_variant"
+        app:strokeColor="@color/core_color_outline_variant"
         app:strokeWidth="@dimen/_1sdp">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

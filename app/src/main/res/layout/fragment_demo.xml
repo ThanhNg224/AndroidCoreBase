@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_12sdp"
-        app:cardBackgroundColor="@color/color_primary_container"
+        app:cardBackgroundColor="@color/core_color_primary_container"
         app:cardCornerRadius="@dimen/_16sdp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,7 +37,7 @@
             android:padding="@dimen/_16sdp"
             android:text="@string/demo_weather_loading"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
-            android:textColor="@color/color_on_primary_container"
+            android:textColor="@color/core_color_on_primary_container"
             tools:text="Partly cloudy · 31.8°C · Feels like 37.0°C · Wind 11.0 km/h" />
 
     </com.google.android.material.card.MaterialCardView>
@@ -47,11 +47,11 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/_48sdp"
         android:layout_marginTop="@dimen/_12sdp"
-        app:buttonBackgroundColor="@color/color_surface"
-        app:buttonCornerRadius="@dimen/_12sdp"
-        app:buttonShape="rectangle"
-        app:buttonStrokeColor="@color/color_primary"
-        app:buttonStrokeWidth="@dimen/_1sdp"
+        app:coreButtonBackgroundColor="@color/core_color_surface"
+        app:coreButtonCornerRadius="@dimen/_12sdp"
+        app:coreButtonShape="rectangle"
+        app:coreButtonStrokeColor="@color/core_color_primary"
+        app:coreButtonStrokeWidth="@dimen/_1sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardWeather">
@@ -62,7 +62,7 @@
             android:layout_gravity="center"
             android:text="@string/demo_weather_refresh"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
-            android:textColor="@color/color_primary" />
+            android:textColor="@color/core_color_primary" />
 
     </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 
@@ -73,7 +73,7 @@
         android:layout_marginTop="@dimen/_32sdp"
         android:text="@string/demo_counter_title"
         android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption"
-        android:textColor="@color/color_on_surface_variant"
+        android:textColor="@color/core_color_on_surface_variant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnRefreshWeather" />
@@ -94,9 +94,9 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/_48sdp"
         android:layout_marginTop="@dimen/_12sdp"
-        app:buttonBackgroundColor="@color/color_primary"
-        app:buttonCornerRadius="@dimen/_12sdp"
-        app:buttonShape="rectangle"
+        app:coreButtonBackgroundColor="@color/core_color_primary"
+        app:coreButtonCornerRadius="@dimen/_12sdp"
+        app:coreButtonShape="rectangle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvCount">
@@ -107,7 +107,7 @@
             android:layout_gravity="center"
             android:text="@string/demo_increment"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
-            android:textColor="@color/color_on_primary" />
+            android:textColor="@color/core_color_on_primary" />
 
     </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 

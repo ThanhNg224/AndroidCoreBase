@@ -27,12 +27,12 @@ class ShadowLayout
         private val cornerRadiusPx: Float
 
         init {
-            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ShadowLayout, defStyleAttr, 0)
-            cornerRadiusPx = typedArray.getDimension(R.styleable.ShadowLayout_shadowCornerRadius, 0f)
+            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CoreShadowLayout, defStyleAttr, 0)
+            cornerRadiusPx = typedArray.getDimension(R.styleable.CoreShadowLayout_coreShadowCornerRadius, 0f)
             val backgroundColor =
                 typedArray.getColor(
-                    R.styleable.ShadowLayout_shadowBackgroundColor,
-                    ContextCompat.getColor(context, R.color.color_surface),
+                    R.styleable.CoreShadowLayout_coreShadowBackgroundColor,
+                    ContextCompat.getColor(context, R.color.core_color_surface),
                 )
             typedArray.recycle()
 

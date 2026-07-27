@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Material 3 Standard Color Roles -->
-    <color name="color_primary">#FF3F51B5</color>
-    <color name="color_on_primary">#FFFFFFFF</color>
-    <color name="color_primary_container">#FFE8EAF6</color>
-    <color name="color_on_primary_container">#FF1A237E</color>
+    <color name="core_color_primary">#FF3F51B5</color>
+    <color name="core_color_on_primary">#FFFFFFFF</color>
+    <color name="core_color_primary_container">#FFE8EAF6</color>
+    <color name="core_color_on_primary_container">#FF1A237E</color>
 
-    <color name="color_secondary">#FF5C6BC0</color>
-    <color name="color_on_secondary">#FFFFFFFF</color>
-    <color name="color_secondary_container">#FFE8EAF6</color>
-    <color name="color_on_secondary_container">#FF1A237E</color>
+    <color name="core_color_secondary">#FF5C6BC0</color>
+    <color name="core_color_on_secondary">#FFFFFFFF</color>
+    <color name="core_color_secondary_container">#FFE8EAF6</color>
+    <color name="core_color_on_secondary_container">#FF1A237E</color>
 
-    <color name="color_tertiary">#FF009688</color>
-    <color name="color_on_tertiary">#FFFFFFFF</color>
-    <color name="color_tertiary_container">#FFE0F2F1</color>
-    <color name="color_on_tertiary_container">#FF004D40</color>
+    <color name="core_color_tertiary">#FF009688</color>
+    <color name="core_color_on_tertiary">#FFFFFFFF</color>
+    <color name="core_color_tertiary_container">#FFE0F2F1</color>
+    <color name="core_color_on_tertiary_container">#FF004D40</color>
 
-    <color name="color_background">#FFFFFFFF</color>
-    <color name="color_on_background">#FF1C1B1F</color>
+    <color name="core_color_background">#FFFFFFFF</color>
+    <color name="core_color_on_background">#FF1C1B1F</color>
 
-    <color name="color_surface">#FFFFFFFF</color>
-    <color name="color_on_surface">#FF1C1B1F</color>
-    <color name="color_surface_variant">#FFE7E0EC</color>
-    <color name="color_on_surface_variant">#FF49454F</color>
+    <color name="core_color_surface">#FFFFFFFF</color>
+    <color name="core_color_on_surface">#FF1C1B1F</color>
+    <color name="core_color_surface_variant">#FFE7E0EC</color>
+    <color name="core_color_on_surface_variant">#FF49454F</color>
 
-    <color name="color_outline">#FF79747E</color>
-    <color name="color_outline_variant">#FFCAC4D0</color>
+    <color name="core_color_outline">#FF79747E</color>
+    <color name="core_color_outline_variant">#FFCAC4D0</color>
 
-    <color name="color_error">#FFB00020</color>
-    <color name="color_on_error">#FFFFFFFF</color>
-    <color name="color_error_container">#FFF9DEDC</color>
-    <color name="color_on_error_container">#FF410E0B</color>
+    <color name="core_color_error">#FFB00020</color>
+    <color name="core_color_on_error">#FFFFFFFF</color>
+    <color name="core_color_error_container">#FFF9DEDC</color>
+    <color name="core_color_on_error_container">#FF410E0B</color>
 
-    <color name="color_success">#FF4CAF50</color>
-    <color name="color_stroke_subtle">#FFE0E0E0</color>
+    <color name="core_color_success">#FF4CAF50</color>
+    <color name="core_color_stroke_subtle">#FFE0E0E0</color>
 </resources>

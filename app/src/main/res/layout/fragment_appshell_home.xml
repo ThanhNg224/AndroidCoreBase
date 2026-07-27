@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_32sdp"
-            app:cardBackgroundColor="@color/color_primary_container"
+            app:cardBackgroundColor="@color/core_color_primary_container"
             app:cardCornerRadius="@dimen/_24sdp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
@@ -50,7 +50,7 @@
                     android:text="@string/home_card_eyebrow"
                     android:textAllCaps="true"
                     android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro"
-                    android:textColor="@color/color_on_primary_container" />
+                    android:textColor="@color/core_color_on_primary_container" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                     android:layout_marginTop="@dimen/_8sdp"
                     android:text="@string/home_card_title"
                     android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
-                    android:textColor="@color/color_on_primary_container" />
+                    android:textColor="@color/core_color_on_primary_container" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                     android:layout_marginTop="@dimen/_8sdp"
                     android:text="@string/home_card_body"
                     android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
-                    android:textColor="@color/color_on_primary_container" />
+                    android:textColor="@color/core_color_on_primary_container" />
 
             </LinearLayout>
 
@@ -78,7 +78,7 @@
             android:layout_marginTop="@dimen/_24sdp"
             android:text="@string/home_navigation_hint"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption"
-            android:textColor="@color/color_on_surface_variant" />
+            android:textColor="@color/core_color_on_surface_variant" />
 
     </LinearLayout>
 

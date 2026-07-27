@@ -16,11 +16,11 @@ open class ThemedSwitch
         defStyleAttr: Int = com.google.android.material.R.attr.materialSwitchStyle,
     ) : MaterialSwitch(context, attrs, defStyleAttr) {
         init {
-            val checkedTrackColor = ContextCompat.getColor(context, R.color.color_primary)
-            val uncheckedTrackColor = ContextCompat.getColor(context, R.color.color_surface_variant)
+            val checkedTrackColor = ContextCompat.getColor(context, R.color.core_color_primary)
+            val uncheckedTrackColor = ContextCompat.getColor(context, R.color.core_color_surface_variant)
 
-            val checkedThumbColor = ContextCompat.getColor(context, R.color.color_surface)
-            val uncheckedThumbColor = ContextCompat.getColor(context, R.color.color_outline)
+            val checkedThumbColor = ContextCompat.getColor(context, R.color.core_color_surface)
+            val uncheckedThumbColor = ContextCompat.getColor(context, R.color.core_color_outline)
 
             trackTintList = checkedStateList(checkedTrackColor, uncheckedTrackColor)
             trackDecorationTintList = checkedStateList(checkedTrackColor, uncheckedTrackColor)

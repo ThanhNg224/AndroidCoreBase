@@ -59,7 +59,7 @@ class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() {
             }
         binding.ivPromptIcon.setImageResource(iconRes)
 
-        val primaryTextRes = args.getInt(ARG_PRIMARY_TEXT_RES, R.string.error_dialog_retry)
+        val primaryTextRes = args.getInt(ARG_PRIMARY_TEXT_RES, R.string.core_error_dialog_retry)
         binding.tvPrimaryText.setText(primaryTextRes)
         binding.btnPrimary.setOnDebouncedClickListener {
             emitResult(EVENT_PRIMARY)
@@ -112,8 +112,8 @@ class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() {
             message: String,
             technicalCode: String? = null,
             type: PromptType = PromptType.ERROR,
-            @StringRes primaryButtonTextResId: Int = R.string.error_dialog_retry,
-            @StringRes secondaryButtonTextResId: Int? = R.string.error_dialog_close,
+            @StringRes primaryButtonTextResId: Int = R.string.core_error_dialog_retry,
+            @StringRes secondaryButtonTextResId: Int? = R.string.core_error_dialog_close,
         ): PromptDialogFragment =
             PromptDialogFragment().apply {
                 arguments =

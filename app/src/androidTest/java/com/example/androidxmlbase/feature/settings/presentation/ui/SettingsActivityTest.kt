@@ -35,7 +35,7 @@ class SettingsActivityTest {
 
         onView(withText(R.string.settings_language_dialog_title)).check(matches(isDisplayed()))
         onView(withText(R.string.settings_language_system)).check(matches(isDisplayed()))
-        onView(withText(CoreR.string.language_english)).check(matches(isDisplayed()))
-        onView(withText(CoreR.string.language_vietnamese)).check(matches(isDisplayed()))
+        onView(withText(CoreR.string.core_language_english)).check(matches(isDisplayed()))
+        onView(withText(CoreR.string.core_language_vietnamese)).check(matches(isDisplayed()))
     }
 }

@@ -29,7 +29,7 @@ class FullScreenLoaderView
         }
 
         fun show() {
-            show(R.string.design_system_result_loading)
+            show(R.string.core_design_system_result_loading)
         }
 
         fun show(statusText: String) {

@@ -10,6 +10,7 @@ plugins {
 
 android {
     namespace = "com.thanhng224.androidxmlbase.core"
+    resourcePrefix = "core_"
     compileSdk {
         version = release(37)
     }

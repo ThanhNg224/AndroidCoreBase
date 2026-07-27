@@ -12,12 +12,12 @@
         style="@style/Widget.AndroidXmlBase.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/color_background"
+        android:background="@color/core_color_background"
         app:navigationContentDescription="@string/action_back"
         app:navigationIcon="@drawable/ic_settings_back"
-        app:navigationIconTint="@color/color_on_surface"
+        app:navigationIconTint="@color/core_color_on_surface"
         app:title="@string/settings_title"
-        app:titleTextColor="@color/color_on_surface" />
+        app:titleTextColor="@color/core_color_on_surface" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_subtitle"
                 android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
-                android:textColor="@color/color_on_surface_variant" />
+                android:textColor="@color/core_color_on_surface_variant" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -49,15 +49,15 @@
                 android:layout_marginBottom="@dimen/_8sdp"
                 android:text="@string/settings_personalization_section"
                 android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
-                android:textColor="@color/color_primary" />
+                android:textColor="@color/core_color_primary" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/color_surface"
+                app:cardBackgroundColor="@color/core_color_surface"
                 app:cardCornerRadius="@dimen/_20sdp"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/color_outline_variant"
+                app:strokeColor="@color/core_color_outline_variant"
                 app:strokeWidth="@dimen/_1sdp">
 
                 <LinearLayout
@@ -89,7 +89,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/color_on_primary_container" />
+                            app:tint="@color/core_color_on_primary_container" />
 
                         <TextView
                             android:id="@+id/tvAppearanceTitle"
@@ -112,7 +112,7 @@
                             android:layout_marginTop="@dimen/_2sdp"
                             android:maxLines="1"
                             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
-                            android:textColor="@color/color_on_surface_variant"
+                            android:textColor="@color/core_color_on_surface_variant"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/ivAppearanceChevron"
                             app:layout_constraintStart_toEndOf="@id/ivAppearance"
@@ -128,7 +128,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/color_on_surface_variant" />
+                            app:tint="@color/core_color_on_surface_variant" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -137,7 +137,7 @@
                         android:layout_height="@dimen/_1sdp"
                         android:layout_marginStart="@dimen/_72sdp"
                         android:layout_marginEnd="@dimen/_16sdp"
-                        android:background="@color/color_outline_variant" />
+                        android:background="@color/core_color_outline_variant" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/rowLanguage"
@@ -163,7 +163,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/color_on_primary_container" />
+                            app:tint="@color/core_color_on_primary_container" />
 
                         <TextView
                             android:id="@+id/tvLanguageTitle"
@@ -186,7 +186,7 @@
                             android:layout_marginTop="@dimen/_2sdp"
                             android:maxLines="1"
                             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
-                            android:textColor="@color/color_on_surface_variant"
+                            android:textColor="@color/core_color_on_surface_variant"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/ivLanguageChevron"
                             app:layout_constraintStart_toEndOf="@id/ivLanguage"
@@ -202,7 +202,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/color_on_surface_variant" />
+                            app:tint="@color/core_color_on_surface_variant" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

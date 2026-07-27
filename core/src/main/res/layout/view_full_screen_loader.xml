@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.8"
-        android:background="@color/color_surface"
+        android:background="@color/core_color_surface"
         android:clickable="true"
         android:focusable="true" />
 
@@ -17,8 +17,8 @@
         app:cardCornerRadius="@dimen/_16sdp"
         app:cardElevation="@dimen/_8sdp"
         app:strokeWidth="@dimen/_1sdp"
-        app:strokeColor="@color/color_stroke_subtle"
-        app:cardBackgroundColor="@color/color_surface"
+        app:strokeColor="@color/core_color_stroke_subtle"
+        app:cardBackgroundColor="@color/core_color_surface"
         tools:ignore="MergeRootFrame">
 
         <LinearLayout
@@ -33,7 +33,7 @@
             <ProgressBar
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
-                android:indeterminateTint="@color/color_primary"
+                android:indeterminateTint="@color/core_color_primary"
                 android:contentDescription="@null" />
 
             <TextView
@@ -43,7 +43,7 @@
                 android:layout_marginTop="@dimen/_12sdp"
                 android:accessibilityLiveRegion="polite"
                 android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
-                android:textColor="@color/color_on_surface"
+                android:textColor="@color/core_color_on_surface"
                 android:textStyle="bold"
                 tools:text="Loading…" />
 

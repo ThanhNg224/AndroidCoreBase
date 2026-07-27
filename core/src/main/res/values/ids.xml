@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="full_screen_loader" type="id" />
+    <item name="core_full_screen_loader" type="id" />
 </resources>

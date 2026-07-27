@@ -5,26 +5,26 @@
         Shared shape/button attributes. Any custom View whose background is built via
         ShapeDrawableFactory.buildDrawable can reuse these instead of declaring near-duplicate attrs.
     -->
-    <attr name="buttonBackgroundColor" format="color" />
-    <attr name="buttonCornerRadius" format="dimension" />
-    <attr name="buttonStrokeWidth" format="dimension" />
-    <attr name="buttonStrokeColor" format="color" />
-    <attr name="buttonShape" format="enum">
+    <attr name="coreButtonBackgroundColor" format="color" />
+    <attr name="coreButtonCornerRadius" format="dimension" />
+    <attr name="coreButtonStrokeWidth" format="dimension" />
+    <attr name="coreButtonStrokeColor" format="color" />
+    <attr name="coreButtonShape" format="enum">
         <enum name="rectangle" value="0" />
         <enum name="oval" value="1" />
     </attr>
 
-    <declare-styleable name="FrameButton">
-        <attr name="buttonBackgroundColor" />
-        <attr name="buttonCornerRadius" />
-        <attr name="buttonStrokeWidth" />
-        <attr name="buttonStrokeColor" />
-        <attr name="buttonShape" />
+    <declare-styleable name="CoreFrameButton">
+        <attr name="coreButtonBackgroundColor" />
+        <attr name="coreButtonCornerRadius" />
+        <attr name="coreButtonStrokeWidth" />
+        <attr name="coreButtonStrokeColor" />
+        <attr name="coreButtonShape" />
     </declare-styleable>
 
-    <declare-styleable name="ShadowLayout">
-        <attr name="shadowCornerRadius" format="dimension" />
-        <attr name="shadowBackgroundColor" format="color" />
+    <declare-styleable name="CoreShadowLayout">
+        <attr name="coreShadowCornerRadius" format="dimension" />
+        <attr name="coreShadowBackgroundColor" format="color" />
     </declare-styleable>
 
 </resources>

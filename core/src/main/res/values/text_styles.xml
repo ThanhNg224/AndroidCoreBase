@@ -2,16 +2,16 @@
 <resources>
 
     <style name="TextAppearance.AndroidXmlBase.Headline" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.Body" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.Caption" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
     <!-- Added for the 3 sizes dialog_prompt.xml already needed raw (ssp-scaled, unlike the
@@ -21,18 +21,18 @@
 
     <style name="TextAppearance.AndroidXmlBase.BodyEmphasis" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">@dimen/_15ssp</item>
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
         <item name="android:textSize">@dimen/_14ssp</item>
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.Micro" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/_10ssp</item>
-        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
 </resources>

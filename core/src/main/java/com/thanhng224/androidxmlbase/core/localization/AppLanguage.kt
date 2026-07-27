@@ -9,8 +9,8 @@ enum class AppLanguage(
     val languageTag: String,
     @param:StringRes val displayNameResId: Int,
 ) {
-    ENGLISH("en", R.string.language_english),
-    VIETNAMESE("vi-VN", R.string.language_vietnamese),
+    ENGLISH("en", R.string.core_language_english),
+    VIETNAMESE("vi-VN", R.string.core_language_vietnamese),
     ;
 
     companion object {

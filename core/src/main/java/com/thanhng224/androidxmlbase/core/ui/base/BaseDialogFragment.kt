@@ -66,8 +66,8 @@ abstract class BaseDialogFragment<VB : ViewBinding> : DialogFragment() {
 
             // Cap width at max width with margin
             val screenWidth = resources.displayMetrics.widthPixels
-            val margin = resources.getDimensionPixelSize(R.dimen.dialog_screen_margin) * 2
-            val maxWidth = resources.getDimensionPixelSize(R.dimen.dialog_max_width)
+            val margin = resources.getDimensionPixelSize(R.dimen.core_dialog_screen_margin) * 2
+            val maxWidth = resources.getDimensionPixelSize(R.dimen.core_dialog_max_width)
             val calculatedWidth = (screenWidth - margin).coerceAtMost(maxWidth)
 
             window.setLayout(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT)

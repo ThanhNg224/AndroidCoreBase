@@ -56,7 +56,7 @@ class DesignSystemFragment : BaseFragment<FragmentDesignSystemBinding>() {
         binding.progressDemoResult.visibility = if (renderState.isLoadingVisible) View.VISIBLE else View.GONE
         binding.tvDemoResult.text =
             result.fold(
-                onLoading = { getString(CoreR.string.design_system_result_loading) },
+                onLoading = { getString(CoreR.string.core_design_system_result_loading) },
                 onSuccess = { getString(R.string.design_system_result_success) },
                 onError = { message, _ -> message.resolve(requireContext()) },
             )

@@ -33,11 +33,11 @@ internal fun <T> renderResultState(
 }
 
 private fun showFullScreenLoader(root: ViewGroup) {
-    var loader = root.findViewById<FullScreenLoaderView>(R.id.full_screen_loader)
+    var loader = root.findViewById<FullScreenLoaderView>(R.id.core_full_screen_loader)
     if (loader == null) {
         loader =
             FullScreenLoaderView(root.context).apply {
-                id = R.id.full_screen_loader
+                id = R.id.core_full_screen_loader
             }
         root.addView(
             loader,
@@ -51,7 +51,7 @@ private fun showFullScreenLoader(root: ViewGroup) {
 }
 
 private fun hideFullScreenLoader(root: ViewGroup) {
-    root.findViewById<FullScreenLoaderView>(R.id.full_screen_loader)?.hide()
+    root.findViewById<FullScreenLoaderView>(R.id.core_full_screen_loader)?.hide()
 }
 
 private fun showErrorPrompt(
