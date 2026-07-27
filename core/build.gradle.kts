@@ -48,7 +48,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.ThanhNg224.AndroidXmlBase"
             artifactId = "core"
-            version = System.getenv("VERSION_NAME") ?: "0.1.0-local"
+            version = System.getenv("VERSION") ?: "0.1.0-local"
 
             afterEvaluate {
                 from(components["release"])
