@@ -15,7 +15,7 @@ A production-ready, state-of-the-art Android base repository utilizing **XML lay
 * **Modular Clean Architecture**: Strict separation of concerns between `:core` (published library) and `:app` (consuming application & reference samples).
 * **JitPack Distribution**: `:core` is configured with `maven-publish` for easy integration into any Android project via JitPack.
 * **Encrypted Storage & Database**: Secure local persistence powered by **Room + SQLCipher** (with runtime Keystore passphrase generation) and Android KeyStore-backed **`EncryptedSecureStore`**.
-* **Self-Healing Network Layer**: **Retrofit + OkHttp** client with built-in token refresh interceptor/authenticator, file upload/download progress tracking, and offline status interceptors.
+* **Self-Healing Network Layer**: **Retrofit + OkHttp** client with a token-refresh `Authenticator` (single-flight, pluggable `AuthTokenRefresher` your app implements against its own refresh endpoint), file upload/download progress tracking, and offline status interceptors.
 * **Per-App Locale & Dynamic Theme System**: Native per-app language selection (Android 13+ / Jetpack Compat) and zero-flash Light/Dark/System theme management backed by **Jetpack DataStore**.
 * **Encapsulated UI Toolkit**: Type-safe property delegates (`intentExtra`, `fragmentArg`), result state overlay renderers, custom Material 3 components, and smooth Lottie/Shimmer loading states.
 * **Strict Engineering & Quality Gates**: Integrated **Detekt** (static analysis), **KtLint** (style formatting), and per-module **Kover** code coverage verification rules (80%+ threshold).

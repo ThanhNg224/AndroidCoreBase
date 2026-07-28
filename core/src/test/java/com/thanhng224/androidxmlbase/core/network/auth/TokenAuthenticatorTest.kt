@@ -1,93 +1,152 @@
 package com.thanhng224.androidxmlbase.core.network.auth
 
+import com.thanhng224.androidxmlbase.core.storage.secure.SecureStore
+import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKey
+import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKeys
+import kotlinx.coroutines.runBlocking
+import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.util.Optional
 import javax.inject.Provider
 
 class TokenAuthenticatorTest {
-    private class FakeAuthTokenProvider(
-        private var token: String?,
-    ) : AuthTokenProvider {
-        override suspend fun getToken(): String? = token
+    private class FakeSecureStore : SecureStore {
+        private val values = mutableMapOf<SecureStoreKey, String>()
+
+        override suspend fun getString(key: SecureStoreKey): String? = values[key]
+
+        override suspend fun putString(
+            key: SecureStoreKey,
+            value: String,
+        ) {
+            values[key] = value
+        }
+
+        override suspend fun remove(key: SecureStoreKey) {
+            values.remove(key)
+        }
+
+        override suspend fun clear() {
+            values.clear()
+        }
     }
 
-    @Test
-    fun `authenticate returns request with new token when original request had different token`() {
-        val provider = FakeAuthTokenProvider("new-token")
-        val authenticator = TokenAuthenticator(Provider { provider })
+    private class FakeAuthTokenRefresher(
+        private val newToken: String?,
+    ) : AuthTokenRefresher {
+        var callCount = 0
 
-        val originalRequest =
+        override suspend fun refresh(refreshToken: String?): String? {
+            callCount++
+            return newToken
+        }
+    }
+
+    private fun response(
+        authorizationHeader: String? = null,
+        priorResponse: Response? = null,
+    ): Response {
+        val request =
             Request
                 .Builder()
                 .url("https://example.com/")
-                .header("Authorization", "old-token")
+                .apply { authorizationHeader?.let { header("Authorization", it) } }
                 .build()
+        return Response
+            .Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(401)
+            .message("Unauthorized")
+            .apply { priorResponse?.let { priorResponse(it) } }
+            .build()
+    }
 
-        val response =
-            Response
-                .Builder()
-                .request(originalRequest)
-                .protocol(okhttp3.Protocol.HTTP_1_1)
-                .code(401)
-                .message("Unauthorized")
-                .build()
-
-        val authenticatedRequest = authenticator.authenticate(null, response)
-
-        assertEquals("new-token", authenticatedRequest?.header("Authorization"))
+    private fun authenticator(
+        secureStore: SecureStore,
+        refresher: AuthTokenRefresher? = null,
+    ): TokenAuthenticator {
+        val optionalRefresher =
+            if (refresher != null) Optional.of(Provider { refresher }) else Optional.empty()
+        return TokenAuthenticator(AuthSession(secureStore), optionalRefresher)
     }
 
     @Test
-    fun `authenticate returns null when token provider returns null or blank`() {
-        val provider = FakeAuthTokenProvider("")
-        val authenticator = TokenAuthenticator(Provider { provider })
+    fun `authenticate returns cached token when it differs from the token that just failed`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "already-newer-token")
+            val refresher = FakeAuthTokenRefresher("should-not-be-used")
+            val sut = authenticator(store, refresher)
 
-        val originalRequest =
-            Request
-                .Builder()
-                .url("https://example.com/")
-                .build()
+            val result = sut.authenticate(null, response(authorizationHeader = "stale-token"))
 
-        val response =
-            Response
-                .Builder()
-                .request(originalRequest)
-                .protocol(okhttp3.Protocol.HTTP_1_1)
-                .code(401)
-                .message("Unauthorized")
-                .build()
-
-        val authenticatedRequest = authenticator.authenticate(null, response)
-
-        assertNull(authenticatedRequest)
-    }
+            assertEquals("already-newer-token", result?.header("Authorization"))
+            assertEquals(0, refresher.callCount)
+        }
 
     @Test
-    fun `authenticate returns null when request already contains the latest token to prevent infinite loop`() {
-        val provider = FakeAuthTokenProvider("latest-token")
-        val authenticator = TokenAuthenticator(Provider { provider })
+    fun `authenticate refreshes and persists the new token when cached token matches the failed one`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "expired-token")
+            val refresher = FakeAuthTokenRefresher("fresh-token")
+            val sut = authenticator(store, refresher)
 
-        val originalRequest =
-            Request
-                .Builder()
-                .url("https://example.com/")
-                .header("Authorization", "latest-token")
-                .build()
+            val result = sut.authenticate(null, response(authorizationHeader = "expired-token"))
 
-        val response =
-            Response
-                .Builder()
-                .request(originalRequest)
-                .protocol(okhttp3.Protocol.HTTP_1_1)
-                .code(401)
-                .message("Unauthorized")
-                .build()
+            assertEquals("fresh-token", result?.header("Authorization"))
+            assertEquals(1, refresher.callCount)
+            assertEquals(
+                "fresh-token",
+                store.getString(SecureStoreKeys.AUTH_TOKEN),
+            )
+        }
 
-        val authenticatedRequest = authenticator.authenticate(null, response)
+    @Test
+    fun `authenticate returns null when no refresher is bound`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "expired-token")
+            val sut = authenticator(store, refresher = null)
 
-        assertNull(authenticatedRequest)
-    }
+            val result = sut.authenticate(null, response(authorizationHeader = "expired-token"))
+
+            assertNull(result)
+        }
+
+    @Test
+    fun `authenticate returns null when the refresher fails`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "expired-token")
+            val refresher = FakeAuthTokenRefresher(newToken = null)
+            val sut = authenticator(store, refresher)
+
+            val result = sut.authenticate(null, response(authorizationHeader = "expired-token"))
+
+            assertNull(result)
+            assertEquals(1, refresher.callCount)
+        }
+
+    @Test
+    fun `authenticate gives up after too many retries without touching the refresher`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            val refresher = FakeAuthTokenRefresher("fresh-token")
+            val sut = authenticator(store, refresher)
+
+            val first = response(authorizationHeader = "t")
+            val second = response(authorizationHeader = "t", priorResponse = first)
+            val third = response(authorizationHeader = "t", priorResponse = second)
+
+            val result = sut.authenticate(null, third)
+
+            assertNull(result)
+            assertEquals(0, refresher.callCount)
+        }
 }

@@ -134,7 +134,6 @@ kover {
                     "*.core.architecture.StateViewModel*",
                     "*.core.architecture.DefaultAppDispatchers",
                     "*.core.localization.LocaleManager*",
-                    "*.core.localization.LocaleTagMapper*",
                     "*.core.navigation.NavigationOptions*",
                     "*.core.network.ApiResult*",
                     "*.core.network.RetrofitApiClient*",

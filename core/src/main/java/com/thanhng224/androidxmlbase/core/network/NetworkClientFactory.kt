@@ -28,6 +28,7 @@ internal object NetworkClientFactory {
                     } else {
                         HttpLoggingInterceptor.Level.NONE
                     }
+                redactHeader("Authorization")
             }
         return OkHttpClient
             .Builder()

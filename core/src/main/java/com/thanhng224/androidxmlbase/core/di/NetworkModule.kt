@@ -7,12 +7,14 @@ import com.thanhng224.androidxmlbase.core.network.ApiConfig
 import com.thanhng224.androidxmlbase.core.network.NetworkClientFactory
 import com.thanhng224.androidxmlbase.core.network.RetrofitApiClient
 import com.thanhng224.androidxmlbase.core.network.auth.AuthTokenProvider
+import com.thanhng224.androidxmlbase.core.network.auth.AuthTokenRefresher
 import com.thanhng224.androidxmlbase.core.network.auth.TokenAuthenticator
 import com.thanhng224.androidxmlbase.core.network.connectivity.AndroidConnectivityChecker
 import com.thanhng224.androidxmlbase.core.network.connectivity.ConnectivityChecker
 import com.thanhng224.androidxmlbase.core.network.transfer.FileTransferClient
 import com.thanhng224.androidxmlbase.core.network.transfer.OkHttpFileTransferClient
 import dagger.Binds
+import dagger.BindsOptionalOf
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,6 +34,9 @@ internal abstract class NetworkBindingsModule {
     @Binds
     @Singleton
     abstract fun bindFileTransferClient(implementation: OkHttpFileTransferClient): FileTransferClient
+
+    @BindsOptionalOf
+    abstract fun bindAuthTokenRefresher(): AuthTokenRefresher
 }
 
 @Module

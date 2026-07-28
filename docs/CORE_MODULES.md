@@ -42,6 +42,10 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 
 ### `core/storage/database`
 - `DbPassphraseProvider` — memoized SQLCipher passphrase resolver (`suspend fun getOrCreate(): String`), backed by `SecureStore`. Warmed on `Dispatchers.IO` during process startup so `DatabaseModule`'s Hilt `@Provides` boundary doesn't block on disk I/O.
+- `AppDatabase` (Room, `@Database`, version 1) — SQLCipher-encrypted via `DatabaseModule`'s `SupportOpenHelperFactory`. No `fallbackToDestructiveMigration`: an upgrade with no matching `Migration` crashes instead of silently dropping data; `fallbackToDestructiveMigrationOnDowngrade(true)` only resets on a version downgrade (e.g. after a rollback).
+- `LocalSettingEntity` (`@Entity(tableName = "local_settings")`, `key`/`value` string columns) + `LocalSettingDao` (get/observe/save/delete by `key`) — a generic encrypted key-value table; reference shape only, not consumed by any feature yet.
+
+**Consumers:** none yet for `AppDatabase`/`LocalSettingDao` — add a `Migration` object here before bumping `version` past 1.
 
 ## `core/network`
 
@@ -52,8 +56,11 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 - `NetworkClientFactory` (object) — reusable factory functions for `OkHttpClient` and `Retrofit` with 30-second timeouts configured. Named apart from `core/di/NetworkModule` (the Hilt module) so "factory" vs. "DI wiring" stays unambiguous.
 
 ### `core/network/auth`
-- `AuthTokenProvider` (interface, `suspend fun getToken(): String?`) + `SecureStoreAuthTokenProvider` (reads `SecureStoreKeys.AUTH_TOKEN`) + `NoOpAuthTokenProvider` for tests/demo overrides.
+- `AuthSession` (public, constructor-injected) — the gateway a consuming app uses to read/write `SecureStoreKeys.AUTH_TOKEN`/`REFRESH_TOKEN` without depending on the internal `SecureStore` contract directly: `getAccessToken()`, `getRefreshToken()`, `setTokens(accessToken, refreshToken?)`, `clear()`.
+- `AuthTokenProvider` (interface, `suspend fun getToken(): String?`) + `SecureStoreAuthTokenProvider` (delegates to `AuthSession.getAccessToken()`) + `NoOpAuthTokenProvider` for tests/demo overrides.
 - `AuthTokenInterceptor` — adds token returned by `AuthTokenProvider.getToken()` directly into `"Authorization"` header if not null/blank.
+- `AuthTokenRefresher` (public interface, `suspend fun refresh(refreshToken: String?): String?`) — extension point a consuming app implements and binds (its own `@Binds`/`@Provides`) to call its own refresh endpoint. Core ships no implementation and no default binding (`NetworkBindingsModule.bindAuthTokenRefresher` is a `@BindsOptionalOf`), so without one bound `TokenAuthenticator` gives up on a 401 instead of pretending to refresh.
+- `TokenAuthenticator` (`okhttp3.Authenticator`) — on a 401, mutex-guards a single in-flight refresh per process: if `AuthSession`'s cached token already differs from the one that just failed (another caller already refreshed), reuses it; otherwise calls the bound `AuthTokenRefresher` and persists the result via `AuthSession.setTokens`. Gives up after 2 retries (via the OkHttp `priorResponse` chain) to avoid infinite 401 loops.
 
 ### `core/network/connectivity`
 - `ConnectivityChecker` (interface, `fun isConnected(): Boolean`) + `AndroidConnectivityChecker(context)` (real impl via `ConnectivityManager`).
@@ -72,7 +79,7 @@ Hilt modules for app-wide wiring.
 
 - `AppCoreBindingsModule` — binds `DefaultAppDispatchers` to `AppDispatchers`, `EncryptedSecureStore` to `SecureStore`, `SecureStoreAuthTokenProvider` to `AuthTokenProvider`, `AndroidElapsedRealtimeClock` to `ElapsedRealtimeClock`, and `AndroidStringProvider` to `StringProvider`.
 - `AppCoreModule` — provides `SettingsStore` and `LocaleManager`.
-- `NetworkBindingsModule` — binds `RetrofitApiClient` and `OkHttpFileTransferClient`.
+- `NetworkBindingsModule` — binds `RetrofitApiClient` and `OkHttpFileTransferClient`; also declares `AuthTokenRefresher` as `@BindsOptionalOf` (absent unless a consuming app binds one — see `core/network/auth`).
 - `NetworkModule` — provides `ApiConfig`, `ConnectivityChecker`, `OkHttpClient`, and `Retrofit` (built via `core/network/NetworkClientFactory`). Feature-specific Retrofit services belong in that feature's own DI module.
 - `CoroutineScopeModule` — provides the `@ApplicationScope`-qualified, `SupervisorJob() + Dispatchers.Default` `CoroutineScope` used for app-wide fire-and-forget work (startup Initializers, and any future feature's background triggers).
 
@@ -100,8 +107,9 @@ Formalizes process-startup work via `androidx.startup.Initializer` instead of `A
 - `TimberInitializer` — plants `Timber.DebugTree()` (debug) or `ReleaseTree()` (release).
 - `DbPassphraseWarmupInitializer` — warms `DbPassphraseProvider` on `Dispatchers.IO`. Depends on `TimberInitializer`.
 - `ThemeApplyInitializer` — collects `ThemeManager.currentTheme` and applies it reactively. Depends on `TimberInitializer`.
+- `LocaleContextInitializer` — captures the process-wide `Context` into `LocaleAppContext` so `AppCompatLocaleApplier.currentLocaleTags()` can read the current per-app locale without an `AppCompatDelegate` needing to be alive yet.
 
-All three are registered as `<meta-data>` entries under `androidx.startup.InitializationProvider` in `AndroidManifest.xml`.
+All four are registered as `<meta-data>` entries under `androidx.startup.InitializationProvider` in `AndroidManifest.xml`.
 
 **Consumers:** `AndroidXmlBaseApplication` no longer does any of this directly — see its class doc comment.
 
@@ -136,6 +144,7 @@ Shared UI infrastructure.
 - `BaseFragment<VB : ViewBinding>` — Fragment view lifecycle binding and flow collector.
 - `BaseDialogFragment<VB : ViewBinding>` — rounded dialog fragment base using `R.drawable.bg_dialog_surface`.
 - `BaseBottomSheetDialogFragment<VB : ViewBinding>` — Material bottom-sheet view base.
+- `TransitionActivity` — opaque full-screen host for a single `core/ui/transition/TransitionAction`, looked up by a caller-supplied action key from a Hilt `@IntoMap` multibinding; one Activity/manifest entry covers every transition use case instead of a new Activity subclass per case. See `core/ui/transition` below.
 - `collectOnStartedBy(lifecycleOwner, action)` (in `LifecycleFlowExtensions.kt`) — shared lifecycle-safe Flow collection; each Base* host's `collectOnStarted` delegates here with its own `LifecycleOwner` (the host itself for `BaseActivity`, `viewLifecycleOwner` for the Fragment/BottomSheet hosts).
 - `renderResultState(result, contentRoot, dialogHost, onSuccess)` (in `ResultStateOverlay.kt`) — shared full-screen-loader + `PromptDialogFragment` error rendering; `BaseActivity`/`BaseFragment.bindResultState` both delegate here so the loading/error UI stays identical across hosts.
 - `Debouncer` — pure rate limiter with `View.setOnDebouncedClickListener` click rate limiting.
@@ -150,6 +159,12 @@ Shared UI infrastructure.
 - `StyledSnackbar` (object) — shows a Snackbar styled on base colors and returns the Snackbar instance.
 - `FullScreenLoaderView` — custom full-screen loading spinner overlay shown during async operations.
 - `PromptDialogFragment` — custom status dialog fragment supporting message, technical code, status icon (Success, Error, Info) and primary/secondary action handlers.
+
+## `core/ui/transition`
+
+- `TransitionAction` (`fun interface`, `suspend fun perform(extras: Bundle)`) — a single unit of async work run by `core/ui/base/TransitionActivity` while it covers the screen. Register implementations via a Hilt `@IntoMap` binding keyed by a unique action key.
+
+**Consumers:** `feature/settings`'s `LanguageTransitionAction` runs inside the core `TransitionActivity` for the language-change transition.
 
 ## `core/ui/drawable`
 
@@ -176,6 +191,8 @@ App-wide light/dark/system theme, backed by AppCompat's night mode and persisted
 - `NavigationOptions` — option model containing custom `TransitionType` (DEFAULT, NONE, SLIDE_HORIZONTAL, FADE).
 - `ActivityDestination` — typed activity target model.
 - `ActivityNavigator` — navigates using transition override animations (SLIDE_HORIZONTAL, FADE).
+- `intentExtra`/`intentExtraNullable`/`fragmentArg`/`fragmentArgNullable` (in `ArgumentDelegates.kt`) — reified, type-safe `ReadOnlyProperty` delegates for Activity `Intent` extras and Fragment arguments, backed by `Bundle.getTyped` (non-deprecated per-type getters, no generic reflection fallback).
+- `BundleCompat.copyOf(bundle)` — defensive `Bundle` copy helper.
 
 ## `core/time`
 

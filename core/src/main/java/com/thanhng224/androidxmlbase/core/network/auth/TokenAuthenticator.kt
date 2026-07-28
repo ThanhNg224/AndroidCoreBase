@@ -1,45 +1,72 @@
 package com.thanhng224.androidxmlbase.core.network.auth
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
+import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 
-/**
- * Automatically intercepts 401 HTTP responses to attempt a token refresh cycle.
- */
 @Singleton
 internal class TokenAuthenticator
     @Inject
     internal constructor(
-        private val tokenProvider: Provider<AuthTokenProvider>,
+        private val authSession: AuthSession,
+        private val tokenRefresher: Optional<Provider<AuthTokenRefresher>>,
     ) : Authenticator {
+        private val refreshMutex = Mutex()
+
         override fun authenticate(
             route: Route?,
             response: Response,
         ): Request? {
-            val authorizationHeader = response.request.header("Authorization")
-            val token = runBlocking { tokenProvider.get().getToken() }
+            if (responseCount(response) > MAX_RETRIES) return null
 
-            if (token != null && token == authorizationHeader) {
-                // Avoid infinite retries if request failed with the latest token
-                return null
-            }
+            val failedAuthHeader = response.request.header("Authorization")
 
-            // Fetch fresh token
-            val freshToken = runBlocking { tokenProvider.get().getToken() }
+            val nextToken =
+                runBlocking {
+                    refreshMutex.withLock {
+                        val cached = authSession.getAccessToken()
+                        if (cached != null && cached != failedAuthHeader) {
+                            cached
+                        } else {
+                            refreshAndPersist()
+                        }
+                    }
+                }
 
-            if (freshToken.isNullOrBlank()) {
-                return null
-            }
+            if (nextToken.isNullOrBlank()) return null
 
             return response.request
                 .newBuilder()
-                .header("Authorization", freshToken)
+                .header("Authorization", nextToken)
                 .build()
+        }
+
+        private suspend fun refreshAndPersist(): String? {
+            val refresher = tokenRefresher.orElse(null)?.get() ?: return null
+            val newToken = refresher.refresh(authSession.getRefreshToken()) ?: return null
+            authSession.setTokens(newToken)
+            return newToken
+        }
+
+        private fun responseCount(response: Response): Int {
+            var count = 1
+            var prior = response.priorResponse
+            while (prior != null) {
+                count++
+                prior = prior.priorResponse
+            }
+            return count
+        }
+
+        private companion object {
+            const val MAX_RETRIES = 2
         }
     }

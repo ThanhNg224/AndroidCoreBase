@@ -36,7 +36,7 @@ class SecureStoreAuthTokenProviderTest {
             val store = FakeSecureStore()
             store.putString(SecureStoreKeys.AUTH_TOKEN, "secret-token")
 
-            val provider = SecureStoreAuthTokenProvider(store)
+            val provider = SecureStoreAuthTokenProvider(AuthSession(store))
 
             assertEquals("secret-token", provider.getToken())
         }
@@ -44,7 +44,7 @@ class SecureStoreAuthTokenProviderTest {
     @Test
     fun `returns null when auth token is absent`() =
         runTest {
-            val provider = SecureStoreAuthTokenProvider(FakeSecureStore())
+            val provider = SecureStoreAuthTokenProvider(AuthSession(FakeSecureStore()))
 
             assertNull(provider.getToken())
         }

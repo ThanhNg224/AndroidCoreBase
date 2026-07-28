@@ -37,7 +37,7 @@ internal object DatabaseModule {
                 AppDatabase::class.java,
                 "app_database.db",
             ).openHelperFactory(factory)
-            .fallbackToDestructiveMigration(true)
+            .fallbackToDestructiveMigrationOnDowngrade(true)
             .build()
     }
 
