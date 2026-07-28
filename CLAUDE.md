@@ -44,7 +44,7 @@ Quality gates are part of the base: Android lint, ktlint, detekt, and Kover cove
 
 ## Architecture
 
-Single Gradle module (`app`) today. Keep strict packages first; do not introduce multi-module Gradle structure unless asked and a real module boundary is justified.
+Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidxmlbase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidxmlbase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
 
 Dependency direction:
 ```

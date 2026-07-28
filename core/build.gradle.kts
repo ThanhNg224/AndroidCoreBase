@@ -25,6 +25,8 @@ android {
     defaultConfig {
         minSdk = 24
 
+        consumerProguardFiles("consumer-rules.pro")
+
         buildConfigField("String", "API_BASE_URL", "\"https://api.open-meteo.com/\"")
         buildConfigField("boolean", "API_ENABLE_LOGGING", "false")
     }
