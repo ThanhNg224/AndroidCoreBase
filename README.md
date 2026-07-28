@@ -33,25 +33,65 @@ Build and test commands configured in the template:
 
 ---
 
+## 📦 Using `:core` via JitPack
+
+The `:core` module (architecture, network, storage, DI, and UI toolkit) is published to
+[JitPack](https://jitpack.io) and can be added as a dependency from another Android project —
+no need to clone or copy this repo.
+
+1. Add the JitPack repository in your project's `settings.gradle.kts`:
+
+    ```kotlin
+    dependencyResolutionManagement {
+        repositories {
+            google()
+            mavenCentral()
+            maven("https://jitpack.io")
+        }
+    }
+    ```
+
+2. Add the dependency in your module's `build.gradle.kts`, pinned to a released tag:
+
+    ```kotlin
+    dependencies {
+        implementation("com.github.ThanhNg224:AndroidXmlBase:v1.0.0")
+    }
+    ```
+
+3. Check available tags/builds at https://jitpack.io/#ThanhNg224/AndroidXmlBase. The first
+   request for a new tag takes a few minutes while JitPack builds it; a short commit hash also
+   works for an unreleased snapshot.
+
+---
+
 ## 📂 Architecture Layout
 
+The project is split across two Gradle modules: `:app` (the application, product/sample code)
+and `:core` (the reusable foundation, published to JitPack — see above).
+
 ```
+core/src/main/java/com/thanhng224/androidxmlbase/core/
+├── architecture/                # Base result states & ViewModels
+├── di/                          # Dependency injection module bindings
+├── localization/                # Multi-language locale manager
+├── logging/                     # Timber tree setup
+├── navigation/                  # Activity and fragment transition navigators
+├── network/                     # Api clients, file transfers, and Token Authenticators
+├── startup/                     # App Startup initializers (Timber, theme, locale, DB warmup)
+├── storage/                     # Database (SQLCipher), secure store, and Datastore preferences
+├── time/                        # Monotonic clocks
+├── ui/                          # Base classes, custom components, and type-safe delegates
+└── work/                        # Background WorkManager jobs
+
 app/src/main/java/com/example/androidxmlbase/
 ├── AndroidXmlBaseApplication.kt
-├── MainActivity.kt             # App shell and top-level navigation
-├── appshell/                   # Shell-owned destinations such as Home
-├── core/                       # Shared modules
-│   ├── architecture/           # Base result states & ViewModels
-│   ├── di/                     # Dependency injection module bindings
-│   ├── localization/           # Multi-language locale manager
-│   ├── navigation/             # Activity and fragment transition navigators
-│   ├── network/                # Api clients, file transfers, and Token Authenticators
-│   ├── storage/                # Database (SQLCipher) and Datastore preferences
-│   ├── time/                   # Monotonic clocks
-│   └── ui/                     # Base classes, custom components, and type-safe delegates
-├── feature/                    # Product capability scopes
-│   └── settings/               # Canonical product feature
-└── sample/                     # Reference implementations, not product features
-    ├── demo/                   # Clean Architecture data/state sample
-    └── designsystem/           # Reusable UI showcase
+├── MainActivity.kt              # App shell and top-level navigation
+├── appshell/                    # Shell-owned destinations such as Home
+│   └── home/
+├── feature/                     # Product capability scopes
+│   └── settings/                # Canonical product feature
+└── sample/                      # Reference implementations, not product features
+    ├── demo/                    # Clean Architecture data/state sample
+    └── designsystem/            # Reusable UI showcase
 ```
