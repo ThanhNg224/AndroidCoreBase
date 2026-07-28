@@ -3,6 +3,7 @@ package com.example.androidxmlbase.feature.settings.presentation.viewmodel
 import app.cash.turbine.test
 import com.example.androidxmlbase.feature.settings.domain.repository.SettingsRepository
 import com.example.androidxmlbase.feature.settings.domain.usecase.GetCurrentLanguageUseCase
+import com.example.androidxmlbase.feature.settings.domain.usecase.GetSupportedLanguagesUseCase
 import com.example.androidxmlbase.feature.settings.domain.usecase.ObserveThemeUseCase
 import com.example.androidxmlbase.feature.settings.domain.usecase.SetThemeUseCase
 import com.example.androidxmlbase.feature.settings.presentation.state.SettingsUiEffect
@@ -34,6 +35,8 @@ class SettingsViewModelTest {
         override fun observeTheme(): Flow<AppTheme> = themeFlow
 
         override fun getCurrentLanguage(): AppLanguage? = currentLanguage
+
+        override fun getSupportedLanguages(): List<AppLanguage> = AppLanguage.BUILT_IN
 
         override suspend fun setLanguage(language: AppLanguage?) {
             currentLanguage = language
@@ -100,6 +103,7 @@ class SettingsViewModelTest {
         SettingsViewModel(
             observeTheme = ObserveThemeUseCase(repository),
             getCurrentLanguage = GetCurrentLanguageUseCase(repository),
+            getSupportedLanguages = GetSupportedLanguagesUseCase(repository),
             setTheme = SetThemeUseCase(repository),
         )
 }

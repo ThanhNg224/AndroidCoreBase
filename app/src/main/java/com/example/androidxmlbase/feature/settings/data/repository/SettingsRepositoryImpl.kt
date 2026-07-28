@@ -18,6 +18,8 @@ class SettingsRepositoryImpl
 
         override fun getCurrentLanguage(): AppLanguage? = localeManager.currentLanguage()
 
+        override fun getSupportedLanguages(): List<AppLanguage> = localeManager.supportedLanguages()
+
         override suspend fun setLanguage(language: AppLanguage?) {
             language?.let(localeManager::setLanguage) ?: localeManager.useSystemLanguage()
         }

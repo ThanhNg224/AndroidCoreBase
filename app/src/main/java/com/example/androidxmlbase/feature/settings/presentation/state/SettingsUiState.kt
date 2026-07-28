@@ -7,4 +7,5 @@ import com.thanhng224.androidxmlbase.core.ui.theme.AppTheme
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage? = null,
+    val supportedLanguages: List<AppLanguage> = emptyList(),
 ) : UiState
