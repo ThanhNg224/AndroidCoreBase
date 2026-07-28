@@ -28,10 +28,6 @@
             <meta-data
                 android:name="com.thanhng224.androidxmlbase.core.startup.LocaleContextInitializer"
                 android:value="androidx.startup" />
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
         </provider>
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

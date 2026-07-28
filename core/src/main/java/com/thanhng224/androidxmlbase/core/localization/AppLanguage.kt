@@ -4,20 +4,39 @@ import androidx.annotation.StringRes
 import com.thanhng224.androidxmlbase.core.R
 import java.util.Locale
 
-/** The only app-specific languages currently shipped by this demo. */
-enum class AppLanguage(
+/**
+ * One selectable app language. A data class rather than an enum so a consuming app can support
+ * languages :core ships no strings for: build your own [AppLanguage] list and hand it to
+ * [LocaleManager], or bind [SupportedLanguages] in Hilt.
+ */
+data class AppLanguage(
     val languageTag: String,
     @param:StringRes val displayNameResId: Int,
 ) {
-    ENGLISH("en", R.string.core_language_english),
-    VIETNAMESE("vi-VN", R.string.core_language_vietnamese),
-    ;
-
     companion object {
-        fun findByLanguageTag(languageTag: String): AppLanguage? {
+        val ENGLISH = AppLanguage("en", R.string.core_language_english)
+        val VIETNAMESE = AppLanguage("vi-VN", R.string.core_language_vietnamese)
+
+        /** The languages :core itself ships display-name strings for. */
+        val BUILT_IN: List<AppLanguage> = listOf(ENGLISH, VIETNAMESE)
+
+        fun findByLanguageTag(
+            languageTag: String,
+            candidates: List<AppLanguage> = BUILT_IN,
+        ): AppLanguage? {
             val language = Locale.forLanguageTag(languageTag).language
             if (language.isBlank()) return null
-            return entries.firstOrNull { candidate -> Locale.forLanguageTag(candidate.languageTag).language == language }
+            return candidates.firstOrNull { candidate ->
+                Locale.forLanguageTag(candidate.languageTag).language == language
+            }
         }
     }
 }
+
+/**
+ * The language list [LocaleManager] resolves against. Bind this from your app's Hilt module to
+ * replace [AppLanguage.BUILT_IN]; without a binding, the built-in list is used.
+ */
+data class SupportedLanguages(
+    val values: List<AppLanguage>,
+)

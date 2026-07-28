@@ -1,6 +1,13 @@
 package com.thanhng224.androidxmlbase.core.network
 
-internal data class ApiConfig(
+data class ApiConfig(
     val baseUrl: String,
-    val enableLogging: Boolean,
-)
+    val enableLogging: Boolean = false,
+    val connectTimeoutSeconds: Long = DEFAULT_TIMEOUT_SECONDS,
+    val readTimeoutSeconds: Long = DEFAULT_TIMEOUT_SECONDS,
+    val writeTimeoutSeconds: Long = DEFAULT_TIMEOUT_SECONDS,
+) {
+    companion object {
+        const val DEFAULT_TIMEOUT_SECONDS: Long = 30L
+    }
+}

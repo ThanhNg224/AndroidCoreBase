@@ -11,7 +11,7 @@ import androidx.core.view.isVisible
 import com.thanhng224.androidxmlbase.core.R
 
 /** Full-screen blocking loader shown during async operations (e.g. API calls). */
-internal class FullScreenLoaderView
+class FullScreenLoaderView
     @JvmOverloads
     constructor(
         context: Context,
@@ -21,7 +21,7 @@ internal class FullScreenLoaderView
         private val statusText: TextView
 
         init {
-            LayoutInflater.from(context).inflate(R.layout.view_full_screen_loader, this, true)
+            LayoutInflater.from(context).inflate(R.layout.core_view_full_screen_loader, this, true)
             statusText = findViewById(R.id.tvLoaderStatus)
             isClickable = true
             isFocusable = true

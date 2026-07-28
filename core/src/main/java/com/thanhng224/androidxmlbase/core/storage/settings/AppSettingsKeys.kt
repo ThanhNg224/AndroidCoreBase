@@ -1,6 +1,6 @@
 package com.thanhng224.androidxmlbase.core.storage.settings
 
-internal object AppSettingsKeys {
+object AppSettingsKeys {
     val THEME_MODE = SettingsKey.StringKey(name = "theme_mode", defaultValue = "system")
     val FIRST_OPEN_AT = SettingsKey.LongKey(name = "first_open_at", defaultValue = 0L)
     val OPEN_COUNT = SettingsKey.IntKey(name = "open_count", defaultValue = 0)

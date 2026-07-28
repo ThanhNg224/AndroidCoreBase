@@ -6,7 +6,7 @@ import android.view.View
  * Pure, JVM-testable rate limiter: [shouldAllow] only returns true once per [intervalMs] window,
  * based on caller-supplied timestamps (no dependency on any clock).
  */
-internal class Debouncer(
+class Debouncer(
     private val intervalMs: Long = DEFAULT_INTERVAL_MS,
 ) {
     private var lastAllowedAtMs: Long = 0L

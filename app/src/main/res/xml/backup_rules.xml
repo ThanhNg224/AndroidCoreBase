@@ -2,5 +2,5 @@
 <full-backup-content>
     <exclude
         domain="sharedpref"
-        path="secure_store.xml" />
+        path="core_secure_store.xml" />
 </full-backup-content>

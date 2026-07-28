@@ -6,25 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.thanhng224.androidxmlbase.core.R
-import com.thanhng224.androidxmlbase.core.databinding.DialogPromptBinding
+import com.thanhng224.androidxmlbase.core.databinding.CoreDialogPromptBinding
 import com.thanhng224.androidxmlbase.core.ui.base.BaseDialogFragment
 import com.thanhng224.androidxmlbase.core.ui.base.DialogAnimation
 import com.thanhng224.androidxmlbase.core.ui.base.setOnDebouncedClickListener
 
-internal enum class PromptType {
+enum class PromptType {
     SUCCESS,
     ERROR,
     INFO,
 }
 
 /** Reusable status dialog (Success, Error, Info) with customizable actions. */
-internal class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() {
+class PromptDialogFragment : BaseDialogFragment<CoreDialogPromptBinding>() {
     override val dialogAnimation: DialogAnimation = DialogAnimation.SCALE
 
     override fun inflateBinding(
         inflater: LayoutInflater,
         container: ViewGroup?,
-    ): DialogPromptBinding = DialogPromptBinding.inflate(inflater, container, false)
+    ): CoreDialogPromptBinding = CoreDialogPromptBinding.inflate(inflater, container, false)
 
     var onPrimary: (() -> Unit)? = null
     var onSecondary: (() -> Unit)? = null
@@ -53,9 +53,9 @@ internal class PromptDialogFragment : BaseDialogFragment<DialogPromptBinding>() 
         val type = args.getString(ARG_TYPE)?.let { PromptType.valueOf(it) } ?: PromptType.ERROR
         val iconRes =
             when (type) {
-                PromptType.SUCCESS -> R.drawable.ic_prompt_success
-                PromptType.ERROR -> R.drawable.ic_prompt_error
-                PromptType.INFO -> R.drawable.ic_prompt_info
+                PromptType.SUCCESS -> R.drawable.core_ic_prompt_success
+                PromptType.ERROR -> R.drawable.core_ic_prompt_error
+                PromptType.INFO -> R.drawable.core_ic_prompt_info
             }
         binding.ivPromptIcon.setImageResource(iconRes)
 
