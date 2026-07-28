@@ -5,5 +5,5 @@
 # Room accesses the database/entity/DAO classes and their fields by name via generated code.
 -keep class com.thanhng224.androidxmlbase.core.storage.database.** { *; }
 
-# Keep annotations so Room/Hilt/Retrofit annotation processing metadata survives on release builds.
--keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+# Keep generic signature and class structure metadata if needed for reflection.
+-keepattributes Signature, InnerClasses, EnclosingMethod
