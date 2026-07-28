@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-internal annotation class ApplicationScope
+annotation class ApplicationScope
 
 @Module
 @InstallIn(SingletonComponent::class)

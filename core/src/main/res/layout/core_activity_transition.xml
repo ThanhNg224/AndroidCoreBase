@@ -14,7 +14,7 @@
             android:layout_height="@dimen/_260sdp"
             android:layout_gravity="center"
             android:alpha="0.6"
-            android:background="@drawable/bg_transition_glow" />
+            android:background="@drawable/core_bg_transition_glow" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/transitionLoader"
@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/transition_loading_pulse" />
+            app:lottie_rawRes="@raw/core_transition_loading_pulse" />
 
     </FrameLayout>
 

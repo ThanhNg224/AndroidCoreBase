@@ -62,6 +62,7 @@ class AppCompatLocaleApplier : AppLocaleApplier {
 
 class LocaleManager(
     private val localeApplier: AppLocaleApplier = AppCompatLocaleApplier(),
+    private val supportedLanguages: List<AppLanguage> = AppLanguage.BUILT_IN,
 ) {
     fun setLanguage(language: AppLanguage) {
         localeApplier.applyLocales(language.languageTag)
@@ -71,5 +72,7 @@ class LocaleManager(
         localeApplier.applyLocales("")
     }
 
-    fun currentLanguage(): AppLanguage? = AppLanguage.findByLanguageTag(localeApplier.currentLocaleTags())
+    fun supportedLanguages(): List<AppLanguage> = supportedLanguages
+
+    fun currentLanguage(): AppLanguage? = AppLanguage.findByLanguageTag(localeApplier.currentLocaleTags(), supportedLanguages)
 }

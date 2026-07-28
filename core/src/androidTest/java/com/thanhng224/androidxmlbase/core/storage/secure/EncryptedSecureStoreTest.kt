@@ -82,6 +82,6 @@ class EncryptedSecureStoreTest {
         }
 
     private companion object {
-        const val PREFS_FILE_NAME = "secure_store"
+        const val PREFS_FILE_NAME = "core_secure_store"
     }
 }

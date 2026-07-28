@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
-internal interface AppDispatchers {
+interface AppDispatchers {
     val main: CoroutineDispatcher
     val io: CoroutineDispatcher
     val default: CoroutineDispatcher

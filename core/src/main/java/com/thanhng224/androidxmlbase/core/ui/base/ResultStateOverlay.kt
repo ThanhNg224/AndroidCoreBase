@@ -13,7 +13,7 @@ import com.thanhng224.androidxmlbase.core.ui.text.resolve
  * invoking [onSuccess] on load. Shared by [BaseActivity] and [BaseFragment] so the loading/error
  * UI stays identical regardless of which host a screen is built on.
  */
-internal fun <T> renderResultState(
+fun <T> renderResultState(
     result: ResultState<T>,
     contentRoot: ViewGroup,
     dialogHost: FragmentManager,

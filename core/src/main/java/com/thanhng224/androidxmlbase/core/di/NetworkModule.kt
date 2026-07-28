@@ -1,18 +1,19 @@
 package com.thanhng224.androidxmlbase.core.di
 
 import android.content.Context
-import com.thanhng224.androidxmlbase.core.BuildConfig
 import com.thanhng224.androidxmlbase.core.network.ApiClient
 import com.thanhng224.androidxmlbase.core.network.ApiConfig
 import com.thanhng224.androidxmlbase.core.network.NetworkClientFactory
 import com.thanhng224.androidxmlbase.core.network.RetrofitApiClient
 import com.thanhng224.androidxmlbase.core.network.auth.AuthTokenProvider
+import com.thanhng224.androidxmlbase.core.network.auth.AuthTokenRefresher
 import com.thanhng224.androidxmlbase.core.network.auth.TokenAuthenticator
 import com.thanhng224.androidxmlbase.core.network.connectivity.AndroidConnectivityChecker
 import com.thanhng224.androidxmlbase.core.network.connectivity.ConnectivityChecker
 import com.thanhng224.androidxmlbase.core.network.transfer.FileTransferClient
 import com.thanhng224.androidxmlbase.core.network.transfer.OkHttpFileTransferClient
 import dagger.Binds
+import dagger.BindsOptionalOf
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +21,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.Optional
 import javax.inject.Singleton
 
 @Module
@@ -32,19 +34,17 @@ internal abstract class NetworkBindingsModule {
     @Binds
     @Singleton
     abstract fun bindFileTransferClient(implementation: OkHttpFileTransferClient): FileTransferClient
+
+    @BindsOptionalOf
+    abstract fun bindAuthTokenRefresher(): AuthTokenRefresher
+
+    @BindsOptionalOf
+    abstract fun bindApiConfig(): ApiConfig
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal object NetworkModule {
-    @Provides
-    @Singleton
-    fun provideApiConfig(): ApiConfig =
-        ApiConfig(
-            baseUrl = BuildConfig.API_BASE_URL,
-            enableLogging = BuildConfig.API_ENABLE_LOGGING,
-        )
-
     @Provides
     @Singleton
     fun provideConnectivityChecker(
@@ -54,13 +54,13 @@ internal object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        config: ApiConfig,
+        apiConfig: Optional<ApiConfig>,
         authTokenProvider: AuthTokenProvider,
         connectivityChecker: ConnectivityChecker,
         authenticator: TokenAuthenticator,
     ): OkHttpClient =
         NetworkClientFactory.createOkHttpClient(
-            config = config,
+            config = apiConfig.orRequireBinding(),
             authTokenProvider = authTokenProvider,
             connectivityChecker = connectivityChecker,
             authenticator = authenticator,
@@ -69,11 +69,26 @@ internal object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(
-        config: ApiConfig,
+        apiConfig: Optional<ApiConfig>,
         okHttpClient: OkHttpClient,
     ): Retrofit =
         NetworkClientFactory.createRetrofit(
-            config = config,
+            config = apiConfig.orRequireBinding(),
             okHttpClient = okHttpClient,
         )
+
+    private fun Optional<ApiConfig>.orRequireBinding(): ApiConfig =
+        orElseThrow {
+            IllegalStateException(
+                "No ApiConfig binding found. :core does not ship a base URL — provide one from " +
+                    "your app's Hilt module:\n\n" +
+                    "@Module\n" +
+                    "@InstallIn(SingletonComponent::class)\n" +
+                    "object AppNetworkModule {\n" +
+                    "    @Provides\n" +
+                    "    @Singleton\n" +
+                    "    fun provideApiConfig() = ApiConfig(baseUrl = \"https://api.example.com/\")\n" +
+                    "}",
+            )
+        }
 }

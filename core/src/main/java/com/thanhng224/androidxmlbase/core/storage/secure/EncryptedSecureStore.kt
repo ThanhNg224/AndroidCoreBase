@@ -102,9 +102,9 @@ internal class EncryptedSecureStore
         }
 
         private companion object {
-            const val FILE_NAME = "secure_store"
+            const val FILE_NAME = "core_secure_store"
             const val ANDROID_KEY_STORE = "AndroidKeyStore"
-            const val KEY_ALIAS = "androidxmlbase_secure_store_key"
+            const val KEY_ALIAS = "core_secure_store_key"
             const val KEY_SIZE_BITS = 256
             const val TRANSFORMATION = "AES/GCM/NoPadding"
             const val GCM_IV_LENGTH_BYTES = 12

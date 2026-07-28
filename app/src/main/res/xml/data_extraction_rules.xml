@@ -3,12 +3,12 @@
     <cloud-backup>
         <exclude
             domain="sharedpref"
-            path="secure_store.xml" />
+            path="core_secure_store.xml" />
     </cloud-backup>
 
     <device-transfer>
         <exclude
             domain="sharedpref"
-            path="secure_store.xml" />
+            path="core_secure_store.xml" />
     </device-transfer>
 </data-extraction-rules>

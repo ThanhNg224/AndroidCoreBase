@@ -29,6 +29,19 @@
             android:exported="false"
             android:label="@string/settings_title"
             android:theme="@style/Theme.AndroidXmlBase" />
+        <!-- This app supplies its own WorkManager Configuration via Configuration.Provider, so
+             the default initializer must not also run. Consuming apps that don't do that should
+             leave WorkManager's own initializer in place. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
 </manifest>

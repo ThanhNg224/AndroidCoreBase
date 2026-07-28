@@ -26,9 +26,6 @@ android {
         minSdk = 24
 
         consumerProguardFiles("consumer-rules.pro")
-
-        buildConfigField("String", "API_BASE_URL", "\"https://api.open-meteo.com/\"")
-        buildConfigField("boolean", "API_ENABLE_LOGGING", "false")
     }
 
     compileOptions {
@@ -39,9 +36,19 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
+    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidXmlBase:<v>"))
+    testFixtures {
+        enable = true
+    }
     lint {
-        abortOnError = false
-        checkReleaseBuilds = false
+        abortOnError = true
+        checkReleaseBuilds = true
+        // Files, ids and styleables carry the core_ prefix. Styles/themes instead follow the
+        // platform's Type.Namespace.Variant convention (TextAppearance.AndroidXmlBase.Body, like
+        // TextAppearance.MaterialComponents.Body1) — already namespaced, and core_-prefixing them
+        // would be non-idiomatic. Kept visible as a warning rather than silenced.
+        warning += "ResourceName"
     }
 }
 
@@ -55,6 +62,18 @@ publishing {
             afterEvaluate {
                 from(components["release"])
             }
+
+            pom {
+                name.set("AndroidXmlBase Core")
+                description.set("Reusable XML + ViewBinding, MVVM + Clean Architecture Android base.")
+                url.set("https://github.com/ThanhNg224/AndroidXmlBase")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://github.com/ThanhNg224/AndroidXmlBase/blob/main/LICENSE")
+                    }
+                }
+            }
         }
     }
 }
@@ -67,36 +86,39 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    api(libs.androidx.lifecycle.runtime.ktx)
+    api(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.appcompat)
+    api(libs.androidx.fragment.ktx)
+    api(libs.androidx.appcompat)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
-    implementation(libs.material)
-    implementation(libs.kotlinx.coroutines.core)
+    api(libs.material)
+    api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.retrofit.core)
+    api(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization.converter)
-    implementation(libs.okhttp.core)
+    api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.intuit.sdp)
     implementation(libs.intuit.ssp)
-    implementation(libs.hilt.android)
+    api(libs.hilt.android)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.sqlcipher.android)
     implementation(libs.lottie)
-    implementation(libs.timber)
+    api(libs.timber)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit)
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.okhttp.mockwebserver)
@@ -128,34 +150,13 @@ kover {
     reports {
         filters {
             includes {
-                classes(
-                    "*.core.architecture.result.ResultState*",
-                    "*.core.architecture.result.DomainResult*",
-                    "*.core.architecture.StateViewModel*",
-                    "*.core.architecture.DefaultAppDispatchers",
-                    "*.core.localization.LocaleManager*",
-                    "*.core.localization.LocaleTagMapper*",
-                    "*.core.navigation.NavigationOptions*",
-                    "*.core.network.ApiResult*",
-                    "*.core.network.RetrofitApiClient*",
-                    "*.core.network.auth.SecureStoreAuthTokenProvider*",
-                    "*.core.network.transfer.TransferResult*",
-                    "*.core.network.transfer.ProgressRequestBody*",
-                    "*.core.network.transfer.OkHttpFileTransferClient*",
-                    "*.core.network.auth.*",
-                    "*.core.network.connectivity.*",
-                    "*.core.network.transfer.*",
-                    "*.core.storage.settings.DataStoreSettingsStore*",
-                    "*.core.storage.settings.SettingsKey*",
-                    "*.core.storage.database.DbPassphraseProvider*",
-                    "*.core.logging.ReleaseTree*",
-                    "*.core.ui.base.Debouncer*",
-                    "*.core.ui.base.ResultRenderState*",
-                    "*.core.ui.drawable.ShapeDrawableFactory*",
-                )
+                // Whole module, not a hand-picked allowlist. Anything genuinely untestable on the
+                // JVM is excluded below with a reason.
+                classes("com.thanhng224.androidxmlbase.core.*")
             }
             excludes {
                 classes(
+                    // Generated
                     "*.BuildConfig",
                     "*.R",
                     "*.R$*",
@@ -166,11 +167,39 @@ kover {
                     "*Hilt_*",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
+                    // DI wiring: declarations only, exercised by Hilt's own codegen
+                    "*.core.di.*",
+                    "*.core.ui.theme.ThemeModule*",
+                    // Android-framework glue: covered by androidTest, not JVM unit tests
                     "*Activity",
+                    "*Activity$*",
                     "*Fragment",
+                    "*Fragment$*",
                     "*DialogFragment",
+                    // Need a real Bundle / FragmentManager / View: instrumented-only
+                    "*.core.navigation.ArgumentDelegatesKt",
+                    "*.core.navigation.IntentExtraDelegate",
+                    "*.core.navigation.IntentExtraNullableDelegate",
+                    "*.core.navigation.FragmentArgumentDelegate",
+                    "*.core.navigation.FragmentArgumentNullableDelegate",
+                    "*.core.ui.base.ResultStateOverlayKt",
+                    "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
-                    "*.core.work.HeartbeatWorker",
+                    "*.core.ui.responsive.*",
+                    "*.core.ui.window.*",
+                    "*.core.startup.*",
+                    "*.core.storage.database.AppDatabase*",
+                    "*.core.storage.database.LocalSettingDao*",
+                    "*.core.storage.secure.EncryptedSecureStore*",
+                    "*.core.storage.settings.AppDataStoreKt",
+                    "*.core.localization.AppCompatLocaleApplier*",
+                    "*.core.localization.LocaleAppContext*",
+                    "*.core.navigation.ActivityNavigator*",
+                    "*.core.network.connectivity.AndroidConnectivityChecker*",
+                    "*.core.time.AndroidElapsedRealtimeClock*",
+                    "*.core.ui.text.AndroidStringProvider*",
+                    // Reference implementation, intentionally unscheduled
+                    "*.core.work.*",
                 )
             }
         }

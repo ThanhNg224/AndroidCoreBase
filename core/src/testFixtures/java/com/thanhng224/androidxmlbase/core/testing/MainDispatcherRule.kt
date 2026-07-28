@@ -1,4 +1,4 @@
-package com.example.androidxmlbase.testutil
+package com.thanhng224.androidxmlbase.core.testing
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
+/** Swaps [Dispatchers.Main] for a [TestDispatcher] so ViewModels are unit-testable on the JVM. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainDispatcherRule(
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher(),

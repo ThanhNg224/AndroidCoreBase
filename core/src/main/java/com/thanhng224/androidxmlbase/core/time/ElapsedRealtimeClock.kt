@@ -4,7 +4,7 @@ import android.os.SystemClock
 import javax.inject.Inject
 
 /** Monotonic elapsed time for local security windows; it is not affected by wall-clock changes. */
-internal fun interface ElapsedRealtimeClock {
+fun interface ElapsedRealtimeClock {
     fun nowMillis(): Long
 }
 

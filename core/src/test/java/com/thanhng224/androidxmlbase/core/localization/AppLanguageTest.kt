@@ -7,7 +7,7 @@ import org.junit.Test
 class AppLanguageTest {
     @Test
     fun `supported languages have the exact app locale tags`() {
-        assertEquals(listOf("en", "vi-VN"), AppLanguage.entries.map(AppLanguage::languageTag))
+        assertEquals(listOf("en", "vi-VN"), AppLanguage.BUILT_IN.map(AppLanguage::languageTag))
     }
 
     @Test

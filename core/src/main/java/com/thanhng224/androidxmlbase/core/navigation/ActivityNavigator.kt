@@ -49,16 +49,16 @@ class ActivityNavigator
                     }
                     TransitionType.SLIDE_HORIZONTAL -> {
                         if (isOpen) {
-                            enterAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_slide_in_from_right
-                            exitAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_slide_out_to_left
+                            enterAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_slide_in_from_right
+                            exitAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_slide_out_to_left
                         } else {
-                            enterAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_slide_in_from_left
-                            exitAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_slide_out_to_right
+                            enterAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_slide_in_from_left
+                            exitAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_slide_out_to_right
                         }
                     }
                     TransitionType.FADE -> {
-                        enterAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_fade_in
-                        exitAnim = com.thanhng224.androidxmlbase.core.R.anim.transition_fade_out
+                        enterAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_fade_in
+                        exitAnim = com.thanhng224.androidxmlbase.core.R.anim.core_transition_fade_out
                     }
                     TransitionType.DEFAULT -> return
                 }

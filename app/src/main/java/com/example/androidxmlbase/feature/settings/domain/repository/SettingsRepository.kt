@@ -9,6 +9,8 @@ interface SettingsRepository {
 
     fun getCurrentLanguage(): AppLanguage?
 
+    fun getSupportedLanguages(): List<AppLanguage>
+
     suspend fun setLanguage(language: AppLanguage?)
 
     suspend fun setTheme(theme: AppTheme)

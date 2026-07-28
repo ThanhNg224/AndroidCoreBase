@@ -1,10 +1,11 @@
-package com.thanhng224.androidxmlbase.core.localization
+package com.example.androidxmlbase.localization
 
 import android.content.ComponentName
 import android.content.pm.ActivityInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.thanhng224.androidxmlbase.core.R
+import com.example.androidxmlbase.R
+import com.thanhng224.androidxmlbase.core.localization.AppLanguage
 import com.thanhng224.androidxmlbase.core.ui.base.TransitionActivity
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -26,7 +27,7 @@ class LocaleConfigurationContractTest {
             parser.next()
         }
 
-        assertEquals(AppLanguage.entries.map(AppLanguage::languageTag), localeTags)
+        assertEquals(AppLanguage.BUILT_IN.map(AppLanguage::languageTag), localeTags)
     }
 
     @Test

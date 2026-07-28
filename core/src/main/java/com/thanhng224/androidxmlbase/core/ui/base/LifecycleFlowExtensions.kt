@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
  * Collects [this] on [lifecycleOwner]'s scope, restarting whenever it re-enters [Lifecycle.State.STARTED].
  * Shared by every `core/ui/base` host (Activity/Fragment/BottomSheet) so the collection rules stay identical.
  */
-internal fun <T> Flow<T>.collectOnStartedBy(
+fun <T> Flow<T>.collectOnStartedBy(
     lifecycleOwner: LifecycleOwner,
     action: suspend (T) -> Unit,
 ) {

@@ -2,6 +2,7 @@ package com.example.androidxmlbase.feature.settings.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.example.androidxmlbase.feature.settings.domain.usecase.GetCurrentLanguageUseCase
+import com.example.androidxmlbase.feature.settings.domain.usecase.GetSupportedLanguagesUseCase
 import com.example.androidxmlbase.feature.settings.domain.usecase.ObserveThemeUseCase
 import com.example.androidxmlbase.feature.settings.domain.usecase.SetThemeUseCase
 import com.example.androidxmlbase.feature.settings.presentation.state.SettingsUiEffect
@@ -18,9 +19,13 @@ class SettingsViewModel
     constructor(
         observeTheme: ObserveThemeUseCase,
         getCurrentLanguage: GetCurrentLanguageUseCase,
+        getSupportedLanguages: GetSupportedLanguagesUseCase,
         private val setTheme: SetThemeUseCase,
     ) : StateViewModel<SettingsUiState, SettingsUiEvent, SettingsUiEffect>(
-            SettingsUiState(language = getCurrentLanguage()),
+            SettingsUiState(
+                language = getCurrentLanguage(),
+                supportedLanguages = getSupportedLanguages(),
+            ),
         ) {
         init {
             viewModelScope.launch {

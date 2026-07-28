@@ -1,7 +1,7 @@
 package com.thanhng224.androidxmlbase.core.architecture
 
 import app.cash.turbine.test
-import com.thanhng224.androidxmlbase.core.testutil.MainDispatcherRule
+import com.thanhng224.androidxmlbase.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule

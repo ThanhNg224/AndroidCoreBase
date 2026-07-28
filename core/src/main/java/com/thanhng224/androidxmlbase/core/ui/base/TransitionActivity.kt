@@ -40,7 +40,7 @@ class TransitionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_transition)
+        setContentView(R.layout.core_activity_transition)
 
         if (savedInstanceState?.getBoolean(STATE_ACTION_COMPLETED) == true) {
             actionHasCompleted = true

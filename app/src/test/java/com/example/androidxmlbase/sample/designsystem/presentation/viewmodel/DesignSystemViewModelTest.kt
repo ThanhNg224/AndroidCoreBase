@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * No [com.example.androidxmlbase.testutil.MainDispatcherRule] needed: this ViewModel never calls
+ * No [com.thanhng224.androidxmlbase.core.testing.MainDispatcherRule] needed: this ViewModel never calls
  * `viewModelScope.launch` (no effect, no async work), so `state.value` can be read synchronously
  * right after `onEvent`.
  */

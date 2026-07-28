@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.Request
 import java.io.File
 
-internal interface FileTransferClient {
+interface FileTransferClient {
     fun download(
         request: Request,
         destination: File,

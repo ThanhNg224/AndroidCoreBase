@@ -252,9 +252,9 @@ Improve architecture incrementally by making small, safe refactors that preserve
 
 ## Current Package Layout (Phase 0-6)
 
-Everything above this section describes the target architecture. The folders below are what actually exists in the codebase today; check here (or the source tree) before assuming a core module already exists.
+Everything above this section describes the target architecture. The folders below are what actually exists in the codebase today; check here (or the source tree) before assuming something already exists.
 
-See `docs/FEATURE_TEMPLATE.md`, `docs/CORE_MODULES.md`, and `docs/DESIGN_SYSTEM.md` for a full walkthrough of building a new feature on top of the layout below.
+The base was later split into its own `:core` Gradle module (package `com.thanhng224.androidxmlbase.core`, published to JitPack) — `core/` is **no longer** a subfolder of `app/`'s package. See `docs/CORE_MODULES.md` for `:core`'s real, current layout; only the `:app`-side tree (feature/sample code) is shown below. See also `docs/FEATURE_TEMPLATE.md` and `docs/DESIGN_SYSTEM.md` for a full walkthrough of building a new feature on top of it.
 
 `feature/settings` is the first product vertical slice. It owns app-preference presentation and adapts the app-wide theme and locale services through its own repository contract. `sample/` remains reference code only.
 
@@ -262,84 +262,6 @@ app/src/main/java/com/example/androidxmlbase/
   MainActivity.kt                            # app shell: app bar + NavHostFragment + bottom navigation
   appshell/
     home/HomeFragment.kt                     # shell-owned landing destination; no business layer
-  core/
-    architecture/
-      UiState.kt
-      UiEvent.kt
-      UiEffect.kt
-      AppDispatchers.kt
-      UseCase.kt
-      StateViewModel.kt
-      result/
-        ResultState.kt
-        DomainResult.kt                      # also declares AppError & map helper
-    storage/
-      settings/
-        SettingsKey.kt                       # typed key sealed class (String/Int/Long/Boolean/Float)
-        SettingsStore.kt                     # observe/get/set/remove contract
-        DataStoreSettingsStore.kt            # DataStore<Preferences>-backed implementation
-        AppDataStore.kt                      # Context.appSettingsDataStore delegate
-        AppSettingsKeys.kt                   # app-wide keys only; feature keys stay feature-private
-      secure/
-        SecureStore.kt                       # + SecureStoreKey, SecureStoreKeys
-        EncryptedSecureStore.kt
-    network/
-      ApiResult.kt                           # Success/HttpError/NetworkError/ParseError/EmptyBody
-      ApiConfig.kt
-      ApiClient.kt
-      RetrofitApiClient.kt                   # classifies Retrofit calls into ApiResult
-      NetworkClientFactory.kt                # OkHttp timeouts + Retrofit composition root
-      auth/
-        AuthTokenProvider.kt                 # + NoOpAuthTokenProvider
-        SecureStoreAuthTokenProvider.kt
-        AuthTokenInterceptor.kt
-      connectivity/
-        ConnectivityChecker.kt               # + AndroidConnectivityChecker
-        ConnectivityInterceptor.kt
-      transfer/
-        FileTransferClient.kt                # + OkHttpFileTransferClient
-        TransferResult.kt
-        ProgressRequestBody.kt
-    localization/
-      AppLanguage.kt                         # AppLanguage registry: English (en) and Vietnamese (vi-VN)
-      LocaleManager.kt                       # reads/applies AppCompat app locales through a unit-testable applier
-    ui/
-      text/
-        StringProvider.kt                    # lets a ViewModel resolve string resources without an Android Context
-        AndroidStringProvider.kt              # real Context-backed implementation
-      base/
-        BaseActivity.kt                      # ViewBinding inflate + responsive attachBaseContext + collectOnStarted + immersive window cutout support
-        BaseFragment.kt
-        BaseDialogFragment.kt
-        BaseBottomSheetDialogFragment.kt
-        LifecycleFlowExtensions.kt            # shared collectOnStartedBy(lifecycleOwner) used by all Base* hosts
-        ResultStateOverlay.kt                 # shared full-screen-loader + error-prompt rendering used by BaseActivity/BaseFragment.bindResultState
-        Debouncer.kt                          # pure shouldAllow(nowMs) rate limiter + View.setOnDebouncedClickListener glue
-        ResultRenderState.kt                  # ResultState<T>.toRenderState() (loading/content/error visibility + error message) + View.applyVisibilityTo glue
-      responsive/
-        ResponsiveConfig.kt                  # enabled + min/max smallestScreenWidthDp
-        ResponsiveContextWrapper.kt          # clamps Configuration.smallestScreenWidthDp into the configured range
-      drawable/
-        ShapeDrawableFactory.kt              # builds runtime GradientDrawables (RECTANGLE/OVAL) shared by the components below
-      window/
-        WindowExtensions.kt                  # edge-to-edge window configuration
-      components/
-        ButtonStyleDelegate.kt               # shared shape/ripple background logic, framework-attribute-agnostic
-        FrameButton.kt                       # FrameLayout-based button, the one ButtonStyleDelegate consumer ported so far
-        ShadowLayout.kt                      # FrameLayout drawing an elevation+outline shadow (caller sets android:elevation)
-        ThemedSwitch.kt                      # MaterialSwitch wrapper tinted from the color tokens
-        StyledSnackbar.kt                    # Snackbar message surface styled with the color tokens
-        FullScreenLoaderView.kt              # Custom full-screen loading spinner overlay
-        PromptDialogFragment.kt              # Status prompt dialog fragment (success, fail, info) with action callbacks
-    navigation/
-      ArgumentDelegates.kt                   # type-safe Activity extras and Fragment argument accessors
-      ActivityDestination.kt
-      ActivityNavigator.kt                   # transition support (SLIDE_HORIZONTAL, FADE, etc.)
-      NavigationOptions.kt
-    time/
-      ElapsedRealtimeClock.kt                # Monotonic elapsed time utility (clock)
-    di/
-      AppCoreModule.kt, NetworkModule.kt  # Hilt app/core wiring
   feature/
     settings/
       domain/

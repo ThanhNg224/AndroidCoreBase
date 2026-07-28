@@ -25,7 +25,9 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
     override fun onBindingReady(savedInstanceState: Bundle?) {
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.rowAppearance.setOnClickListener { showThemeDialog(viewModel.state.value.theme) }
-        binding.rowLanguage.setOnClickListener { showLanguageDialog(viewModel.state.value.language) }
+        binding.rowLanguage.setOnClickListener {
+            showLanguageDialog(viewModel.state.value.language, viewModel.state.value.supportedLanguages)
+        }
 
         viewModel.state.collectOnStarted(::render)
         viewModel.effect.collectOnStarted(::handleEffect)
@@ -47,8 +49,11 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
         }
     }
 
-    private fun showLanguageDialog(selectedLanguage: AppLanguage?) {
-        val options = listOf(null, AppLanguage.ENGLISH, AppLanguage.VIETNAMESE)
+    private fun showLanguageDialog(
+        selectedLanguage: AppLanguage?,
+        supportedLanguages: List<AppLanguage>,
+    ) {
+        val options = listOf(null) + supportedLanguages
         showSingleChoiceDialog(
             titleResId = R.string.settings_language_dialog_title,
             labels = options.map { language -> getString(language?.displayNameResId ?: R.string.settings_language_system) }.toTypedArray(),

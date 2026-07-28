@@ -2,7 +2,7 @@ package com.thanhng224.androidxmlbase.core.network.transfer
 
 import java.io.File
 
-internal sealed interface TransferResult<out T> {
+sealed interface TransferResult<out T> {
     data class Progress(
         val bytesTransferred: Long,
         val totalBytes: Long,
@@ -21,12 +21,12 @@ internal sealed interface TransferResult<out T> {
     ) : TransferResult<Nothing>
 }
 
-internal data class HttpTransferResponse(
+data class HttpTransferResponse(
     val code: Int,
     val body: String?,
 )
 
-internal data class StreamChunk(
+data class StreamChunk(
     val bytes: ByteArray,
     val bytesRead: Long,
 ) {
@@ -43,6 +43,6 @@ internal data class StreamChunk(
     }
 }
 
-internal typealias DownloadResult = TransferResult<File>
-internal typealias UploadResult = TransferResult<HttpTransferResponse>
-internal typealias StreamResult = TransferResult<StreamChunk>
+typealias DownloadResult = TransferResult<File>
+typealias UploadResult = TransferResult<HttpTransferResponse>
+typealias StreamResult = TransferResult<StreamChunk>

@@ -28,15 +28,16 @@ internal object NetworkClientFactory {
                     } else {
                         HttpLoggingInterceptor.Level.NONE
                     }
+                redactHeader("Authorization")
             }
         return OkHttpClient
             .Builder()
             .addInterceptor(ConnectivityInterceptor(connectivityChecker))
             .addInterceptor(AuthTokenInterceptor(authTokenProvider))
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .readTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .writeTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS)
+            .readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS)
+            .writeTimeout(config.writeTimeoutSeconds, TimeUnit.SECONDS)
             .authenticator(authenticator)
             .build()
     }
@@ -53,6 +54,4 @@ internal object NetworkClientFactory {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
-
-    private const val REQUEST_TIMEOUT_SECONDS = 30L
 }

@@ -1,7 +1,6 @@
 package com.thanhng224.androidxmlbase.core.storage.database
 
-import com.thanhng224.androidxmlbase.core.storage.secure.SecureStore
-import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKey
+import com.thanhng224.androidxmlbase.core.testing.FakeSecureStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -43,25 +42,4 @@ class DbPassphraseProviderTest {
 
             assertEquals(first, second)
         }
-
-    private class FakeSecureStore : SecureStore {
-        val stored = mutableMapOf<String, String>()
-
-        override suspend fun getString(key: SecureStoreKey): String? = stored[key.name]
-
-        override suspend fun putString(
-            key: SecureStoreKey,
-            value: String,
-        ) {
-            stored[key.name] = value
-        }
-
-        override suspend fun remove(key: SecureStoreKey) {
-            stored.remove(key.name)
-        }
-
-        override suspend fun clear() {
-            stored.clear()
-        }
-    }
 }
