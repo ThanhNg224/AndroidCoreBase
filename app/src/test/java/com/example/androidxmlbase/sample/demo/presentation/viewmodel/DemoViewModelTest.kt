@@ -11,9 +11,9 @@ import com.example.androidxmlbase.sample.demo.presentation.state.DemoUiEffect
 import com.example.androidxmlbase.sample.demo.presentation.state.DemoUiEvent
 import com.example.androidxmlbase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidxmlbase.sample.demo.presentation.state.DemoWeatherState
-import com.example.androidxmlbase.testutil.MainDispatcherRule
 import com.thanhng224.androidxmlbase.core.architecture.result.AppError
 import com.thanhng224.androidxmlbase.core.architecture.result.DomainResult
+import com.thanhng224.androidxmlbase.core.testing.MainDispatcherRule
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

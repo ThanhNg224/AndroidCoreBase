@@ -7,8 +7,8 @@ import com.example.androidxmlbase.feature.settings.domain.usecase.ObserveThemeUs
 import com.example.androidxmlbase.feature.settings.domain.usecase.SetThemeUseCase
 import com.example.androidxmlbase.feature.settings.presentation.state.SettingsUiEffect
 import com.example.androidxmlbase.feature.settings.presentation.state.SettingsUiEvent
-import com.example.androidxmlbase.testutil.MainDispatcherRule
 import com.thanhng224.androidxmlbase.core.localization.AppLanguage
+import com.thanhng224.androidxmlbase.core.testing.MainDispatcherRule
 import com.thanhng224.androidxmlbase.core.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

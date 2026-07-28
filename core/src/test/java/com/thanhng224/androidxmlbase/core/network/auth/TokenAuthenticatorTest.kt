@@ -1,8 +1,8 @@
 package com.thanhng224.androidxmlbase.core.network.auth
 
 import com.thanhng224.androidxmlbase.core.storage.secure.SecureStore
-import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKey
 import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKeys
+import com.thanhng224.androidxmlbase.core.testing.FakeSecureStore
 import kotlinx.coroutines.runBlocking
 import okhttp3.Protocol
 import okhttp3.Request
@@ -14,27 +14,6 @@ import java.util.Optional
 import javax.inject.Provider
 
 class TokenAuthenticatorTest {
-    private class FakeSecureStore : SecureStore {
-        private val values = mutableMapOf<SecureStoreKey, String>()
-
-        override suspend fun getString(key: SecureStoreKey): String? = values[key]
-
-        override suspend fun putString(
-            key: SecureStoreKey,
-            value: String,
-        ) {
-            values[key] = value
-        }
-
-        override suspend fun remove(key: SecureStoreKey) {
-            values.remove(key)
-        }
-
-        override suspend fun clear() {
-            values.clear()
-        }
-    }
-
     private class FakeAuthTokenRefresher(
         private val newToken: String?,
     ) : AuthTokenRefresher {

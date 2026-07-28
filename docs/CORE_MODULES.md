@@ -31,18 +31,18 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 - `SettingsKey<T>` (sealed class, `name`/`defaultValue`) with 5 typed subclasses: `StringKey`, `IntKey`, `LongKey`, `BooleanKey`, `FloatKey`.
 - `SettingsStore` (interface) — `fun <T> observe(key): Flow<T>`, `suspend fun <T> get(key): T`, `suspend fun <T> set(key, value)`, `suspend fun <T> remove(key)`.
 - `DataStoreSettingsStore(dataStore: DataStore<Preferences>)` — the only implementation. Takes a `DataStore<Preferences>` directly (never a `Context`) so it stays unit-testable on the JVM.
-- `Context.appSettingsDataStore` — the `preferencesDataStore(name = "app_settings")` delegate; the one place a `Context` is involved, kept out of the testable class.
+- `Context.appSettingsDataStore` — the `preferencesDataStore(name = "core_app_settings")` delegate; the one place a `Context` is involved, kept out of the testable class.
 - `AppSettingsKeys` — exactly 4 app-wide keys: `THEME_MODE` (String, default `"system"`), `FIRST_OPEN_AT` (Long, default `0L`), `OPEN_COUNT` (Int, default `0`), `DEBUG_LOGGING_ENABLED` (Boolean, default `false`).
 
 ### `core/storage/secure`
-- `SecureStoreKey`, `SecureStore`, `SecureStoreKeys` — string-secret storage contract for tokens/secrets. Built-in keys: `AUTH_TOKEN`, `REFRESH_TOKEN`.
-- `EncryptedSecureStore` — AndroidX Security-backed implementation using encrypted SharedPreferences behind the `SecureStore` interface. Provided as the app-wide `SecureStore` by Hilt.
+- `SecureStoreKey`, `SecureStore`, `SecureStoreKeys` (all public) — string-secret storage contract for tokens/secrets. Built-in keys: `AUTH_TOKEN`, `REFRESH_TOKEN`.
+- `EncryptedSecureStore` (internal) — AES-256/GCM via an Android Keystore key (deliberately not the deprecated `EncryptedSharedPreferences`), behind the `SecureStore` interface. Provided as the app-wide `SecureStore` by Hilt. Prefs file `core_secure_store`, Keystore alias `core_secure_store_key` — `core_`-namespaced so they can't collide with a consuming app's own storage.
 
 **Consumers:** `DemoRepositoryImpl` (sample-private counter key + `SettingsStore`); `SettingsRepositoryImpl` reaches theme persistence through `ThemeManager`; `SecureStoreAuthTokenProvider` reads `SecureStoreKeys.AUTH_TOKEN`.
 
 ### `core/storage/database`
 - `DbPassphraseProvider` — memoized SQLCipher passphrase resolver (`suspend fun getOrCreate(): String`), backed by `SecureStore`. Warmed on `Dispatchers.IO` during process startup so `DatabaseModule`'s Hilt `@Provides` boundary doesn't block on disk I/O.
-- `AppDatabase` (Room, `@Database`, version 1) — SQLCipher-encrypted via `DatabaseModule`'s `SupportOpenHelperFactory`. No `fallbackToDestructiveMigration`: an upgrade with no matching `Migration` crashes instead of silently dropping data; `fallbackToDestructiveMigrationOnDowngrade(true)` only resets on a version downgrade (e.g. after a rollback).
+- `AppDatabase` (Room, `@Database`, version 1, db file `core_app_database.db`) — SQLCipher-encrypted via `DatabaseModule`'s `SupportOpenHelperFactory`. No `fallbackToDestructiveMigration`: an upgrade with no matching `Migration` crashes instead of silently dropping data; `fallbackToDestructiveMigrationOnDowngrade(true)` only resets on a version downgrade (e.g. after a rollback).
 - `LocalSettingEntity` (`@Entity(tableName = "local_settings")`, `key`/`value` string columns) + `LocalSettingDao` (get/observe/save/delete by `key`) — a generic encrypted key-value table; reference shape only, not consumed by any feature yet.
 
 **Consumers:** none yet for `AppDatabase`/`LocalSettingDao` — add a `Migration` object here before bumping `version` past 1.
@@ -50,10 +50,10 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 ## `core/network`
 
 - `ApiResult<out T>` (sealed interface) — `Success<T>(data)`, `HttpError(code, message)`, `NetworkError(cause)`, `ParseError(cause)`, `EmptyBody`.
-- `ApiConfig(baseUrl: String, enableLogging: Boolean)`.
+- `ApiConfig(baseUrl, enableLogging = false, connectTimeoutSeconds/readTimeoutSeconds/writeTimeoutSeconds = 30)` (public) — **supplied by the consuming app**, not by `:core`. `NetworkModule` declares it `@BindsOptionalOf`; injecting `Retrofit`/`OkHttpClient` with no binding throws an `IllegalStateException` whose message shows the module to write. `:core` ships no base URL on purpose — a library must not dictate one (`:app` provides its own in `app/.../di/AppNetworkModule.kt`).
 - `ApiClient` (interface) — `suspend fun <T> execute(call: suspend () -> retrofit2.Response<T>): ApiResult<T>`.
 - `RetrofitApiClient` — the `ApiClient` implementation; classifies success/HTTP error/empty body, catches `IOException` as `NetworkError`, any other `Exception` as `ParseError`, and always rethrows `CancellationException` before those catches.
-- `NetworkClientFactory` (object) — reusable factory functions for `OkHttpClient` and `Retrofit` with 30-second timeouts configured. Named apart from `core/di/NetworkModule` (the Hilt module) so "factory" vs. "DI wiring" stays unambiguous.
+- `NetworkClientFactory` (internal object) — reusable factory functions for `OkHttpClient` and `Retrofit`; timeouts come from `ApiConfig` and the logging interceptor redacts the `Authorization` header. Named apart from `core/di/NetworkModule` (the Hilt module) so "factory" vs. "DI wiring" stays unambiguous.
 
 ### `core/network/auth`
 - `AuthSession` (public, constructor-injected) — the gateway a consuming app uses to read/write `SecureStoreKeys.AUTH_TOKEN`/`REFRESH_TOKEN` without depending on the internal `SecureStore` contract directly: `getAccessToken()`, `getRefreshToken()`, `setTokens(accessToken, refreshToken?)`, `clear()`.
@@ -87,7 +87,8 @@ Hilt modules for app-wide wiring.
 
 Per-app language switching, backed by AndroidX's per-app language API (`AppCompatDelegate.setApplicationLocales`). The manifest declares `android:localeConfig="@xml/locales_config"` and opts into AppCompat `autoStoreLocales`.
 
-- `AppLanguage` — the single app-language contract. The demo currently ships only English (`en`) and Vietnamese (`vi-VN`), each with a resource-backed display name.
+- `AppLanguage(languageTag, displayNameResId)` — a **data class**, not an enum, so a consuming app can add languages `:core` ships no strings for. `AppLanguage.ENGLISH`/`VIETNAMESE` are companion constants and `AppLanguage.BUILT_IN` is the list `:core` has display-name strings for; `findByLanguageTag(tag, candidates = BUILT_IN)` resolves a tag.
+- `SupportedLanguages(values: List<AppLanguage>)` — `@BindsOptionalOf` in `AppCoreBindingsModule`; bind it to replace `AppLanguage.BUILT_IN`. The `@xml/locales_config` that declares which locales an app actually ships lives in `:app`, not `:core`.
 - `AppLocaleApplier` (interface, apply/read locale tags) + `AppCompatLocaleApplier` (real impl) — injected as an interface so `LocaleManager` is unit-testable.
 - `LocaleManager(localeApplier = AppCompatLocaleApplier())` — applies a supported `AppLanguage`, clears the override to follow the system, and reports the current app-language override.
 
@@ -95,7 +96,7 @@ Per-app language switching, backed by AndroidX's per-app language API (`AppCompa
 
 ## `core/logging`
 
-- `ReleaseTree` (extends `timber.log.Timber.Tree`) — filters to WARN+ only, forwards to `android.util.Log`. Planted instead of `Timber.DebugTree()` in release builds.
+- `ReleaseTree` (public, extends `timber.log.Timber.Tree`) — filters to WARN+ only, forwards to `android.util.Log`. Planted instead of `Timber.DebugTree()` in non-debuggable builds.
 
 **Consumers:** `TimberInitializer` plants `Timber.DebugTree()` in debug builds and `ReleaseTree` in release builds. Feature code should call `Timber.tag(...).d/i/w/e(...)` instead of `android.util.Log` directly.
 
@@ -104,7 +105,7 @@ Per-app language switching, backed by AndroidX's per-app language API (`AppCompa
 Formalizes process-startup work via `androidx.startup.Initializer` instead of `Application.onCreate()`.
 
 - `AppStartupEntryPoint` (Hilt `@EntryPoint`) — how Initializers (instantiated by reflection, no constructor injection available) reach `DbPassphraseProvider`, `ThemeManager`, and the `@ApplicationScope CoroutineScope`.
-- `TimberInitializer` — plants `Timber.DebugTree()` (debug) or `ReleaseTree()` (release).
+- `TimberInitializer` — plants `Timber.DebugTree()` or `ReleaseTree()` based on the **consuming app's** `ApplicationInfo.FLAG_DEBUGGABLE`, not `:core`'s own `BuildConfig.DEBUG` (which is always `false` in a published AAR and would silence debug logging for every consumer).
 - `DbPassphraseWarmupInitializer` — warms `DbPassphraseProvider` on `Dispatchers.IO`. Depends on `TimberInitializer`.
 - `ThemeApplyInitializer` — collects `ThemeManager.currentTheme` and applies it reactively. Depends on `TimberInitializer`.
 - `LocaleContextInitializer` — captures the process-wide `Context` into `LocaleAppContext` so `AppCompatLocaleApplier.currentLocaleTags()` can read the current per-app locale without an `AppCompatDelegate` needing to be alive yet.
@@ -209,3 +210,40 @@ A `com.android.test`-type module containing only a Macrobenchmark profile genera
 - `BaselineProfileGenerator` — drives a cold launch + "open demo screen" + back, via `BaselineProfileRule`. Run `./gradlew :app:generateReleaseBaselineProfile` to regenerate `app/src/main/generated/baselineProfiles/baseline-prof.txt` after significant startup-path changes.
 
 **Consumers:** `:app` (via `baselineProfile(project(":baselineprofile"))` and `androidx.profileinstaller:profileinstaller`, which installs the checked-in profile at app install time).
+
+## `src/testFixtures` (published test doubles, not `core/`)
+
+Enabled with `testFixtures { enable = true }`, so both `:core`'s own tests and consuming apps share
+one set of doubles instead of re-writing them. Consume with
+`testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:<version>"))`.
+
+- `MainDispatcherRule` — swaps `Dispatchers.Main` for a `TestDispatcher`.
+- `FakeSecureStore` — in-memory `SecureStore`; its `stored` map (keyed by `SecureStoreKey.name`) is seedable and assertable.
+- `FakeSettingsStore` — in-memory `SettingsStore` that re-emits on change like DataStore does.
+- `FakeConnectivityChecker`, `FakeAuthTokenProvider`, `FakeAuthTokenRefresher` (records `callCount`), `FakeAppLocaleApplier` (records `appliedTags`).
+
+Fixtures compile against `:core`'s **public** API only (a `testFixtures` source set is not a friend
+module), so anything they need must be public — which is why the contracts above are.
+
+## Public API surface
+
+`:core` is `internal` by default; only what a consuming app needs is public. Public: the
+architecture primitives (`UiState`/`UiEvent`/`UiEffect`, `StateViewModel`, `UseCase`,
+`AppDispatchers`, `ResultState`/`DomainResult`/`AppError`), `ApiClient`/`ApiConfig`/`ApiResult`,
+`AuthSession`/`AuthTokenProvider`/`AuthTokenRefresher`, `ConnectivityChecker`/`NoConnectivityException`,
+`FileTransferClient`/`TransferResult`, `SecureStore`/`SettingsStore` and their key types,
+`LocaleManager`/`AppLanguage`/`SupportedLanguages`, `ThemeManager`/`AppTheme`, `ReleaseTree`,
+`ElapsedRealtimeClock`, `StringProvider`/`UiText`, the `Base*` UI hosts, `TransitionActivity`/`TransitionAction`,
+the `intentExtra`/`fragmentArg` delegates, the navigation models, and the `ui/components`,
+`ui/drawable`, `ui/responsive`, `ui/window` helpers.
+
+Deliberately `internal`: every Hilt module, the framework-backed implementation behind each public
+interface (`EncryptedSecureStore`, `AndroidThemeManager`, `RetrofitApiClient`, `TokenAuthenticator`,
+`AndroidConnectivityChecker`, …), the `androidx.startup` initializers, `NetworkClientFactory`, the
+Room database/DAO/entity, and `HeartbeatWorker`.
+
+There is currently **no automated binary-compatibility gate**:
+`binary-compatibility-validator` registers no `apiDump`/`apiCheck` tasks for a
+`com.android.library` module, so it was removed rather than left applied doing nothing. Public API
+changes are caught by review plus this internal-by-default discipline — treat any new top-level
+declaration as public API unless you mark it `internal`.

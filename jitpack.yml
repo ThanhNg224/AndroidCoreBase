@@ -1,0 +1,5 @@
+# JitPack builds with its own default JDK unless told otherwise; this project needs 21.
+jdk:
+  - openjdk21
+install:
+  - ./gradlew :core:publishToMavenLocal -x test

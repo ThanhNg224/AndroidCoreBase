@@ -36,6 +36,11 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
+    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidXmlBase:<v>"))
+    testFixtures {
+        enable = true
+    }
     lint {
         abortOnError = true
         checkReleaseBuilds = true
@@ -110,7 +115,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit)
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.okhttp.mockwebserver)
