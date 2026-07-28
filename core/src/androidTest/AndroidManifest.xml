@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!-- Library instrumentation tests use AndroidJUnitRunner's plain Application, so these
+             production initializers cannot access the app's Hilt component. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="merge">
+            <meta-data
+                android:name="com.thanhng224.androidxmlbase.core.startup.DbPassphraseWarmupInitializer"
+                tools:node="remove" />
+            <meta-data
+                android:name="com.thanhng224.androidxmlbase.core.startup.ThemeApplyInitializer"
+                tools:node="remove" />
+        </provider>
+    </application>
+
+</manifest>

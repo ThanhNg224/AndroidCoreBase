@@ -1,0 +1,53 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="@color/core_color_surface"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/_16sdp"
+        app:cardElevation="@dimen/_8sdp"
+        app:strokeWidth="@dimen/_1sdp"
+        app:strokeColor="@color/core_color_stroke_subtle"
+        app:cardBackgroundColor="@color/core_color_surface"
+        tools:ignore="MergeRootFrame">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/_24sdp"
+            android:paddingVertical="@dimen/_20sdp"
+            android:minWidth="@dimen/_150sdp">
+
+            <ProgressBar
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:indeterminateTint="@color/core_color_primary"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/tvLoaderStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
+                android:textColor="@color/core_color_on_surface"
+                android:textStyle="bold"
+                tools:text="Loading…" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</merge>

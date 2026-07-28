@@ -72,20 +72,30 @@ Dependencies always flow from Presentation → Domain → Data. Reverse dependen
 
 *Data → Domain dependency only allowed for Repository interface usage.
 
-## Feature Architecture  
-Each feature should own:  
-- UI  
-- ViewModel  
-- UseCases  
-- Repository interface usage  
-- Data implementation when applicable  
+## Feature, Screen, and Flow
 
-Avoid coupling between features to promote modularity and independent development.
+A **feature** is a vertical slice that owns one user-facing capability or bounded business context, such as authentication, profile, or checkout. It owns the presentation, domain, and data code required for that capability. A feature is not a synonym for one Activity, Fragment, or layout.
 
-## Recommended Feature Structure  
-Example folder structure for a feature module:  
+A **screen** is one concrete presentation destination within a feature: an Activity, Fragment, dialog destination, or equivalent navigable UI state. A screen owns its ViewModel and its `UiState`/`UiEvent`/`UiEffect`, because those types describe that screen's presentation contract.
+
+A **flow** is a user journey through one or more screens, for example Login → OTP verification → password reset. A flow does not introduce another package layer. Its screens remain owned by their feature; when a journey crosses feature boundaries, communicate through navigation and stable public contracts rather than direct feature dependencies.
+
+The app uses a single **app shell** for its equally important top-level areas. `MainActivity` owns the shared app bar, `BottomNavigationView`, and `NavHostFragment`; Home, Demo, and UI Kit are Fragment destinations in `main_navigation.xml`. A bottom-navigation item represents a top-level destination, not a feature package. Secondary utilities such as Settings are opened from the app bar and may use a separate Activity when they form a self-contained task. Do not add Settings, dialogs, or every screen in a feature to the bottom bar.
+
+Each feature should own:
+
+- Its screens and feature-specific presentation code.
+- Its UseCases and repository interface usage.
+- Its data implementation when real persistence or remote data is needed.
+
+Avoid coupling between features to promote modularity and independent development. Do not create a root-level `screens/` package: it separates a screen from the capability, state, and use cases it belongs to, which makes ownership less clear.
+
+## Recommended Feature Structure
+
+For a feature with one screen, keep the presentation packages flat. `sample/demo` uses this shape and avoids speculative nesting; product capabilities belong under `feature/<feature-name>/`.
+
 ```
-feature/
+feature/<feature-name>/
     presentation/
         ui/
         viewmodel/
@@ -99,7 +109,35 @@ feature/
         repository/
         mapper/
 ```
-The exact structure may vary depending on the project needs, but responsibilities should remain consistent to maintain clarity and separation of concerns.
+
+When a feature grows to two or more screens, group the presentation code by screen while keeping domain and data at the feature level:
+
+```
+feature/auth/
+    presentation/
+        login/
+            LoginFragment.kt
+            LoginViewModel.kt
+            LoginUiState.kt
+            LoginUiEvent.kt
+            LoginUiEffect.kt
+        otp/
+            OtpFragment.kt
+            OtpViewModel.kt
+            OtpUiState.kt
+            OtpUiEvent.kt
+            OtpUiEffect.kt
+        components/                 # only when shared by two or more auth screens
+    domain/
+        repository/
+        usecase/
+    data/
+        datasource/
+        repository/
+        mapper/
+```
+
+Do not create empty `domain/`, `data/`, `components/`, or per-screen packages merely to match this example. If a second screen has a genuinely separate business capability and does not share domain/data ownership, model it as a separate feature instead. The exact shape may vary, but ownership and dependency rules must remain consistent.
 
 ## Repository Pattern  
 Repositories coordinate multiple data sources to provide a unified interface. Repository interfaces belong to the Domain layer, while their implementations reside in the Data layer.
@@ -218,8 +256,12 @@ Everything above this section describes the target architecture. The folders bel
 
 See `docs/FEATURE_TEMPLATE.md`, `docs/CORE_MODULES.md`, and `docs/DESIGN_SYSTEM.md` for a full walkthrough of building a new feature on top of the layout below.
 
+`feature/settings` is the first product vertical slice. It owns app-preference presentation and adapts the app-wide theme and locale services through its own repository contract. `sample/` remains reference code only.
+
 app/src/main/java/com/example/androidxmlbase/
-  MainActivity.kt                            # launcher screen, XML + ViewBinding; extends BaseActivity, no attachBaseContext override of its own
+  MainActivity.kt                            # app shell: app bar + NavHostFragment + bottom navigation
+  appshell/
+    home/HomeFragment.kt                     # shell-owned landing destination; no business layer
   core/
     architecture/
       UiState.kt
@@ -277,17 +319,20 @@ app/src/main/java/com/example/androidxmlbase/
       responsive/
         ResponsiveConfig.kt                  # enabled + min/max smallestScreenWidthDp
         ResponsiveContextWrapper.kt          # clamps Configuration.smallestScreenWidthDp into the configured range
-      util/
-        ShapeUtils.kt                        # builds runtime GradientDrawables (RECTANGLE/OVAL) shared by the components below
+      drawable/
+        ShapeDrawableFactory.kt              # builds runtime GradientDrawables (RECTANGLE/OVAL) shared by the components below
+      window/
+        WindowExtensions.kt                  # edge-to-edge window configuration
       components/
         ButtonStyleDelegate.kt               # shared shape/ripple background logic, framework-attribute-agnostic
         FrameButton.kt                       # FrameLayout-based button, the one ButtonStyleDelegate consumer ported so far
         ShadowLayout.kt                      # FrameLayout drawing an elevation+outline shadow (caller sets android:elevation)
-        CustomSwitch.kt                      # MaterialSwitch wrapper tinted from the color tokens
-        CustomToast.kt                       # Snackbar-based Toast replacement styled with the color tokens
+        ThemedSwitch.kt                      # MaterialSwitch wrapper tinted from the color tokens
+        StyledSnackbar.kt                    # Snackbar message surface styled with the color tokens
         FullScreenLoaderView.kt              # Custom full-screen loading spinner overlay
         PromptDialogFragment.kt              # Status prompt dialog fragment (success, fail, info) with action callbacks
     navigation/
+      ArgumentDelegates.kt                   # type-safe Activity extras and Fragment argument accessors
       ActivityDestination.kt
       ActivityNavigator.kt                   # transition support (SLIDE_HORIZONTAL, FADE, etc.)
       NavigationOptions.kt
@@ -296,27 +341,41 @@ app/src/main/java/com/example/androidxmlbase/
     di/
       AppCoreModule.kt, NetworkModule.kt  # Hilt app/core wiring
   feature/
+    settings/
+      domain/
+        repository/SettingsRepository.kt
+        usecase/ObserveThemeUseCase.kt, SetThemeUseCase.kt, GetCurrentLanguageUseCase.kt, SetLanguageUseCase.kt
+      data/
+        repository/SettingsRepositoryImpl.kt # adapts ThemeManager and LocaleManager
+      presentation/
+        state/                               # SettingsUiState, SettingsUiEvent, SettingsUiEffect
+        viewmodel/                           # SettingsViewModel
+        ui/                                  # SettingsActivity + LanguageTransitionAction
+      di/SettingsModule.kt
+  sample/
     demo/
       domain/
         repository/DemoRepository.kt
         usecase/IncrementCounterUseCase.kt, ObserveDemoCountUseCase.kt, SaveDemoCountUseCase.kt,
-          FetchDemoMessageUseCase.kt
+          FetchDemoWeatherUseCase.kt
       data/
         repository/DemoRepositoryImpl.kt     # SettingsStore- and remote-data-source-backed
         dto/DemoMessageDto.kt
         datasource/DemoApiService.kt, DemoRemoteDataSource.kt (+ DemoRemoteDataSourceImpl)
         mapper/DemoMessageMapper.kt          # ApiResult<DemoMessageDto> -> DomainResult<String>
       presentation/
-        state/DemoUiState.kt, DemoUiEvent.kt, DemoUiEffect.kt, DemoMessageState.kt
+        state/DemoUiState.kt, DemoUiEvent.kt, DemoUiEffect.kt, DemoWeatherState.kt
         viewmodel/DemoViewModel.kt
-        ui/DemoActivity.kt
+        ui/DemoFragment.kt
       di/DemoModule.kt
     designsystem/
       presentation/
         state/DesignSystemUiState.kt, DesignSystemUiEvent.kt
         viewmodel/DesignSystemViewModel.kt   # StateViewModel<DesignSystemUiState, DesignSystemUiEvent, UiEffect>, synchronous setState, no data/domain layers
-        ui/DesignSystemActivity.kt           # showcases FrameButton, ShadowLayout, CustomSwitch, CustomToast, and the ResultState demo
+        ui/DesignSystemFragment.kt           # showcases FrameButton, ShadowLayout, ThemedSwitch, StyledSnackbar, and the ResultState demo
 
-`feature/demo` now has a `data` package and Hilt bindings: its counter persists through `DemoRepositoryImpl`, backed by the real `DataStoreSettingsStore` provided by Hilt. It also performs a real (fake-endpoint) network call through `DemoRemoteDataSourceImpl` -> `DemoRepositoryImpl.fetchMessage()` -> `FetchDemoMessageUseCase`, returning `DomainResult<String>` from data/domain and mapping that into `DemoMessageState` in presentation. Hilt wires the full chain through `core/di` and `feature/demo/di/DemoModule`; feature-specific Retrofit service providers stay in the feature module, while `core/di` only provides reusable Retrofit/OkHttp infrastructure. `SecureStore` handles auth/refresh tokens separately from normal settings, and backup/data-extraction rules exclude the secure store shared-preferences file. `MainActivity`'s system/English/Vietnamese selector drives `LocaleManager` through AppCompat per-app locales; the manifest declares the same two shipped app locales in `@xml/locales_config` and opts into AppCompat `autoStoreLocales`, so no Activity blocks on DataStore during `attachBaseContext`.
+`feature/settings` is the canonical single-screen product feature. `SettingsActivity` renders theme and language as settings-list rows and uses single-choice dialogs for their finite values; those selections do not become separate screens merely to demonstrate package nesting. Its feature-owned `LanguageTransitionAction` runs inside the opaque core `TransitionActivity`, so the core owns only the reusable transition host. `SettingsRepository` is a feature-domain contract; its implementation adapts the reusable `ThemeManager` and `LocaleManager`, so UI never calls either core service directly. Hilt wires the feature binding in `feature/settings/di/SettingsModule`.
 
-`MainActivity`, `DemoActivity`, and `DesignSystemActivity` all extend `core/ui/base/BaseActivity`, which owns responsive `attachBaseContext` wrapping and ViewBinding inflation; subclasses implement `inflateBinding` and do their view/ViewModel wiring in `onBindingReady` instead of `onCreate`. Both feature Activities use `BaseActivity.collectOnStarted` for lifecycle-safe `Flow` collection. `DesignSystemActivity.render()` consumes `ResultState<T>.toRenderState()`, while `DemoActivity` resolves `DemoMessageState` into localized string resources. `DemoActivity`'s increment button uses `View.setOnDebouncedClickListener`, the button most likely to be rapid-tapped.
+`sample/demo` remains the data/network reference: its counter persists through `DemoRepositoryImpl`, backed by the real `DataStoreSettingsStore`, and it fetches live weather for Ho Chi Minh City through `DemoRemoteDataSourceImpl` -> `DemoRepositoryImpl.fetchWeather()` -> `FetchDemoWeatherUseCase`. `DemoWeatherResponseDto` is mapped to the pure `DemoWeather` domain model before presentation sees it. Sample-specific Retrofit service providers stay in the sample package, while `core/di` only provides reusable Retrofit/OkHttp infrastructure. Product feature providers follow the same ownership rule under their own `feature/<name>/di` package. `SecureStore` handles auth/refresh tokens separately from normal settings, and backup/data-extraction rules exclude the secure store shared-preferences file.
+
+`MainActivity` and `SettingsActivity` extend `core/ui/base/BaseActivity`; `HomeFragment`, `DemoFragment`, and `DesignSystemFragment` extend `BaseFragment`. Both base hosts own ViewBinding inflation and expose lifecycle-safe `collectOnStarted`. `MainActivity` is the composition root for global navigation and delegates destination content to Fragments. `DesignSystemFragment.render()` consumes `ResultState<T>.toRenderState()`, while `DemoFragment` maps `DemoWeatherState` to localized strings. Its increment and refresh controls use `View.setOnDebouncedClickListener` to avoid accidental duplicate actions.

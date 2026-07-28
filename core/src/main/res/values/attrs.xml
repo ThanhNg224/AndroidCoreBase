@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Shared shape/button attributes. Any custom View whose background is built via
+        ShapeDrawableFactory.buildDrawable can reuse these instead of declaring near-duplicate attrs.
+    -->
+    <attr name="coreButtonBackgroundColor" format="color" />
+    <attr name="coreButtonCornerRadius" format="dimension" />
+    <attr name="coreButtonStrokeWidth" format="dimension" />
+    <attr name="coreButtonStrokeColor" format="color" />
+    <attr name="coreButtonShape" format="enum">
+        <enum name="rectangle" value="0" />
+        <enum name="oval" value="1" />
+    </attr>
+
+    <declare-styleable name="CoreFrameButton">
+        <attr name="coreButtonBackgroundColor" />
+        <attr name="coreButtonCornerRadius" />
+        <attr name="coreButtonStrokeWidth" />
+        <attr name="coreButtonStrokeColor" />
+        <attr name="coreButtonShape" />
+    </declare-styleable>
+
+    <declare-styleable name="CoreShadowLayout">
+        <attr name="coreShadowCornerRadius" format="dimension" />
+        <attr name="coreShadowBackgroundColor" format="color" />
+    </declare-styleable>
+
+</resources>

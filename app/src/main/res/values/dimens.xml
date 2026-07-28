@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Programmatic dialog window sizing (Kotlin needs a plain dp resource here since
-         android.nonTransitiveRClass hides sdp-android's dimens from this module's own R class). -->
-    <dimen name="dialog_screen_margin">24dp</dimen>
-    <dimen name="dialog_max_width">360dp</dimen>
-</resources>

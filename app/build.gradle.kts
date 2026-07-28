@@ -23,7 +23,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "API_BASE_URL", "\"https://example.com/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://api.open-meteo.com/\"")
         buildConfigField("boolean", "API_ENABLE_LOGGING", "false")
     }
 
@@ -55,6 +55,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    implementation(project(":core"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -98,7 +99,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
 configurations.all {
@@ -124,36 +124,13 @@ kover {
         filters {
             includes {
                 classes(
-                    "*.core.architecture.result.ResultState*",
-                    "*.core.architecture.result.DomainResult*",
-                    "*.core.architecture.StateViewModel*",
-                    "*.core.architecture.DefaultAppDispatchers",
-                    "*.core.localization.LocaleManager*",
-                    "*.core.localization.LocaleTagMapper*",
-                    "*.core.navigation.NavigationOptions*",
-                    "*.core.network.ApiResult*",
-                    "*.core.network.RetrofitApiClient*",
-                    "*.core.network.auth.SecureStoreAuthTokenProvider*",
-                    "*.core.network.transfer.TransferResult*",
-                    "*.core.network.transfer.ProgressRequestBody*",
-                    "*.core.network.transfer.OkHttpFileTransferClient*",
-                    "*.core.network.auth.*",
-                    "*.core.network.connectivity.*",
-                    "*.core.network.transfer.*",
-                    "*.core.storage.settings.DataStoreSettingsStore*",
-                    "*.core.storage.settings.SettingsKey*",
-                    "*.core.storage.database.DbPassphraseProvider*",
-                    "*.core.logging.ReleaseTree*",
-                    "*.core.ui.base.Debouncer*",
-                    "*.core.ui.base.ResultRenderState*",
-                    "*.core.ui.util.ShapeUtils*",
-                    "*.feature.demo.data.mapper.*",
-                    "*.feature.demo.domain.usecase.FetchDemoMessageUseCase",
-                    "*.feature.demo.domain.usecase.IncrementCounterUseCase",
-                    "*.feature.demo.domain.usecase.ObserveDemoCountUseCase",
-                    "*.feature.demo.domain.usecase.SaveDemoCountUseCase",
-                    "*.feature.demo.presentation.viewmodel.DemoViewModel",
-                    "*.feature.designsystem.presentation.viewmodel.DesignSystemViewModel",
+                    "*.sample.demo.data.mapper.*",
+                    "*.sample.demo.domain.usecase.FetchDemoWeatherUseCase",
+                    "*.sample.demo.domain.usecase.IncrementCounterUseCase",
+                    "*.sample.demo.domain.usecase.ObserveDemoCountUseCase",
+                    "*.sample.demo.domain.usecase.SaveDemoCountUseCase",
+                    "*.sample.demo.presentation.viewmodel.DemoViewModel",
+                    "*.sample.designsystem.presentation.viewmodel.DesignSystemViewModel",
                 )
             }
             excludes {
@@ -173,8 +150,6 @@ kover {
                     "*Activity",
                     "*Fragment",
                     "*DialogFragment",
-                    "*.core.ui.components.*",
-                    "*.core.work.SampleHeartbeatWorker",
                 )
             }
         }

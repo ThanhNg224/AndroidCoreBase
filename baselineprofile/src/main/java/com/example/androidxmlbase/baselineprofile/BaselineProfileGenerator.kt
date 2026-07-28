@@ -9,7 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Exercises the app's critical startup path (cold launch → open the demo screen → back) so the
+ * Exercises the app's critical startup path (cold launch → Demo tab → increment → Home tab) so the
  * generated `baseline-prof.txt` covers real code paths, not just process init.
  */
 @RunWith(AndroidJUnit4::class)
@@ -23,9 +23,10 @@ class BaselineProfileGenerator {
             pressHome()
             startActivityAndWait()
 
-            device.wait(Until.hasObject(By.res(packageName, "btnOpenDemo")), 5_000)
-            device.findObject(By.res(packageName, "btnOpenDemo"))?.click()
-            device.wait(Until.hasObject(By.pkg(packageName).depth(0)), 5_000)
-            device.pressBack()
+            device.wait(Until.hasObject(By.res(packageName, "demoFragment")), 5_000)
+            device.findObject(By.res(packageName, "demoFragment"))?.click()
+            device.wait(Until.hasObject(By.res(packageName, "btnIncrement")), 5_000)
+            device.findObject(By.res(packageName, "btnIncrement"))?.click()
+            device.findObject(By.res(packageName, "homeFragment"))?.click()
         }
 }
