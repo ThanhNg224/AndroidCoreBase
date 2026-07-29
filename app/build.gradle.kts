@@ -7,6 +7,14 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.baselineprofile)
+    // Required because :app writes @Composable code (DesignSystemFragment's ComposeInteropDemo
+    // and the lambda it passes into :core's ComposeView.setThemedContent). Without this plugin,
+    // this module's compiler treats @Composable () -> Unit as a plain Function0 instead of doing
+    // the composer-parameter ABI transform, so a call site here would produce a Function0 call
+    // against a callee that :core (which does have the plugin) compiled as Function2 -- a
+    // NoSuchMethodError at runtime that compiles cleanly, because Kotlin's type checker sees the
+    // same declared type on both sides and only the bytecode shape actually differs.
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -41,6 +49,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
     lint {
         abortOnError = false

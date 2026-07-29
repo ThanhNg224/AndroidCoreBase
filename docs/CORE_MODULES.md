@@ -182,6 +182,10 @@ App-wide light/dark/system theme, backed by AppCompat's night mode and persisted
 
 **Consumers:** `feature/settings` adapts `ThemeManager` through `SettingsRepository` for its settings-list state and appearance dialog; `applyTheme` is also called on app start to restore the persisted choice; `MainActivity` reads `isThemeApplied` for its splash screen keep-on-screen condition (Task 3).
 
+**Compose bridge (Phase 3):** `AndroidCoreBaseTheme` (a `@Composable` function, `ComposeTheme.kt`) wraps content in a Compose `MaterialTheme` whose `ColorScheme` is read from the same `core_color_*` resources this file's XML theme uses, so both stay in sync from one edit. `ComposeView.setThemedContent()` (`core/ui/base/ComposeInterop.kt`) is the interop entry point for embedding a themed `ComposeView` in an XML layout; `BaseComposeActivity` (`core/ui/base`) is the equivalent for a screen rendered entirely in Compose. **Any module that declares or calls `@Composable` code — including a consuming app writing its own composables — must apply `org.jetbrains.kotlin.plugin.compose` itself**; the Compose compiler transforms `@Composable` lambda parameters at the bytecode level per-module, and a module without the plugin produces a call site that compiles but throws `NoSuchMethodError` at runtime (see `docs/MODERNIZATION.md` F15). **Consumer:** `sample/designsystem`'s `DesignSystemFragment` embeds a themed `ComposeView`.
+
+*(Note: this file otherwise predates the Phase 2.5 rebrand's `BaseBindingActivity`/`BaseComposeActivity` split of the old `BaseActivity`; a full `core/ui/base` section reconciling that is still owed — not done here to keep this change scoped to Phase 3.)*
+
 ## `core/navigation`
 
 - `NavigationOptions` — option model containing custom `TransitionType` (DEFAULT, NONE, SLIDE_HORIZONTAL, FADE).

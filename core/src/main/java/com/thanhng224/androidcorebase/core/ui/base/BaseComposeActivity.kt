@@ -1,17 +1,25 @@
 package com.thanhng224.androidcorebase.core.ui.base
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import com.thanhng224.androidcorebase.core.ui.theme.AndroidCoreBaseTheme
 
 /**
- * Base activity tailored for Jetpack Compose screens: extends [BaseActivity] to share edge-to-edge,
- * lifecycle, and MVI capabilities while leaving UI rendering to Compose `setContent`.
+ * Base activity for screens rendered entirely in Jetpack Compose, wrapping [Content] in
+ * [AndroidCoreBaseTheme].
  */
 public abstract class BaseComposeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onSetupComposeContent(savedInstanceState)
+        setContent {
+            AndroidCoreBaseTheme {
+                Content()
+            }
+        }
     }
 
-    /** Subclasses initialize their Compose `setContent { }` tree here. */
-    protected abstract fun onSetupComposeContent(savedInstanceState: Bundle?)
+    /** Subclasses render their Compose UI here. */
+    @Composable
+    protected abstract fun Content()
 }

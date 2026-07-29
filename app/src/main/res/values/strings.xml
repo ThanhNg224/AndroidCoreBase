@@ -54,6 +54,9 @@
     <string name="design_system_outlined_button">Outlined</string>
     <string name="design_system_shadow_card_text">This card is a ShadowLayout.</string>
     <string name="design_system_switch_label">Themed switch</string>
+    <string name="design_system_compose_interop_headline">Compose interop</string>
+    <string name="design_system_compose_interop_title">Rendered from Compose</string>
+    <string name="design_system_compose_interop_body">This card is a ComposeView embedded in this XML layout, themed by AndroidCoreBaseTheme from the same core_color_* resources as the screen around it.</string>
     <string name="design_system_show_snackbar">Show message</string>
     <string name="design_system_snackbar_message">Hello from StyledSnackbar!</string>
     <string name="design_system_result_demo_title">ResultState demo</string>

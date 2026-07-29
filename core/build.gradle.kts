@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
+    alias(libs.plugins.compose.compiler)
     `maven-publish`
 }
 
@@ -35,6 +36,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
     // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
     // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidCoreBase:<v>"))
@@ -118,6 +120,10 @@ dependencies {
     implementation(libs.sqlcipher.android)
     implementation(libs.lottie)
     api(libs.timber)
+    api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.ui)
+    api(libs.androidx.compose.material3)
+    implementation(libs.androidx.activity.compose)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
@@ -191,8 +197,10 @@ kover {
                     "*.core.ui.base.ResultStateOverlayKt",
                     "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
-                    "*.core.ui.responsive.*",
                     "*.core.ui.window.*",
+                    // Compose UI functions (instrumented test only)
+                    "*.core.ui.theme.ComposeThemeKt",
+                    "*.core.ui.base.ComposeInteropKt",
                     "*.core.startup.*",
                     "*.core.storage.database.AppDatabase*",
                     "*.core.storage.database.LocalSettingDao*",

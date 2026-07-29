@@ -203,6 +203,19 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/core_space_24"
+            android:text="@string/design_system_compose_interop_headline"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Headline" />
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/composeInteropDemo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/core_space_8" />
+
     </LinearLayout>
 
 </ScrollView>

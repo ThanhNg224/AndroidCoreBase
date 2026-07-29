@@ -103,6 +103,15 @@ transitively as `api` dependencies — you do not need to redeclare them to use 
 
 ## ⚙️ Wiring `:core` Into Your App
 
+### If you write Compose screens
+
+Apply `org.jetbrains.kotlin.plugin.compose` (matching your Kotlin version) and set
+`buildFeatures { compose = true }` in **any module** that declares or calls `@Composable` code
+against `AndroidCoreBaseTheme`/`ComposeView.setThemedContent`/`BaseComposeActivity` — not only in
+`:core`. The Compose compiler transforms `@Composable` lambda parameters at the bytecode level per
+module; a module missing the plugin produces a call site that compiles cleanly but throws
+`NoSuchMethodError` at runtime.
+
 ### Required: supply an `ApiConfig`
 
 `:core` deliberately ships **no** base URL. Injecting `Retrofit` or `OkHttpClient` without a binding

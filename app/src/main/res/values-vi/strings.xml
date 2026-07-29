@@ -54,6 +54,9 @@
     <string name="design_system_outlined_button">Viền</string>
     <string name="design_system_shadow_card_text">Thẻ này là ShadowLayout.</string>
     <string name="design_system_switch_label">Công tắc theo giao diện</string>
+    <string name="design_system_compose_interop_headline">Tích hợp Compose</string>
+    <string name="design_system_compose_interop_title">Hiển thị từ Compose</string>
+    <string name="design_system_compose_interop_body">Thẻ này là một ComposeView được nhúng trong layout XML này, lấy giao diện từ AndroidCoreBaseTheme dùng chung tài nguyên core_color_* với màn hình xung quanh.</string>
     <string name="design_system_show_snackbar">Hiện thông báo</string>
     <string name="design_system_snackbar_message">Xin chào từ StyledSnackbar!</string>
     <string name="design_system_result_demo_title">Demo ResultState</string>

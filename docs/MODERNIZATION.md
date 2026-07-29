@@ -288,6 +288,35 @@ packaging. Phase 3 resolves it by giving the class real substance (Compose BOM, 
 interop, XML-theme→`MaterialTheme` bridge) or by deleting it if D2's minimum turns out not to need a
 dedicated Activity base at all. Do not leave it hollow in a published release.
 
+### F15 — the Compose compiler plugin must be applied to every module that writes `@Composable` code, not just the one that declares the API (found during Phase 3 verification)
+
+Wiring `AndroidCoreBaseTheme` and `ComposeView.setThemedContent` into `:core` compiled cleanly,
+and calling them from `:app`'s `DesignSystemFragment` also compiled cleanly (`./gradlew check`
+green both times). The installed app crashed on launch of that screen with:
+
+```
+NoSuchMethodError: No static method setThemedContent(ComposeView, Function0)
+  in class ComposeInteropKt
+```
+
+Root cause, confirmed by decompiling the actual compiled class rather than guessing: `:core`'s
+Compose compiler plugin transforms a `@Composable () -> Unit` parameter into
+`Function2<Composer, Int, Unit>` at the bytecode level (the composer/skip-tracking parameters the
+plugin injects). `alias(libs.plugins.compose.compiler)` had been added to `core/build.gradle.kts`
+but not to `app/build.gradle.kts`. Without the plugin, `:app`'s compiler does not perform that
+transform on the *call-site* lambda, so it compiles a call against the naive `Function0` shape —
+which type-checks fine against `:core`'s Kotlin metadata (the declared source-level signature
+matches) but does not exist at the bytecode level `:core` actually shipped. This is exactly why
+`compileDebugKotlin`/`check` passed: source-level type checking cannot see an ABI mismatch that
+only the compiler backend introduces per-module.
+
+Fix: apply `alias(libs.plugins.compose.compiler)` and `buildFeatures { compose = true }` in
+**every** module that declares or calls `@Composable` code, not only the module that owns the
+theme/interop API. Consequence for later phases and for consumers: a future `:app`-side Compose
+screen, or a consuming app writing its own composables against this base, needs the same plugin
+applied on their side too — that requirement belongs in this base's consumption docs (README/
+`docs/CORE_MODULES.md`), not just inferred from `:core`'s own build file.
+
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
 `:core` depends on `com.intuit.sdp`/`com.intuit.ssp` 1.1.1, which work by generating hundreds of
@@ -423,13 +452,45 @@ faithful rename.
 - Themes and text styles renamed to `Theme.AndroidCoreBase`, `Base.Theme.AndroidCoreBase`, and `TextAppearance.AndroidCoreBase.*`.
 - Activity base hierarchy refactored: `BaseActivity` is now a neutral base class without ViewBinding parameters, managing edge-to-edge window insets, lifecycle flow collection (`collectOnStarted`), and MVI helpers; `BaseBindingActivity<VB : ViewBinding>` is introduced for XML ViewBinding activities; `BaseComposeActivity` stub is created ready for Phase 3 Compose Interop.
 
+**Phase 3 is complete (2026-07-29), resolving F14.** `:core` gained a real Compose dependency
+(`compose-bom` 2026.06.01, `compose-ui`, `compose-material3` all as `api` — both the BOM and the
+artifacts, since an `implementation`-only BOM leaves consumers resolving an unversioned artifact,
+see F15 — plus `activity-compose` as `implementation`, used only inside `BaseComposeActivity`).
+Three pieces:
+
+- `AndroidCoreBaseTheme` (`core/ui/theme/ComposeTheme.kt`) bridges the XML M3 theme into a Compose
+  `MaterialTheme` by reading each `ColorScheme` role via `colorResource()` from the *same*
+  `core_color_*` resources `themes.xml` already uses — not by re-deriving them from theme attrs —
+  so `colors.xml`/`values-night/colors.xml` stay the one place to edit brand color, and day/night
+  switches recompose correctly for free, with no reactive plumbing of its own. `core_color_success`/
+  `core_color_stroke_subtle` are this base's own semantic colors beyond the M3 role set and are
+  deliberately left out of `ColorScheme` — read them directly with `colorResource()` where needed.
+- `ComposeView.setThemedContent()` (`core/ui/base/ComposeInterop.kt`) sets
+  `ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed` before calling `setContent`, which
+  is the primary interop path: a `ComposeView` embedded directly in an XML layout. Without that
+  strategy a `ComposeView` inside a Fragment leaks — the default strategy disposes on Fragment
+  destroy, not on view destroy, so a composition survives a back-stack pop attached to a torn-down
+  view.
+- `BaseComposeActivity` (F14) now has real substance: `setContent { AndroidCoreBaseTheme { Content() } }`,
+  with `Content()` a `@Composable` abstract member consumers override. Its KDoc states the one gap
+  a full-Compose screen must fill itself: `BaseActivity`'s View-based inset padding has nothing to
+  attach to here, so a `BaseComposeActivity` screen applies insets idiomatically inside `Content()`
+  (`Modifier.safeDrawingPadding()` / a `Scaffold`'s `contentWindowInsets`), not through the base.
+
+Verification is the primary interop path exercised for real, not the Activity stub:
+`DesignSystemFragment` embeds a `ComposeView` showing a Material3 `Card` themed by
+`AndroidCoreBaseTheme`, confirmed by screenshot on the physical device in both light and dark —
+the card takes this base's actual brand colors in both, not Compose's stock Material purple, and
+switches with the rest of the XML screen with no reactive code written for it. Getting there
+surfaced a real cross-module build bug — see F15.
+
 | Phase | Work | Gate |
 | --- | --- | --- |
 | **0** | F1 + F2 — public API contract; restore documented-but-missing API | `explicitApi()` green; internal/public audit recorded. **Enforced API dump deferred — BCV unusable, see F1** |
 | **1** | F3 + F9 — edge-to-edge insets; drop dead `statusBarColor`. F4 turned out to be a non-finding; R8 split out as F10 | **Done 2026-07-29** — verified by screenshot on a physical API 33 device |
 | **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers | **Done 2026-07-29** — `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit. `WindowSizeClass` deferred (no consumer yet); see F11/F12 for what the verification found |
 | **2.5** | Rebrand & Neutralize Base Architecture (`AndroidCoreBase`) | **Done 2026-07-29** — Root project, packages, themes rebranded to `AndroidCoreBase`; `BaseActivity` refactored into neutral `BaseActivity` + `BaseBindingActivity` + `BaseComposeActivity` stub |
-| **3** | F6 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | A sample screen in `:app` rendering Compose inside an XML layout |
+| **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
 | **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
 | **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |
 | — | **Pick an API-tracking tool (metalava), freeze the contract, publish v3.0.0** | |
