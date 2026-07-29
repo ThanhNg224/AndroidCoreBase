@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Programmatic dialog window sizing (Kotlin needs a plain dp resource here since
-         android.nonTransitiveRClass hides sdp-android's dimens from this module's own R class). -->
+    <!-- Dialog window sizing, read from Kotlin in BaseDialogFragment (not from a layout) to clamp
+         a dialog's width. Kept outside the spacing scale below on purpose: core_dialog_max_width is
+         a layout constraint, not a spacing step, and nothing should reuse it as one. -->
     <dimen name="core_dialog_screen_margin">24dp</dimen>
     <dimen name="core_dialog_max_width">360dp</dimen>
 
