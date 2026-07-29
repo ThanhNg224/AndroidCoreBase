@@ -1,8 +1,8 @@
 # CORE_MODULES.md
 
-`core/` lives in the `:core` Gradle module under `com.thanhng224.androidxmlbase.core`; `:app` consumes it through `implementation(project(":core"))`.
+`core/` lives in the `:core` Gradle module under `com.thanhng224.androidcorebase.core`; `:app` consumes it through `implementation(project(":core"))`.
 
-One section per `core/*` package that actually exists in this codebase today (verified against `core/src/main/java/com/thanhng224/androidxmlbase/core/` directly, not reconstructed from earlier phase plans). Each section lists the real public API surface and which feature(s) currently consume it. If a class/file isn't listed here, it doesn't exist yet — don't assume it does.
+One section per `core/*` package that actually exists in this codebase today (verified against `core/src/main/java/com/thanhng224/androidcorebase/core/` directly, not reconstructed from earlier phase plans). Each section lists the real public API surface and which feature(s) currently consume it. If a class/file isn't listed here, it doesn't exist yet — don't assume it does.
 
 > **Verify before you trust this file.** On 2026-07-29 three claims in the `core/architecture/result` section below were found to be wrong (a `map` extension and an `AppError` variant that did not exist, and a `ResultState.Error` field typed `String` when the code used `UiText`) — despite the paragraph above. They have been reconciled, but the lesson stands: check the source before building a decision on anything here. See `docs/MODERNIZATION.md` finding F2.
 
@@ -116,11 +116,11 @@ Formalizes process-startup work via `androidx.startup.Initializer` instead of `A
 
 All four are registered as `<meta-data>` entries under `androidx.startup.InitializationProvider` in `AndroidManifest.xml`.
 
-**Consumers:** `AndroidXmlBaseApplication` no longer does any of this directly — see its class doc comment.
+**Consumers:** `AndroidCoreBaseApplication` no longer does any of this directly — see its class doc comment.
 
 ## `core/work`
 
-WorkManager wiring: `AndroidXmlBaseApplication` implements `Configuration.Provider`, supplying `HiltWorkerFactory` so `@HiltWorker` classes get constructor injection. WorkManager's default initializer is disabled in `AndroidManifest.xml` (`androidx.work.WorkManagerInitializer` removed from the `androidx.startup.InitializationProvider` merge) so this custom configuration is the one actually used.
+WorkManager wiring: `AndroidCoreBaseApplication` implements `Configuration.Provider`, supplying `HiltWorkerFactory` so `@HiltWorker` classes get constructor injection. WorkManager's default initializer is disabled in `AndroidManifest.xml` (`androidx.work.WorkManagerInitializer` removed from the `androidx.startup.InitializationProvider` merge) so this custom configuration is the one actually used.
 
 - `HeartbeatWorker` (`@HiltWorker`, `CoroutineWorker`) — reference implementation only, not scheduled by default. Copy this shape (constructor pattern, `@Assisted context`/`@Assisted workerParameters`) for real background work.
 
@@ -210,7 +210,7 @@ A `com.android.test`-type module containing only a Macrobenchmark profile genera
 
 Enabled with `testFixtures { enable = true }`, so both `:core`'s own tests and consuming apps share
 one set of doubles instead of re-writing them. Consume with
-`testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:<version>"))`.
+`testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:<version>"))`.
 
 - `MainDispatcherRule` — swaps `Dispatchers.Main` for a `TestDispatcher`.
 - `FakeSecureStore` — in-memory `SecureStore`; its `stored` map (keyed by `SecureStoreKey.name`) is seedable and assertable.

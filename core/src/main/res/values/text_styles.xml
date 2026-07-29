@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextAppearance.AndroidXmlBase.Headline" parent="TextAppearance.MaterialComponents.Headline6">
+    <style name="TextAppearance.AndroidCoreBase.Headline" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:textColor">@color/core_color_on_surface</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.AndroidXmlBase.Body" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.AndroidCoreBase.Body" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
-    <style name="TextAppearance.AndroidXmlBase.Caption" parent="TextAppearance.MaterialComponents.Caption">
+    <style name="TextAppearance.AndroidCoreBase.Caption" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
@@ -19,18 +19,18 @@
          other screen in this base needs more than these 6 yet. Follow this same evidence-first
          rule for any future addition. -->
 
-    <style name="TextAppearance.AndroidXmlBase.BodyEmphasis" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.AndroidCoreBase.BodyEmphasis" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">@dimen/core_text_size_15</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.AndroidXmlBase.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
+    <style name="TextAppearance.AndroidCoreBase.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
         <item name="android:textSize">@dimen/core_text_size_14</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
-    <style name="TextAppearance.AndroidXmlBase.Micro" parent="TextAppearance.MaterialComponents.Caption">
+    <style name="TextAppearance.AndroidCoreBase.Micro" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/core_text_size_10</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>

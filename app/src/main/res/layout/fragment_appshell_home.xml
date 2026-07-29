@@ -20,14 +20,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/appshell_home_greeting"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Headline" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Headline" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_8"
             android:text="@string/appshell_home_subtitle"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_card_eyebrow"
                     android:textAllCaps="true"
-                    android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro"
+                    android:textAppearance="@style/TextAppearance.AndroidCoreBase.Micro"
                     android:textColor="@color/core_color_on_primary_container" />
 
                 <TextView
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/core_space_8"
                     android:text="@string/home_card_title"
-                    android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+                    android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
                     android:textColor="@color/core_color_on_primary_container" />
 
                 <TextView
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/core_space_8"
                     android:text="@string/home_card_body"
-                    android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
+                    android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body"
                     android:textColor="@color/core_color_on_primary_container" />
 
             </LinearLayout>
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_24"
             android:text="@string/home_navigation_hint"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Caption"
             android:textColor="@color/core_color_on_surface_variant" />
 
     </LinearLayout>

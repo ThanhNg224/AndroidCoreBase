@@ -6,7 +6,7 @@ Read `docs/CORE_MODULES.md` alongside this doc for the API surface of everything
 
 ## 1. Folder layout
 
-A feature lives under `app/src/main/java/com/example/androidxmlbase/feature/<name>/` with up to three top-level packages. Not every feature needs all three — see section 3 for when `data/` earns its place. Do not create a root-level `screens/` package: a screen belongs beside the domain and data code of the feature that owns it.
+A feature lives under `app/src/main/java/com/example/androidcorebase/feature/<name>/` with up to three top-level packages. Not every feature needs all three — see section 3 for when `data/` earns its place. Do not create a root-level `screens/` package: a screen belongs beside the domain and data code of the feature that owns it.
 
 ```
 sample/demo/

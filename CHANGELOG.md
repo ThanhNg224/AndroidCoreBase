@@ -29,7 +29,7 @@ redeclare the same dependencies and supply its own WorkManager configuration.
 - **Resources are `core_`-prefixed.** Layouts, anims, drawables, raw assets and styleables were
   renamed (`activity_transition` → `core_activity_transition`, `FrameButton` →
   `CoreFrameButton`, …) so a consumer's same-named resource can no longer silently override
-  `:core`'s. Styles/themes keep `Type.AndroidXmlBase.Variant` naming, which is already namespaced.
+  `:core`'s. Styles/themes keep `Type.AndroidCoreBase.Variant` naming, which is already namespaced.
 - **Storage identifiers are namespaced.** The DataStore (`app_settings` → `core_app_settings`),
   database (`app_database.db` → `core_app_database.db`), encrypted-prefs file and KeyStore alias
   were renamed off app-specific names. Existing installs start from empty state for these stores.
@@ -43,7 +43,7 @@ redeclare the same dependencies and supply its own WorkManager configuration.
 - `testFixtures` artifact with reusable doubles: `MainDispatcherRule`, `FakeSecureStore`,
   `FakeSettingsStore`, `FakeConnectivityChecker`, `FakeAuthTokenProvider`,
   `FakeAuthTokenRefresher`, `FakeAppLocaleApplier`. Consume with
-  `testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:<version>"))`.
+  `testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:<version>"))`.
 - `LICENSE` (MIT), referenced from the publication POM. `v1.0.0` shipped with no license.
 - CI (`.github/workflows/check.yml`) running the full gate on pushes and PRs, and a `jitpack.yml`
   pinning JDK 21 instead of relying on JitPack's default.
@@ -91,6 +91,6 @@ redeclare the same dependencies and supply its own WorkManager configuration.
 
 - Initial JitPack publication of `:core`.
 
-[Unreleased]: https://github.com/ThanhNg224/AndroidXmlBase/compare/v2.0.0...HEAD
-[v2.0.0]: https://github.com/ThanhNg224/AndroidXmlBase/compare/v1.0.0...v2.0.0
-[v1.0.0]: https://github.com/ThanhNg224/AndroidXmlBase/releases/tag/v1.0.0
+[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.0...HEAD
+[v2.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.0
+[v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0

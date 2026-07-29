@@ -17,45 +17,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/design_system_headline_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Headline" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Headline" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_8"
             android:text="@string/design_system_body_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_caption_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Caption" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_body_emphasis_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_body_medium_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_micro_sample"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Micro" />
 
         <!-- FrameButton #1: primary filled -->
-        <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+        <com.thanhng224.androidcorebase.core.ui.components.FrameButton
             android:layout_width="match_parent"
             android:layout_height="@dimen/core_size_48"
             android:layout_marginTop="@dimen/core_space_16"
@@ -70,10 +70,10 @@
                 android:text="@string/design_system_primary_button"
                 android:textColor="@color/core_color_on_primary" />
 
-        </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+        </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
         <!-- FrameButton #2: outlined -->
-        <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+        <com.thanhng224.androidcorebase.core.ui.components.FrameButton
             android:layout_width="match_parent"
             android:layout_height="@dimen/core_size_48"
             android:layout_marginTop="@dimen/core_space_12"
@@ -90,14 +90,14 @@
                 android:text="@string/design_system_outlined_button"
                 android:textColor="@color/core_color_primary" />
 
-        </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+        </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
         <!--
             ShadowLayout's shadow only renders where the caller sets android:elevation on the
             instance itself (it does not force its own elevation internally) — see Phase 5 Task A
             notes.
         -->
-        <com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout
+        <com.thanhng224.androidcorebase.core.ui.components.ShadowLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_16"
@@ -110,18 +110,18 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/core_space_16"
                 android:text="@string/design_system_shadow_card_text"
-                android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body" />
+                android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body" />
 
-        </com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout>
+        </com.thanhng224.androidcorebase.core.ui.components.ShadowLayout>
 
-        <com.thanhng224.androidxmlbase.core.ui.components.ThemedSwitch
+        <com.thanhng224.androidcorebase.core.ui.components.ThemedSwitch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_16"
             android:text="@string/design_system_switch_label" />
 
         <!-- FrameButton #3: triggers StyledSnackbar -->
-        <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+        <com.thanhng224.androidcorebase.core.ui.components.FrameButton
             android:id="@+id/btnShowSnackbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/core_size_48"
@@ -137,14 +137,14 @@
                 android:text="@string/design_system_show_snackbar"
                 android:textColor="@color/core_color_on_primary" />
 
-        </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+        </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/core_space_16"
             android:text="@string/design_system_result_demo_title"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption" />
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Caption" />
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"
@@ -199,7 +199,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body" />
+                android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body" />
 
         </LinearLayout>
 

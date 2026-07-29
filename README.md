@@ -1,6 +1,6 @@
-# AndroidXmlBase
+# AndroidCoreBase
 
-[![JitPack](https://jitpack.io/v/ThanhNg224/AndroidXmlBase.svg)](https://jitpack.io/#ThanhNg224/AndroidXmlBase)
+[![JitPack](https://jitpack.io/v/ThanhNg224/AndroidCoreBase.svg)](https://jitpack.io/#ThanhNg224/AndroidCoreBase)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg)](https://kotlinlang.org)
 [![MinSDK](https://img.shields.io/badge/MinSDK-24-green.svg)](https://developer.android.com)
 [![TargetSDK](https://img.shields.io/badge/TargetSDK-37-brightgreen.svg)](https://developer.android.com)
@@ -60,11 +60,11 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidXmlBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.0")
 }
 ```
 
-Check available tags and builds on [JitPack: ThanhNg224/AndroidXmlBase](https://jitpack.io/#ThanhNg224/AndroidXmlBase).
+Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
 
 ### 3. Configure Your Own Module
 
@@ -88,10 +88,10 @@ android {
 }
 
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidXmlBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.0")
     ksp("com.google.dagger:hilt-compiler:<version>")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:v2.0.0"))
+    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v2.0.0"))
 }
 ```
 
@@ -188,7 +188,7 @@ components (`FrameButton`, `ShadowLayout`, `ThemedSwitch`, `StyledSnackbar`, `Pr
 
 > **Note on resources:** every `:core` layout, anim, drawable, raw asset and styleable is
 > `core_`-prefixed so your own same-named resources can't silently override them. Styles keep
-> `TextAppearance.AndroidXmlBase.*` / `Theme.AndroidXmlBase.*` naming.
+> `TextAppearance.AndroidCoreBase.*` / `Theme.AndroidCoreBase.*` naming.
 
 > **Note on WorkManager:** `:core` leaves WorkManager's default initializer in place. If your app
 > supplies its own `Configuration.Provider`, remove the default initializer in *your* manifest.
@@ -198,9 +198,9 @@ components (`FrameButton`, `ShadowLayout`, `ThemedSwitch`, `StyledSnackbar`, `Pr
 ## 📂 Project Architecture
 
 ```
-AndroidXmlBase/
+AndroidCoreBase/
 ├── core/                                               # Reusable Library Module (Published to JitPack)
-│   └── src/main/java/com/thanhng224/androidxmlbase/core/
+│   └── src/main/java/com/thanhng224/androidcorebase/core/
 │       ├── architecture/                               # Base ResultState, DomainResult & StateViewModel
 │       ├── di/                                         # Hilt DI module bindings
 │       ├── localization/                               # Multi-language LocaleManager
@@ -214,8 +214,8 @@ AndroidXmlBase/
 │       └── work/                                       # Background WorkManager workers
 │
 └── app/                                                # Application Shell & Sample Showcase
-    └── src/main/java/com/example/androidxmlbase/
-        ├── AndroidXmlBaseApplication.kt                # Application entry point
+    └── src/main/java/com/example/androidcorebase/
+        ├── AndroidCoreBaseApplication.kt                # Application entry point
         ├── MainActivity.kt                             # Shell container & bottom navigation
         ├── appshell/                                   # App shell destinations (Home)
         ├── feature/                                    # Concrete feature modules (Settings)

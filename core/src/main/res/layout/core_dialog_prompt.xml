@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/core_space_12"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium" />
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium" />
 
     <!-- Technical details / code (optional) -->
     <TextView
@@ -30,11 +30,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/core_space_4"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro"
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.Micro"
         android:alpha="0.6" />
 
     <!-- Primary Action Button -->
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnPrimary"
         android:layout_width="match_parent"
         android:layout_height="@dimen/core_size_50"
@@ -48,13 +48,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_on_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
     <!-- Secondary Action Button -->
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnSecondary"
         android:layout_width="match_parent"
         android:layout_height="@dimen/core_size_50"
@@ -67,9 +67,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
 </LinearLayout>

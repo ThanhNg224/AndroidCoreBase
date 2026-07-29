@@ -1,4 +1,4 @@
-package com.thanhng224.androidxmlbase.core.work
+package com.thanhng224.androidcorebase.core.work
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider

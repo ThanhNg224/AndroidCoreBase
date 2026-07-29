@@ -1,10 +1,10 @@
-package com.thanhng224.androidxmlbase.core.storage.secure
+package com.thanhng224.androidcorebase.core.storage.secure
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.thanhng224.androidxmlbase.core.architecture.DefaultAppDispatchers
+import com.thanhng224.androidcorebase.core.architecture.DefaultAppDispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals

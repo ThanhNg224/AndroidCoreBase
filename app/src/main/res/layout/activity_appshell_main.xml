@@ -8,7 +8,7 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
-        style="@style/Widget.AndroidXmlBase.Toolbar"
+        style="@style/Widget.AndroidCoreBase.Toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/core_color_surface"
@@ -49,7 +49,7 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
-            style="@style/Widget.AndroidXmlBase.BottomNavigation"
+            style="@style/Widget.AndroidCoreBase.BottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"

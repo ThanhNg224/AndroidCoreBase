@@ -1,4 +1,4 @@
-package com.example.androidxmlbase.baselineprofile
+package com.example.androidcorebase.baselineprofile
 
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,7 +19,7 @@ class BaselineProfileGenerator {
 
     @Test
     fun generateStartupProfile() =
-        baselineProfileRule.collect(packageName = "com.example.androidxmlbase") {
+        baselineProfileRule.collect(packageName = "com.example.androidcorebase") {
             pressHome()
             startActivityAndWait()
 

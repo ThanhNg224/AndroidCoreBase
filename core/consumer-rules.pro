@@ -3,7 +3,7 @@
 # these rules only cover :core's own classes that those libraries reflect into.
 
 # Room accesses the database/entity/DAO classes and their fields by name via generated code.
--keep class com.thanhng224.androidxmlbase.core.storage.database.** { *; }
+-keep class com.thanhng224.androidcorebase.core.storage.database.** { *; }
 
 # Keep generic signature and class structure metadata if needed for reflection.
 -keepattributes Signature, InnerClasses, EnclosingMethod

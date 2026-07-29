@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/core_space_12"
                 android:accessibilityLiveRegion="polite"
-                android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
+                android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body"
                 android:textColor="@color/core_color_on_surface"
                 android:textStyle="bold"
                 tools:text="Loading…" />

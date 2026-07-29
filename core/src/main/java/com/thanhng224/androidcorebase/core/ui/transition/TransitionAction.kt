@@ -1,0 +1,12 @@
+package com.thanhng224.androidcorebase.core.ui.transition
+
+import android.os.Bundle
+
+/**
+ * A single unit of async work run by [com.thanhng224.androidcorebase.core.ui.base.TransitionActivity]
+ * while it covers the screen. Register implementations via a Hilt `@IntoMap` binding keyed by a
+ * unique action key so callers can request them by that key without a new Activity subclass.
+ */
+public fun interface TransitionAction {
+    public suspend fun perform(extras: Bundle)
+}

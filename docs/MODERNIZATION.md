@@ -250,7 +250,7 @@ was layered on top. Removing both removes a layer rather than adding one.
 Scale of the change: 148 references (144 `_Nsdp` + 4 `_Nssp`) across 13 layout, drawable,
 theme and text-style files, a dedicated "sdp/ssp
 convention" section in `docs/DESIGN_SYSTEM.md`, and three text styles
-(`TextAppearance.AndroidXmlBase.BodyEmphasis`/`BodyMedium`/`Micro`) that exist *only* to
+(`TextAppearance.AndroidCoreBase.BodyEmphasis`/`BodyMedium`/`Micro`) that exist *only* to
 participate in the ssp convention. `ResponsiveContextWrapper` itself has exactly one call site,
 `ui/base/BaseActivity.kt:30`.
 
@@ -363,11 +363,19 @@ this migration is a near-no-op at "baseline ~360dp" turned out to be false for
 in the migration — the 148-reference mapping itself was independently verified as an exact,
 faithful rename.
 
+**Phase 2.5 is complete (2026-07-29).** The project and modules were rebranded from `AndroidXmlBase` to **`AndroidCoreBase`**:
+- Root project renamed to `AndroidCoreBase` in `settings.gradle.kts`.
+- Core package moved to `com.thanhng224.androidcorebase.core` across `src/main`, `src/test`, and `src/testFixtures`.
+- App sample package moved to `com.example.androidcorebase` across `src/main`, `src/test`, and `src/androidTest`.
+- Themes and text styles renamed to `Theme.AndroidCoreBase`, `Base.Theme.AndroidCoreBase`, and `TextAppearance.AndroidCoreBase.*`.
+- Activity base hierarchy refactored: `BaseActivity` is now a neutral base class without ViewBinding parameters, managing edge-to-edge window insets, lifecycle flow collection (`collectOnStarted`), and MVI helpers; `BaseBindingActivity<VB : ViewBinding>` is introduced for XML ViewBinding activities; `BaseComposeActivity` stub is created ready for Phase 3 Compose Interop.
+
 | Phase | Work | Gate |
 | --- | --- | --- |
 | **0** | F1 + F2 — public API contract; restore documented-but-missing API | `explicitApi()` green; internal/public audit recorded. **Enforced API dump deferred — BCV unusable, see F1** |
 | **1** | F3 + F9 — edge-to-edge insets; drop dead `statusBarColor`. F4 turned out to be a non-finding; R8 split out as F10 | **Done 2026-07-29** — verified by screenshot on a physical API 33 device |
 | **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers | **Done 2026-07-29** — `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit. `WindowSizeClass` deferred (no consumer yet); see F11/F12 for what the verification found |
+| **2.5** | Rebrand & Neutralize Base Architecture (`AndroidCoreBase`) | **Done 2026-07-29** — Root project, packages, themes rebranded to `AndroidCoreBase`; `BaseActivity` refactored into neutral `BaseActivity` + `BaseBindingActivity` + `BaseComposeActivity` stub |
 | **3** | F6 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | A sample screen in `:app` rendering Compose inside an XML layout |
 | **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
 | **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |

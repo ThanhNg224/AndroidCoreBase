@@ -18,33 +18,33 @@ No hardcoded hex colors belong in layout XML outside these tokens (per `CLAUDE.m
 
 ## Font family
 
-No custom/brand font ships today — text renders in the system default. `Base.Theme.AndroidXmlBase` sets `android:fontFamily="sans-serif"` explicitly (no visual change from the previous implicit default) so that adding a real brand font later is a one-line swap in that single theme instead of touching every text style.
+No custom/brand font ships today — text renders in the system default. `Base.Theme.AndroidCoreBase` sets `android:fontFamily="sans-serif"` explicitly (no visual change from the previous implicit default) so that adding a real brand font later is a one-line swap in that single theme instead of touching every text style.
 
 ## Text style tokens
 
 Defined in `app/src/main/res/values/text_styles.xml` — 6 styles, each layered on a `TextAppearance.MaterialComponents.*` parent with `color_on_surface` and any weight override baked in:
 
-- `TextAppearance.AndroidXmlBase.Headline` (parent `Headline6`, bold) — screen/section titles.
-- `TextAppearance.AndroidXmlBase.Body` (parent `Body1`) — primary body copy.
-- `TextAppearance.AndroidXmlBase.Caption` (parent `Caption`) — secondary/small text (e.g. section labels).
-- `TextAppearance.AndroidXmlBase.BodyEmphasis` (parent `Body1`, 15sp, bold) — bold tappable-row/button label (`dialog_prompt.xml`'s action buttons).
-- `TextAppearance.AndroidXmlBase.BodyMedium` (parent `Body2`, 14sp) — secondary body copy (`dialog_prompt.xml`'s message text).
-- `TextAppearance.AndroidXmlBase.Micro` (parent `Caption`, 10sp) — fine print (`dialog_prompt.xml`'s technical-detail text).
+- `TextAppearance.AndroidCoreBase.Headline` (parent `Headline6`, bold) — screen/section titles.
+- `TextAppearance.AndroidCoreBase.Body` (parent `Body1`) — primary body copy.
+- `TextAppearance.AndroidCoreBase.Caption` (parent `Caption`) — secondary/small text (e.g. section labels).
+- `TextAppearance.AndroidCoreBase.BodyEmphasis` (parent `Body1`, 15sp, bold) — bold tappable-row/button label (`dialog_prompt.xml`'s action buttons).
+- `TextAppearance.AndroidCoreBase.BodyMedium` (parent `Body2`, 14sp) — secondary body copy (`dialog_prompt.xml`'s message text).
+- `TextAppearance.AndroidCoreBase.Micro` (parent `Caption`, 10sp) — fine print (`dialog_prompt.xml`'s technical-detail text).
 
 The last 3 exist because `dialog_prompt.xml` needs those exact sizes as raw `android:textSize` — unlike the original 3 (which inherit Material's fixed defaults), these set `android:textSize` explicitly to `@dimen/core_text_size_<n>` (see the "Spacing, radius, size & text-size scale" section below). That token is a fixed `sp` value now — until Phase 2 (2026-07-29) it was `@dimen/_Nssp` from `com.intuit.ssp`; see `docs/MODERNIZATION.md` D1 for why that dependency was retired.
 
-Apply via `android:textAppearance="@style/TextAppearance.AndroidXmlBase.<Style>"`. When an instance needs a color that differs from a tier's baked default (e.g. `BodyEmphasis` used with `color_on_primary` inside a filled button), override `android:textColor` directly on the `TextView` rather than adding a new tier — see `dialog_prompt.xml`. This is still a deliberately small scale — **don't invent a larger type scale until a real screen needs more than these 6**; a project forked from this base with its own real screens (see e.g. the FaceOTP host's `docs/DESIGN_SYSTEM.md`) will likely need to grow this further, evidenced by its own raw sizes, not speculatively ahead of time.
+Apply via `android:textAppearance="@style/TextAppearance.AndroidCoreBase.<Style>"`. When an instance needs a color that differs from a tier's baked default (e.g. `BodyEmphasis` used with `color_on_primary` inside a filled button), override `android:textColor` directly on the `TextView` rather than adding a new tier — see `dialog_prompt.xml`. This is still a deliberately small scale — **don't invent a larger type scale until a real screen needs more than these 6**; a project forked from this base with its own real screens (see e.g. the FaceOTP host's `docs/DESIGN_SYSTEM.md`) will likely need to grow this further, evidenced by its own raw sizes, not speculatively ahead of time.
 
 ## Component reference
 
-All 5 components live in `com.thanhng224.androidxmlbase.core.ui.components` (full API surface in `docs/CORE_MODULES.md`'s "`core/ui/components`" section — this section focuses on when/how to use each, not the full class listing).
+All 5 components live in `com.thanhng224.androidcorebase.core.ui.components` (full API surface in `docs/CORE_MODULES.md`'s "`core/ui/components`" section — this section focuses on when/how to use each, not the full class listing).
 
 ### `FrameButton`
 
 A `FrameLayout`-based button — the **only** button shape this base has built. Attrs: `app:buttonBackgroundColor`, `app:buttonCornerRadius`, `app:buttonStrokeWidth`, `app:buttonStrokeColor`, `app:buttonShape` (`rectangle` | `oval`). It is a container, not a text widget — wrap a `TextView` inside it for the label. The component marks itself as a button for accessibility and enforces a 48dp minimum touch target.
 
 ```xml
-<com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+<com.thanhng224.androidcorebase.core.ui.components.FrameButton
     android:layout_width="match_parent"
     android:layout_height="@dimen/core_size_48"
     app:buttonBackgroundColor="@color/color_primary"
@@ -58,7 +58,7 @@ A `FrameLayout`-based button — the **only** button shape this base has built. 
         android:text="@string/design_system_primary_button"
         android:textColor="@color/color_on_primary" />
 
-</com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+</com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 ```
 
 `fragment_design_system.xml` shows two styles side by side: filled (`buttonBackgroundColor="@color/color_primary"`, no stroke) and outlined (`buttonBackgroundColor="@color/color_surface"`, `buttonStrokeColor="@color/color_primary"`, `buttonStrokeWidth="@dimen/core_stroke_width"`).
@@ -72,14 +72,14 @@ A `FrameLayout` that draws a soft platform shadow behind its content via elevati
 **The caller must set `android:elevation` on the instance itself** — `ShadowLayout` does not force its own elevation internally, it only supplies the rounded outline the elevation shadow renders against:
 
 ```xml
-<com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout
+<com.thanhng224.androidcorebase.core.ui.components.ShadowLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="@dimen/core_space_4"
     app:shadowBackgroundColor="@color/color_surface"
     app:shadowCornerRadius="@dimen/core_radius_8">
     <!-- content -->
-</com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout>
+</com.thanhng224.androidcorebase.core.ui.components.ShadowLayout>
 ```
 
 ### `ThemedSwitch`
@@ -100,7 +100,7 @@ Use a Material single-choice dialog for a short, mutually exclusive settings val
 
 ### Icon color
 
-Monochrome vector sources use `color_on_surface`, never a hardcoded white fill. Apply a contextual tint only where the icon sits on a different semantic container (for example, `color_on_primary_container` in a settings-row icon). `Widget.AndroidXmlBase.Toolbar` explicitly supplies `colorControlNormal` and navigation-icon tint from `color_on_surface`, so app-bar action icons remain legible in both light and dark themes. White remains valid only for a foreground deliberately drawn on a colored container, such as the success checkmark.
+Monochrome vector sources use `color_on_surface`, never a hardcoded white fill. Apply a contextual tint only where the icon sits on a different semantic container (for example, `color_on_primary_container` in a settings-row icon). `Widget.AndroidCoreBase.Toolbar` explicitly supplies `colorControlNormal` and navigation-icon tint from `color_on_surface`, so app-bar action icons remain legible in both light and dark themes. White remains valid only for a foreground deliberately drawn on a colored container, such as the success checkmark.
 
 ## Spacing, radius, size & text-size scale
 
@@ -131,7 +131,7 @@ android:textSize="@dimen/core_text_size_14"
 - **`core_stroke_width`** — the one hairline thickness this base uses, for card/button strokes and
   divider lines alike.
 - **`core_text_size_<n>`** — fixed `sp` sizes, replacing `@dimen/_Nssp` (used by the 3 raw-size text
-  styles above and `Widget.AndroidXmlBase.IconButton`).
+  styles above and `Widget.AndroidCoreBase.IconButton`).
 
 **No hardcoded non-zero `dp`/`sp` literal belongs in a layout XML** — use these tokens consistently,
 same as the sdp/ssp convention required before it.

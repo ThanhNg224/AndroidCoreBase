@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is a **reusable Android XML base project**, not a finished product app. It is an **XML + ViewBinding, MVVM + Clean Architecture** base; `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and the source tree are the current source of truth.
 
-The starter Compose surface has been removed from `app`: ViewBinding is enabled, layouts live under `app/src/main/res/layout/`, and the current source tree already includes the core packages described in `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and `docs/DESIGN_SYSTEM.md`. Treat those docs and the real source under `app/src/main/java/com/example/androidxmlbase/` as the current state before adding new core modules or feature code.
+The starter Compose surface has been removed from `app`: ViewBinding is enabled, layouts live under `app/src/main/res/layout/`, and the current source tree already includes the core packages described in `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and `docs/DESIGN_SYSTEM.md`. Treat those docs and the real source under `app/src/main/java/com/example/androidcorebase/` as the current state before adding new core modules or feature code.
 
 Reference project for generic ideas only (do not copy blindly, and never touch this path):
 ```
@@ -36,15 +36,15 @@ Once feature development on top of this base starts, the strict "proven need" ru
 ./gradlew check                     # full local gate: unit tests, lint, ktlint, detekt, Kover coverage
 ./gradlew :app:ktlintFormat         # auto-format Kotlin where ktlint can safely fix
 ./gradlew connectedAndroidTest      # run instrumented tests (app/src/androidTest), needs device/emulator
-./gradlew :app:testDebugUnitTest --tests "com.example.androidxmlbase.SomeTest"   # run a single unit test class
-./gradlew :app:testDebugUnitTest --tests "com.example.androidxmlbase.SomeTest.someMethod"  # run a single test method
+./gradlew :app:testDebugUnitTest --tests "com.example.androidcorebase.SomeTest"   # run a single unit test class
+./gradlew :app:testDebugUnitTest --tests "com.example.androidcorebase.SomeTest.someMethod"  # run a single test method
 ```
 
 Quality gates are part of the base: Android lint, ktlint, detekt, and Kover coverage are wired into `check`. Kover enforces 80%+ line coverage on the explicitly unit-testable core/domain/data/viewmodel surface, excluding Android UI glue, Hilt generated code, and generated databinding/R classes.
 
 ## Architecture
 
-Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidxmlbase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidxmlbase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
+Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidcorebase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidcorebase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
 
 Dependency direction:
 ```

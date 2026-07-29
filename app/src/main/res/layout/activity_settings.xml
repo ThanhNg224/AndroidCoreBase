@@ -9,7 +9,7 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        style="@style/Widget.AndroidXmlBase.Toolbar"
+        style="@style/Widget.AndroidCoreBase.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/core_color_background"
@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_subtitle"
-                android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
+                android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium"
                 android:textColor="@color/core_color_on_surface_variant" />
 
             <TextView
@@ -48,7 +48,7 @@
                 android:layout_marginTop="@dimen/core_space_24"
                 android:layout_marginBottom="@dimen/core_space_8"
                 android:text="@string/settings_personalization_section"
-                android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+                android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
                 android:textColor="@color/core_color_primary" />
 
             <com.google.android.material.card.MaterialCardView
@@ -97,7 +97,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/core_space_16"
                             android:text="@string/settings_appearance_title"
-                            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+                            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
                             app:layout_constraintBottom_toTopOf="@id/tvAppearanceSummary"
                             app:layout_constraintEnd_toStartOf="@id/ivAppearanceChevron"
                             app:layout_constraintStart_toEndOf="@id/ivAppearance"
@@ -111,7 +111,7 @@
                             android:layout_marginStart="@dimen/core_space_16"
                             android:layout_marginTop="@dimen/core_space_2"
                             android:maxLines="1"
-                            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
+                            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium"
                             android:textColor="@color/core_color_on_surface_variant"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/ivAppearanceChevron"
@@ -171,7 +171,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/core_space_16"
                             android:text="@string/settings_language_section_title"
-                            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+                            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
                             app:layout_constraintBottom_toTopOf="@id/tvLanguageSummary"
                             app:layout_constraintEnd_toStartOf="@id/ivLanguageChevron"
                             app:layout_constraintStart_toEndOf="@id/ivLanguage"
@@ -185,7 +185,7 @@
                             android:layout_marginStart="@dimen/core_space_16"
                             android:layout_marginTop="@dimen/core_space_2"
                             android:maxLines="1"
-                            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium"
+                            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium"
                             android:textColor="@color/core_color_on_surface_variant"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/ivLanguageChevron"

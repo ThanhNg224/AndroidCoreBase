@@ -10,13 +10,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.androidxmlbase"
+    namespace = "com.example.androidcorebase"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.androidxmlbase"
+        applicationId = "com.example.androidcorebase"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -144,7 +144,7 @@ kover {
                     "*Hilt_*",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    "*.AndroidXmlBaseApplication",
+                    "*.AndroidCoreBaseApplication",
                     "*.MainActivity",
                     "*Activity",
                     "*Fragment",

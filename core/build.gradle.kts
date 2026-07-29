@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.thanhng224.androidxmlbase.core"
+    namespace = "com.thanhng224.androidcorebase.core"
     resourcePrefix = "core_"
     compileSdk {
         version = release(37)
@@ -37,7 +37,7 @@ android {
         buildConfig = true
     }
     // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
-    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidXmlBase:<v>"))
+    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidCoreBase:<v>"))
     testFixtures {
         enable = true
     }
@@ -45,7 +45,7 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
         // Files, ids and styleables carry the core_ prefix. Styles/themes instead follow the
-        // platform's Type.Namespace.Variant convention (TextAppearance.AndroidXmlBase.Body, like
+        // platform's Type.Namespace.Variant convention (TextAppearance.AndroidCoreBase.Body, like
         // TextAppearance.MaterialComponents.Body1) — already namespaced, and core_-prefixing them
         // would be non-idiomatic. Kept visible as a warning rather than silenced.
         warning += "ResourceName"
@@ -56,7 +56,7 @@ publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.github.ThanhNg224"
-            artifactId = "AndroidXmlBase"
+            artifactId = "AndroidCoreBase"
             version = System.getenv("VERSION") ?: project.property("VERSION_NAME") as String
 
             afterEvaluate {
@@ -64,13 +64,13 @@ publishing {
             }
 
             pom {
-                name.set("AndroidXmlBase Core")
+                name.set("AndroidCoreBase Core")
                 description.set("Reusable XML + ViewBinding, MVVM + Clean Architecture Android base.")
-                url.set("https://github.com/ThanhNg224/AndroidXmlBase")
+                url.set("https://github.com/ThanhNg224/AndroidCoreBase")
                 licenses {
                     license {
                         name.set("MIT License")
-                        url.set("https://github.com/ThanhNg224/AndroidXmlBase/blob/main/LICENSE")
+                        url.set("https://github.com/ThanhNg224/AndroidCoreBase/blob/main/LICENSE")
                     }
                 }
             }
@@ -158,7 +158,7 @@ kover {
             includes {
                 // Whole module, not a hand-picked allowlist. Anything genuinely untestable on the
                 // JVM is excluded below with a reason.
-                classes("com.thanhng224.androidxmlbase.core.*")
+                classes("com.thanhng224.androidcorebase.core.*")
             }
             excludes {
                 classes(

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Base.Theme.AndroidXmlBase" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.AndroidCoreBase" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/core_color_primary</item>
         <item name="colorOnPrimary">@color/core_color_on_primary</item>
         <item name="colorPrimaryContainer">@color/core_color_primary_container</item>
@@ -26,37 +26,37 @@
         <item name="colorErrorContainer">@color/core_color_error_container</item>
         <item name="colorOnErrorContainer">@color/core_color_on_error_container</item>
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
-        <item name="materialButtonStyle">@style/Widget.AndroidXmlBase.Button</item>
-        <item name="android:buttonBarButtonStyle">@style/Widget.AndroidXmlBase.Button.TextButton</item>
+        <item name="materialButtonStyle">@style/Widget.AndroidCoreBase.Button</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.AndroidCoreBase.Button.TextButton</item>
         <!-- Explicit default (matches the system fallback, so no visual change today) so a
              future brand font is a one-line swap here instead of touching every text style. -->
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="Theme.AndroidXmlBase" parent="Base.Theme.AndroidXmlBase">
+    <style name="Theme.AndroidCoreBase" parent="Base.Theme.AndroidCoreBase">
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.AndroidXmlBase.Splash" parent="Theme.SplashScreen">
+    <style name="Theme.AndroidCoreBase.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/core_color_surface</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/core_ic_splash_mark</item>
-        <item name="postSplashScreenTheme">@style/Theme.AndroidXmlBase</item>
+        <item name="postSplashScreenTheme">@style/Theme.AndroidCoreBase</item>
     </style>
 
-    <style name="Theme.AndroidXmlBase.Transition" parent="Theme.AndroidXmlBase">
-        <item name="android:windowAnimationStyle">@style/Animation_AndroidXmlBase_Transition</item>
+    <style name="Theme.AndroidCoreBase.Transition" parent="Theme.AndroidCoreBase">
+        <item name="android:windowAnimationStyle">@style/Animation_AndroidCoreBase_Transition</item>
         <item name="android:windowIsTranslucent">false</item>
     </style>
 
     <!-- Custom base button style enabling text auto-wrap to prevent truncation -->
-    <style name="Widget.AndroidXmlBase.Button" parent="Widget.Material3.Button">
+    <style name="Widget.AndroidCoreBase.Button" parent="Widget.Material3.Button">
         <item name="android:singleLine">false</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">none</item>
     </style>
 
     <!-- Custom button bar text button style enabling text auto-wrap and reducing padding -->
-    <style name="Widget.AndroidXmlBase.Button.TextButton" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.AndroidCoreBase.Button.TextButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:singleLine">false</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">none</item>
@@ -65,7 +65,7 @@
     </style>
 
     <!-- Shared button style enforcing 48dp height, 12dp corners, and icon styling. -->
-    <style name="Widget.AndroidXmlBase.IconButton" parent="Widget.Material3.Button">
+    <style name="Widget.AndroidCoreBase.IconButton" parent="Widget.Material3.Button">
         <item name="android:minHeight">@dimen/core_size_48</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/core_text_size_13</item>
@@ -75,32 +75,32 @@
         <item name="iconSize">@dimen/core_size_18</item>
     </style>
 
-    <style name="Widget.AndroidXmlBase.BottomNavigation" parent="Widget.Material3Expressive.BottomNavigationView">
+    <style name="Widget.AndroidCoreBase.BottomNavigation" parent="Widget.Material3Expressive.BottomNavigationView">
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="Widget.AndroidXmlBase.Toolbar" parent="Widget.Material3.Toolbar.Surface">
+    <style name="Widget.AndroidCoreBase.Toolbar" parent="Widget.Material3.Toolbar.Surface">
         <item name="colorControlNormal">@color/core_color_on_surface</item>
         <item name="navigationIconTint">@color/core_color_on_surface</item>
     </style>
 
     <!-- Dialog entry/exit animations -->
-    <style name="Animation_AndroidXmlBase_Dialog_Slide" parent="android:Animation">
+    <style name="Animation_AndroidCoreBase_Dialog_Slide" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/core_dialog_slide_in</item>
         <item name="android:windowExitAnimation">@anim/core_dialog_slide_out</item>
     </style>
 
-    <style name="Animation_AndroidXmlBase_Dialog_Scale" parent="android:Animation">
+    <style name="Animation_AndroidCoreBase_Dialog_Scale" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/core_dialog_scale_in</item>
         <item name="android:windowExitAnimation">@anim/core_dialog_scale_out</item>
     </style>
 
-    <style name="Animation_AndroidXmlBase_Dialog_Fade" parent="android:Animation">
+    <style name="Animation_AndroidCoreBase_Dialog_Fade" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/core_transition_fade_in</item>
         <item name="android:windowExitAnimation">@anim/core_transition_fade_out</item>
     </style>
 
-    <style name="Animation_AndroidXmlBase_Transition">
+    <style name="Animation_AndroidCoreBase_Transition">
         <item name="android:activityOpenEnterAnimation">@anim/core_transition_fade_in</item>
         <item name="android:activityOpenExitAnimation">@anim/core_transition_no_animation</item>
         <item name="android:activityCloseEnterAnimation">@anim/core_transition_no_animation</item>
