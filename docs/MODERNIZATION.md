@@ -75,8 +75,9 @@ Consequence: **there is currently no enforced API dump.** `explicitApi()` makes 
 visible and reviewable in source, which is most of the value, but nothing mechanically fails a
 build when the public API changes. The candidate replacement is **metalava** (what AndroidX
 itself uses; it does support Android library variants, e.g. via the
-`me.tylerbwong.gradle.metalava` plugin). Evaluate it before the v3.0.0 freeze — that freeze is
-the point where an unenforced contract starts costing something.
+`me.tylerbwong.gradle.metalava` plugin). Evaluate it before the API freeze — see D4 for why the
+freeze publishes as `v1.0.0`, not `v3.0.0` — since that freeze is the point where an unenforced
+contract starts costing something.
 
 Evidence of the real cost: a prospective consumer needed 11 declarations that are `internal`
 (`DefaultAppDispatchers`, `DataStoreSettingsStore`, `appSettingsDataStore`, `RetrofitApiClient`,
@@ -260,11 +261,9 @@ repo is not renamed *and* tag `v2.0.0` predates the rebrand, so its published ar
 
 Chosen fix (2026-07-29): rename the GitHub repo to `AndroidCoreBase`, update `git remote`, and cut a
 fresh tag — a new tag is required either way before README's coordinate is truthful, since no
-existing tag contains a rebranded artifact. Note the version question this raises: the package
-rename (`com.thanhng224.androidxmlbase.core` → `...androidcorebase.core`) is a breaking change for
-any consumer, so it warrants a major bump, which collides with this file's plan to publish `v3.0.0`
-at the post-Phase-5 API freeze. Decide whether the rebrand takes `v3.0.0` and the freeze becomes
-`v4.0.0`, or the rebrand ships unpublished until the freeze.
+existing tag contains a rebranded artifact. Note the version question this raised: the package
+rename is a breaking change, so it appeared to warrant a major bump past `v2.0.0` — see D4 for the
+resolution, which supersedes that reasoning entirely.
 
 Verify per the memory, don't guess: fetch `https://jitpack.io/com/github/<user>/<repo>/<tag>/build.log`.
 
@@ -394,7 +393,7 @@ includes Kover ≥80% line coverage on the unit-testable surface).
 tests; the internal/public audit found no widening was needed; `docs/CORE_MODULES.md` is
 reconciled. `./gradlew check` green. One goal was **not** met: there is no enforced API dump,
 because BCV cannot see Android library variants — see F1, and task "Evaluate metalava" before the
-v3.0.0 freeze.
+API freeze (D4).
 
 Adding `AppError.Business` made an exhaustive `when` in `:app`'s `DemoViewModel.toWeatherError()`
 non-exhaustive, which is exactly the signal wanted: the in-repo consumer catches sealed-hierarchy
@@ -493,7 +492,7 @@ surfaced a real cross-module build bug — see F15.
 | **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
 | **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
 | **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |
-| — | **Pick an API-tracking tool (metalava), freeze the contract, publish v3.0.0** | |
+| — | **Pick an API-tracking tool (metalava), freeze the contract, publish `v1.0.0`** (see D4) | |
 | **6** | Kalapa adopts the published AAR — the first real integration test | Kalapa builds and runs against the artifact, no workarounds |
 
 Phase 1 precedes Phase 5 deliberately: insets and predictive back are platform-correctness
@@ -547,11 +546,31 @@ theme to `MaterialTheme` (natural home: the existing `ui/theme/AppTheme` + `Them
 XML + ViewBinding remains the default and documented path. Compose is a heavy dependency, so its
 packaging is decided together with F7's topology measurement in Phase 4, not separately.
 
-**D3 — Break API freely until v3.0.0.** *(2026-07-29)*
+**D3 — Break API freely until the API freeze.** *(2026-07-29)*
 
 No consumer exists yet — not even Kalapa, which still runs its own copied fork. So Phases 0–5
 ship no deprecated aliases and no compatibility shims. `core/api/core.api` is a review tool
-during those phases and becomes a binding contract only at the v3.0.0 freeze.
+during those phases and becomes a binding contract only at the freeze (D4).
+
+**D4 — The freeze publishes as `v1.0.0`, not `v3.0.0`; the existing `v1.0.0`/`v2.0.0` tags are
+retired.** *(2026-07-29)*
+
+Both existing tags were published to JitPack, but neither was ever consumed by anything outside
+this repo — Kalapa, the one prospective consumer, still runs its own pre-`:core` fork (see "What
+triggered this" above). SemVer's `v1.0.0` means "first stable public API a consumer can build
+against"; that description fits the version this modernization effort produces at the freeze, not
+either existing tag. Continuing the count to `v3.0.0` (or `v4.0.0`, once the F13 rebrand's own
+major bump is folded in) would encode two "major versions" of continuity obligation to consumers
+that never existed.
+
+Mechanics, to run at the freeze (not before — this is a decision recorded now, not executed now):
+delete the `v1.0.0` and `v2.0.0` tags both locally and on the remote (`git push origin
+:refs/tags/vX.0.0`), consolidate `CHANGELOG.md`'s existing `[v1.0.0]`/`[v2.0.0]` entries into
+pre-history context rather than real releases, and cut a fresh `v1.0.0` tag once Phase 5 closes.
+Low blast radius to verify first: no forks, 1 stargazer, 0 watchers (checked 2026-07-29) — but
+confirm this is still true immediately before deleting, and get explicit confirmation before any
+tag deletion or force-push, per the destructive-operation rule regardless of how low the blast
+radius looks.
 
 ## Explicitly out of scope
 
