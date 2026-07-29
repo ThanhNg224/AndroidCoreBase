@@ -32,9 +32,9 @@ import kotlin.time.Duration.Companion.milliseconds
  * correctness, it's just harmless and more consistent.
  */
 @AndroidEntryPoint
-class TransitionActivity : AppCompatActivity() {
+public class TransitionActivity : AppCompatActivity() {
     @Inject
-    lateinit var actions: Map<String, @JvmSuppressWildcards TransitionAction>
+    public lateinit var actions: Map<String, @JvmSuppressWildcards TransitionAction>
 
     private var actionHasCompleted = false
 
@@ -87,7 +87,7 @@ class TransitionActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
+    public companion object {
         private const val EXTRA_ACTION_KEY = "extra_action_key"
         private const val STATE_ACTION_COMPLETED = "state_action_completed"
         private const val TRANSITION_ENTER_DURATION_MS = 320L
@@ -96,7 +96,7 @@ class TransitionActivity : AppCompatActivity() {
         private const val ENTRANCE_START_ALPHA = 0f
         private const val ENTRANCE_START_SCALE = 0.9f
 
-        fun createIntent(
+        public fun createIntent(
             context: Context,
             actionKey: String,
             extras: Bundle = Bundle.EMPTY,

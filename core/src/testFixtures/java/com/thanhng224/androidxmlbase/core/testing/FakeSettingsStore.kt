@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 /** In-memory [SettingsStore] that emits on change, so `observe` behaves like DataStore's. */
-class FakeSettingsStore : SettingsStore {
+public class FakeSettingsStore : SettingsStore {
     private val data = mutableMapOf<String, Any>()
     private val changes = MutableStateFlow<Map<String, Any>>(emptyMap())
 

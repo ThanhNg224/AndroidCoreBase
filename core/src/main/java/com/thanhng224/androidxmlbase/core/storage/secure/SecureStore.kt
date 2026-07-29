@@ -1,24 +1,24 @@
 package com.thanhng224.androidxmlbase.core.storage.secure
 
 @JvmInline
-value class SecureStoreKey(
-    val name: String,
+public value class SecureStoreKey(
+    public val name: String,
 )
 
-interface SecureStore {
-    suspend fun getString(key: SecureStoreKey): String?
+public interface SecureStore {
+    public suspend fun getString(key: SecureStoreKey): String?
 
-    suspend fun putString(
+    public suspend fun putString(
         key: SecureStoreKey,
         value: String,
     )
 
-    suspend fun remove(key: SecureStoreKey)
+    public suspend fun remove(key: SecureStoreKey)
 
-    suspend fun clear()
+    public suspend fun clear()
 }
 
-object SecureStoreKeys {
-    val AUTH_TOKEN = SecureStoreKey("auth_token")
-    val REFRESH_TOKEN = SecureStoreKey("refresh_token")
+public object SecureStoreKeys {
+    public val AUTH_TOKEN: SecureStoreKey = SecureStoreKey("auth_token")
+    public val REFRESH_TOKEN: SecureStoreKey = SecureStoreKey("refresh_token")
 }

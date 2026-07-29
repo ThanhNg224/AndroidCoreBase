@@ -11,19 +11,19 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-abstract class StateViewModel<S : UiState, E : UiEvent, F : UiEffect>(
+public abstract class StateViewModel<S : UiState, E : UiEvent, F : UiEffect>(
     initialState: S,
 ) : ViewModel() {
     private val _state = MutableStateFlow(initialState)
-    val state: StateFlow<S> = _state.asStateFlow()
+    public val state: StateFlow<S> = _state.asStateFlow()
 
     private val _effect = Channel<F>(Channel.BUFFERED)
-    val effect: Flow<F> = _effect.receiveAsFlow()
+    public val effect: Flow<F> = _effect.receiveAsFlow()
 
     protected val currentState: S
         get() = _state.value
 
-    abstract fun onEvent(event: E)
+    public abstract fun onEvent(event: E)
 
     protected fun setState(reducer: S.() -> S) {
         _state.update { it.reducer() }

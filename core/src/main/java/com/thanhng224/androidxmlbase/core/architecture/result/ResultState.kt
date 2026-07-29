@@ -2,20 +2,20 @@ package com.thanhng224.androidxmlbase.core.architecture.result
 
 import com.thanhng224.androidxmlbase.core.ui.text.UiText
 
-sealed interface ResultState<out T> {
-    data object Loading : ResultState<Nothing>
+public sealed interface ResultState<out T> {
+    public data object Loading : ResultState<Nothing>
 
-    data class Success<T>(
+    public data class Success<T>(
         val data: T,
     ) : ResultState<T>
 
-    data class Error(
+    public data class Error(
         val message: UiText,
         val cause: Throwable? = null,
     ) : ResultState<Nothing>
 }
 
-inline fun <T, R> ResultState<T>.fold(
+public inline fun <T, R> ResultState<T>.fold(
     onLoading: () -> R,
     onSuccess: (T) -> R,
     onError: (UiText, Throwable?) -> R,

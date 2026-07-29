@@ -9,18 +9,18 @@ import java.util.Locale
  * languages :core ships no strings for: build your own [AppLanguage] list and hand it to
  * [LocaleManager], or bind [SupportedLanguages] in Hilt.
  */
-data class AppLanguage(
+public data class AppLanguage(
     val languageTag: String,
     @param:StringRes val displayNameResId: Int,
 ) {
-    companion object {
-        val ENGLISH = AppLanguage("en", R.string.core_language_english)
-        val VIETNAMESE = AppLanguage("vi-VN", R.string.core_language_vietnamese)
+    public companion object {
+        public val ENGLISH: AppLanguage = AppLanguage("en", R.string.core_language_english)
+        public val VIETNAMESE: AppLanguage = AppLanguage("vi-VN", R.string.core_language_vietnamese)
 
         /** The languages :core itself ships display-name strings for. */
-        val BUILT_IN: List<AppLanguage> = listOf(ENGLISH, VIETNAMESE)
+        public val BUILT_IN: List<AppLanguage> = listOf(ENGLISH, VIETNAMESE)
 
-        fun findByLanguageTag(
+        public fun findByLanguageTag(
             languageTag: String,
             candidates: List<AppLanguage> = BUILT_IN,
         ): AppLanguage? {
@@ -37,6 +37,6 @@ data class AppLanguage(
  * The language list [LocaleManager] resolves against. Bind this from your app's Hilt module to
  * replace [AppLanguage.BUILT_IN]; without a binding, the built-in list is used.
  */
-data class SupportedLanguages(
+public data class SupportedLanguages(
     val values: List<AppLanguage>,
 )

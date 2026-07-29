@@ -11,17 +11,17 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface ThemeManager {
-    val currentTheme: Flow<AppTheme>
+public interface ThemeManager {
+    public val currentTheme: Flow<AppTheme>
 
     /** True once the persisted theme has been read and applied at least once this process. */
-    val isThemeApplied: StateFlow<Boolean>
+    public val isThemeApplied: StateFlow<Boolean>
 
-    suspend fun getTheme(): AppTheme
+    public suspend fun getTheme(): AppTheme
 
-    suspend fun setTheme(theme: AppTheme)
+    public suspend fun setTheme(theme: AppTheme)
 
-    fun applyTheme(theme: AppTheme)
+    public fun applyTheme(theme: AppTheme)
 }
 
 @Singleton

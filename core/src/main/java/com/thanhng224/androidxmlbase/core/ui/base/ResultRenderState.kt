@@ -5,14 +5,14 @@ import com.thanhng224.androidxmlbase.core.architecture.result.ResultState
 import com.thanhng224.androidxmlbase.core.ui.text.UiText
 
 /** Visibility-only projection of a [ResultState], independent of any View. */
-data class ResultRenderState(
+public data class ResultRenderState(
     val isLoadingVisible: Boolean,
     val isContentVisible: Boolean,
     val isErrorVisible: Boolean,
     val errorMessage: UiText?,
 )
 
-fun <T> ResultState<T>.toRenderState(): ResultRenderState =
+public fun <T> ResultState<T>.toRenderState(): ResultRenderState =
     when (this) {
         is ResultState.Loading ->
             ResultRenderState(
@@ -42,7 +42,7 @@ fun <T> ResultState<T>.toRenderState(): ResultRenderState =
  * unit-tested directly (needs a real [View]); the mapping it applies is covered by
  * [toRenderState]'s tests.
  */
-fun ResultRenderState.applyVisibilityTo(
+public fun ResultRenderState.applyVisibilityTo(
     loadingView: View,
     contentView: View,
     errorView: View,

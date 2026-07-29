@@ -6,10 +6,10 @@ import android.content.Intent
 import android.os.Build
 import javax.inject.Inject
 
-class ActivityNavigator
+public class ActivityNavigator
     @Inject
     constructor() {
-        fun navigate(
+        public fun navigate(
             context: Context,
             destination: ActivityDestination,
         ) {
@@ -28,14 +28,14 @@ class ActivityNavigator
             }
         }
 
-        fun finish(activity: Activity) {
+        public fun finish(activity: Activity) {
             activity.finish()
         }
 
-        companion object {
-            const val EXTRA_TRANSITION_TYPE = "extra_transition_type"
+        public companion object {
+            public const val EXTRA_TRANSITION_TYPE: String = "extra_transition_type"
 
-            fun applyTransition(
+            public fun applyTransition(
                 activity: Activity,
                 type: TransitionType,
                 isOpen: Boolean,

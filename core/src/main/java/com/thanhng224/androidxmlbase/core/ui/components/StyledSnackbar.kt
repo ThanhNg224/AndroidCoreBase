@@ -8,8 +8,8 @@ import com.thanhng224.androidxmlbase.core.ui.drawable.DrawableShape
 import com.thanhng224.androidxmlbase.core.ui.drawable.ShapeDrawableFactory
 
 /** Status message surface backed by a styled [Snackbar] for foreground reliability. */
-object StyledSnackbar {
-    fun show(
+public object StyledSnackbar {
+    public fun show(
         anchorView: View,
         message: String,
         duration: Int = Snackbar.LENGTH_SHORT,

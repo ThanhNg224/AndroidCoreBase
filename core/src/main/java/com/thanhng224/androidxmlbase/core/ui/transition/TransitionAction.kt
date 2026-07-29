@@ -7,6 +7,6 @@ import android.os.Bundle
  * while it covers the screen. Register implementations via a Hilt `@IntoMap` binding keyed by a
  * unique action key so callers can request them by that key without a new Activity subclass.
  */
-fun interface TransitionAction {
-    suspend fun perform(extras: Bundle)
+public fun interface TransitionAction {
+    public suspend fun perform(extras: Bundle)
 }

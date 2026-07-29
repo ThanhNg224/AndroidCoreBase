@@ -3,8 +3,8 @@ package com.thanhng224.androidxmlbase.core.ui.responsive
 import android.content.Context
 import android.content.res.Configuration
 
-object ResponsiveContextWrapper {
-    fun wrap(
+public object ResponsiveContextWrapper {
+    public fun wrap(
         context: Context,
         config: ResponsiveConfig,
     ): Context {

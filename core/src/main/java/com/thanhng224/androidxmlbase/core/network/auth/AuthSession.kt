@@ -4,16 +4,16 @@ import com.thanhng224.androidxmlbase.core.storage.secure.SecureStore
 import com.thanhng224.androidxmlbase.core.storage.secure.SecureStoreKeys
 import javax.inject.Inject
 
-class AuthSession
+public class AuthSession
     @Inject
     internal constructor(
         private val secureStore: SecureStore,
     ) {
-        suspend fun getAccessToken(): String? = secureStore.getString(SecureStoreKeys.AUTH_TOKEN)
+        public suspend fun getAccessToken(): String? = secureStore.getString(SecureStoreKeys.AUTH_TOKEN)
 
-        suspend fun getRefreshToken(): String? = secureStore.getString(SecureStoreKeys.REFRESH_TOKEN)
+        public suspend fun getRefreshToken(): String? = secureStore.getString(SecureStoreKeys.REFRESH_TOKEN)
 
-        suspend fun setTokens(
+        public suspend fun setTokens(
             accessToken: String,
             refreshToken: String? = null,
         ) {
@@ -21,7 +21,7 @@ class AuthSession
             refreshToken?.let { secureStore.putString(SecureStoreKeys.REFRESH_TOKEN, it) }
         }
 
-        suspend fun clear() {
+        public suspend fun clear() {
             secureStore.remove(SecureStoreKeys.AUTH_TOKEN)
             secureStore.remove(SecureStoreKeys.REFRESH_TOKEN)
         }

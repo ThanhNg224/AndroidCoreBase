@@ -9,7 +9,7 @@ import androidx.viewbinding.ViewBinding
 import com.thanhng224.androidxmlbase.core.architecture.result.ResultState
 import kotlinx.coroutines.flow.Flow
 
-abstract class BaseFragment<VB : ViewBinding> : Fragment() {
+public abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     private var bindingOrNull: VB? = null
     protected val binding: VB
         get() = requireNotNull(bindingOrNull) { "binding accessed outside the Fragment view lifecycle" }
@@ -46,7 +46,9 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         super.onDestroyView()
     }
 
-    protected fun <T> Flow<T>.collectOnStarted(action: suspend (T) -> Unit) = collectOnStartedBy(viewLifecycleOwner, action)
+    protected fun <T> Flow<T>.collectOnStarted(action: suspend (T) -> Unit) {
+        collectOnStartedBy(viewLifecycleOwner, action)
+    }
 
     /**
      * Binds a [ResultState] Flow, displaying a full-screen loading overlay on Loading,

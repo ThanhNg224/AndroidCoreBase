@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 
-interface ConnectivityChecker {
-    fun isConnected(): Boolean
+public interface ConnectivityChecker {
+    public fun isConnected(): Boolean
 }
 
 internal class AndroidConnectivityChecker(

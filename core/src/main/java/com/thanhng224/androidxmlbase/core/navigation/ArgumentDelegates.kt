@@ -12,7 +12,7 @@ import kotlin.reflect.KProperty
 /**
  * Type-safe reified factory to extract non-null extras from an Activity Intent.
  */
-inline fun <reified T> intentExtra(
+public inline fun <reified T> intentExtra(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Activity, T> = IntentExtraDelegate(key, T::class.java, defaultValue)
@@ -20,12 +20,13 @@ inline fun <reified T> intentExtra(
 /**
  * Type-safe reified factory to extract nullable extras from an Activity Intent.
  */
-inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> = IntentExtraNullableDelegate(key, T::class.java)
+public inline fun <reified T> intentExtraNullable(key: String): ReadOnlyProperty<Activity, T?> =
+    IntentExtraNullableDelegate(key, T::class.java)
 
 /**
  * Type-safe reified factory to extract non-null arguments from a Fragment bundle.
  */
-inline fun <reified T> fragmentArg(
+public inline fun <reified T> fragmentArg(
     key: String,
     defaultValue: T? = null,
 ): ReadOnlyProperty<Fragment, T> = FragmentArgumentDelegate(key, T::class.java, defaultValue)
@@ -33,7 +34,7 @@ inline fun <reified T> fragmentArg(
 /**
  * Type-safe reified factory to extract nullable arguments from a Fragment bundle.
  */
-inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
+public inline fun <reified T> fragmentArgNullable(key: String): ReadOnlyProperty<Fragment, T?> =
     FragmentArgumentNullableDelegate(key, T::class.java)
 
 @PublishedApi
@@ -101,7 +102,7 @@ internal class FragmentArgumentNullableDelegate<T>(
  * generic fallback here: an unsupported [clazz] is a programmer error, not a runtime null.
  */
 @Suppress("UNCHECKED_CAST", "ComplexMethod")
-fun <T> Bundle.getTyped(
+public fun <T> Bundle.getTyped(
     key: String,
     clazz: Class<T>,
 ): T? =

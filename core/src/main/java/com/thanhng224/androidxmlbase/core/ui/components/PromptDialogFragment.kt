@@ -11,14 +11,14 @@ import com.thanhng224.androidxmlbase.core.ui.base.BaseDialogFragment
 import com.thanhng224.androidxmlbase.core.ui.base.DialogAnimation
 import com.thanhng224.androidxmlbase.core.ui.base.setOnDebouncedClickListener
 
-enum class PromptType {
+public enum class PromptType {
     SUCCESS,
     ERROR,
     INFO,
 }
 
 /** Reusable status dialog (Success, Error, Info) with customizable actions. */
-class PromptDialogFragment : BaseDialogFragment<CoreDialogPromptBinding>() {
+public class PromptDialogFragment : BaseDialogFragment<CoreDialogPromptBinding>() {
     override val dialogAnimation: DialogAnimation = DialogAnimation.SCALE
 
     override fun inflateBinding(
@@ -26,16 +26,16 @@ class PromptDialogFragment : BaseDialogFragment<CoreDialogPromptBinding>() {
         container: ViewGroup?,
     ): CoreDialogPromptBinding = CoreDialogPromptBinding.inflate(inflater, container, false)
 
-    var onPrimary: (() -> Unit)? = null
-    var onSecondary: (() -> Unit)? = null
+    public var onPrimary: (() -> Unit)? = null
+    public var onSecondary: (() -> Unit)? = null
 
     // Legacy properties
-    var onRetry: (() -> Unit)?
+    public var onRetry: (() -> Unit)?
         get() = onPrimary
         set(value) {
             onPrimary = value
         }
-    var onClose: (() -> Unit)?
+    public var onClose: (() -> Unit)?
         get() = onSecondary
         set(value) {
             onSecondary = value
@@ -90,25 +90,25 @@ class PromptDialogFragment : BaseDialogFragment<CoreDialogPromptBinding>() {
         )
     }
 
-    companion object {
+    public companion object {
         private const val ARG_MESSAGE = "message"
         private const val ARG_TECHNICAL_CODE = "technical_code"
         private const val ARG_TYPE = "type"
         private const val ARG_PRIMARY_TEXT_RES = "primary_text_res"
         private const val ARG_SECONDARY_TEXT_RES = "secondary_text_res"
 
-        const val RESULT_KEY =
+        public const val RESULT_KEY: String =
             "com.thanhng224.androidxmlbase.core.ui.components.PromptDialogFragment.result"
 
-        const val EVENT_KEY = "event"
-        const val EVENT_PRIMARY = "primary"
-        const val EVENT_SECONDARY = "secondary"
+        public const val EVENT_KEY: String = "event"
+        public const val EVENT_PRIMARY: String = "primary"
+        public const val EVENT_SECONDARY: String = "secondary"
 
         // Legacy aliases
-        const val EVENT_RETRY = EVENT_PRIMARY
-        const val EVENT_CLOSE = EVENT_SECONDARY
+        public const val EVENT_RETRY: String = EVENT_PRIMARY
+        public const val EVENT_CLOSE: String = EVENT_SECONDARY
 
-        fun newInstance(
+        public fun newInstance(
             message: String,
             technicalCode: String? = null,
             type: PromptType = PromptType.ERROR,

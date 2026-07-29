@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
  * `attachBaseContext` wrapping every screen needs, and offers
  * [collectOnStarted] for lifecycle-safe Flow collection.
  */
-abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
+public abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     private var bindingOrNull: VB? = null
     protected val binding: VB
         get() = requireNotNull(bindingOrNull) { "binding accessed before onCreate() completed" }
@@ -48,7 +48,9 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         bindingOrNull = null
     }
 
-    protected fun <T> Flow<T>.collectOnStarted(action: suspend (T) -> Unit) = collectOnStartedBy(this@BaseActivity, action)
+    protected fun <T> Flow<T>.collectOnStarted(action: suspend (T) -> Unit) {
+        collectOnStartedBy(this@BaseActivity, action)
+    }
 
     /**
      * Binds a [ResultState] Flow, displaying a full-screen loading overlay on Loading,

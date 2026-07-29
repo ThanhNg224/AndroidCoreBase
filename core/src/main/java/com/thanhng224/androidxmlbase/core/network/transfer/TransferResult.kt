@@ -2,8 +2,8 @@ package com.thanhng224.androidxmlbase.core.network.transfer
 
 import java.io.File
 
-sealed interface TransferResult<out T> {
-    data class Progress(
+public sealed interface TransferResult<out T> {
+    public data class Progress(
         val bytesTransferred: Long,
         val totalBytes: Long,
     ) : TransferResult<Nothing> {
@@ -11,22 +11,22 @@ sealed interface TransferResult<out T> {
             get() = totalBytes.takeIf { it > 0L }?.let { ((bytesTransferred * 100) / it).toInt() }
     }
 
-    data class Success<T>(
+    public data class Success<T>(
         val data: T,
     ) : TransferResult<T>
 
-    data class Failure(
+    public data class Failure(
         val message: String,
         val cause: Throwable? = null,
     ) : TransferResult<Nothing>
 }
 
-data class HttpTransferResponse(
+public data class HttpTransferResponse(
     val code: Int,
     val body: String?,
 )
 
-data class StreamChunk(
+public data class StreamChunk(
     val bytes: ByteArray,
     val bytesRead: Long,
 ) {
@@ -43,6 +43,6 @@ data class StreamChunk(
     }
 }
 
-typealias DownloadResult = TransferResult<File>
-typealias UploadResult = TransferResult<HttpTransferResponse>
-typealias StreamResult = TransferResult<StreamChunk>
+public typealias DownloadResult = TransferResult<File>
+public typealias UploadResult = TransferResult<HttpTransferResponse>
+public typealias StreamResult = TransferResult<StreamChunk>

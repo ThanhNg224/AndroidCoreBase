@@ -1,3 +1,3 @@
 package com.thanhng224.androidxmlbase.core.architecture
 
-interface UiEffect
+public interface UiEffect

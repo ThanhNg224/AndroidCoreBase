@@ -24,13 +24,13 @@ internal object LocaleAppContext {
     var applicationContext: Context? = null
 }
 
-interface AppLocaleApplier {
-    fun applyLocales(tag: String)
+public interface AppLocaleApplier {
+    public fun applyLocales(tag: String)
 
-    fun currentLocaleTags(): String
+    public fun currentLocaleTags(): String
 }
 
-class AppCompatLocaleApplier : AppLocaleApplier {
+public class AppCompatLocaleApplier : AppLocaleApplier {
     override fun applyLocales(tag: String) {
         val locales =
             if (tag.isBlank()) {
@@ -60,19 +60,19 @@ class AppCompatLocaleApplier : AppLocaleApplier {
     }
 }
 
-class LocaleManager(
+public class LocaleManager(
     private val localeApplier: AppLocaleApplier = AppCompatLocaleApplier(),
     private val supportedLanguages: List<AppLanguage> = AppLanguage.BUILT_IN,
 ) {
-    fun setLanguage(language: AppLanguage) {
+    public fun setLanguage(language: AppLanguage) {
         localeApplier.applyLocales(language.languageTag)
     }
 
-    fun useSystemLanguage() {
+    public fun useSystemLanguage() {
         localeApplier.applyLocales("")
     }
 
-    fun supportedLanguages(): List<AppLanguage> = supportedLanguages
+    public fun supportedLanguages(): List<AppLanguage> = supportedLanguages
 
-    fun currentLanguage(): AppLanguage? = AppLanguage.findByLanguageTag(localeApplier.currentLocaleTags(), supportedLanguages)
+    public fun currentLanguage(): AppLanguage? = AppLanguage.findByLanguageTag(localeApplier.currentLocaleTags(), supportedLanguages)
 }

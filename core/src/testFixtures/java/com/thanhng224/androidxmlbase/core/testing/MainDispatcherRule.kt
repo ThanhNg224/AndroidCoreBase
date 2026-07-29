@@ -11,7 +11,7 @@ import org.junit.runner.Description
 
 /** Swaps [Dispatchers.Main] for a [TestDispatcher] so ViewModels are unit-testable on the JVM. */
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainDispatcherRule(
+public class MainDispatcherRule(
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
 ) : TestWatcher() {
     override fun starting(description: Description) {

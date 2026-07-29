@@ -19,7 +19,7 @@ import kotlin.math.roundToInt
  * (`LinearButton`, `CardButton`, ...) are deferred until a real screen needs a different base
  * View/ViewGroup.
  */
-class FrameButton
+public class FrameButton
     @JvmOverloads
     constructor(
         context: Context,

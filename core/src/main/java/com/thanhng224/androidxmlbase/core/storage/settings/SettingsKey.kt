@@ -1,30 +1,30 @@
 package com.thanhng224.androidxmlbase.core.storage.settings
 
-sealed class SettingsKey<T>(
-    val name: String,
-    val defaultValue: T,
+public sealed class SettingsKey<T>(
+    public val name: String,
+    public val defaultValue: T,
 ) {
-    class StringKey(
+    public class StringKey(
         name: String,
         defaultValue: String = "",
     ) : SettingsKey<String>(name, defaultValue)
 
-    class IntKey(
+    public class IntKey(
         name: String,
         defaultValue: Int = 0,
     ) : SettingsKey<Int>(name, defaultValue)
 
-    class LongKey(
+    public class LongKey(
         name: String,
         defaultValue: Long = 0L,
     ) : SettingsKey<Long>(name, defaultValue)
 
-    class BooleanKey(
+    public class BooleanKey(
         name: String,
         defaultValue: Boolean = false,
     ) : SettingsKey<Boolean>(name, defaultValue)
 
-    class FloatKey(
+    public class FloatKey(
         name: String,
         defaultValue: Float = 0f,
     ) : SettingsKey<Float>(name, defaultValue)

@@ -15,7 +15,7 @@ import com.thanhng224.androidxmlbase.core.ui.drawable.ShapeDrawableFactory
  * delegate plain resolved values, so this class stays the reusable part once more button
  * variants (`CardButton`, `LinearButton`, ...) are added.
  */
-class ButtonStyleDelegate(
+public class ButtonStyleDelegate(
     private val targetView: View,
     private val shape: DrawableShape,
     private val backgroundColor: Int,
@@ -24,7 +24,7 @@ class ButtonStyleDelegate(
     private val strokeColor: Int = Color.TRANSPARENT,
 ) {
     /** Builds the shape drawable and applies it, wrapped in a themed ripple, as the target's background. */
-    fun apply() {
+    public fun apply() {
         val shapeDrawable =
             ShapeDrawableFactory.buildDrawable(
                 shape = shape,

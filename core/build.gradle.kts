@@ -78,6 +78,14 @@ publishing {
     }
 }
 
+// Explicit API mode: :core is a published library, so every public declaration must state its
+// visibility and return type. Covers src/testFixtures too -- those fakes are published for
+// consumers via testImplementation(testFixtures(...)), so they are API, not test code. Only
+// src/test and src/androidTest are exempt.
+kotlin {
+    explicitApi()
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)

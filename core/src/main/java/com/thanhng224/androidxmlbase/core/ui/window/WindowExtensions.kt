@@ -12,7 +12,7 @@ import androidx.core.view.WindowInsetsControllerCompat
  * Hides the status/notification bar and system navigation controls.
  * Swipe from edge reveals the system controls temporarily without resizing the content.
  */
-fun Window.setImmersiveMode(enabled: Boolean) {
+public fun Window.setImmersiveMode(enabled: Boolean) {
     val decorView = decorView
     val controller = WindowCompat.getInsetsController(this, decorView)
 

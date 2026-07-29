@@ -11,7 +11,7 @@ import androidx.core.view.isVisible
 import com.thanhng224.androidxmlbase.core.R
 
 /** Full-screen blocking loader shown during async operations (e.g. API calls). */
-class FullScreenLoaderView
+public class FullScreenLoaderView
     @JvmOverloads
     constructor(
         context: Context,
@@ -28,16 +28,16 @@ class FullScreenLoaderView
             visibility = GONE
         }
 
-        fun show() {
+        public fun show() {
             show(R.string.core_design_system_result_loading)
         }
 
-        fun show(statusText: String) {
+        public fun show(statusText: String) {
             this.statusText.text = statusText
             showInternal()
         }
 
-        fun show(statusResId: Int) {
+        public fun show(statusResId: Int) {
             this.statusText.text = context.getString(statusResId)
             showInternal()
         }
@@ -54,7 +54,7 @@ class FullScreenLoaderView
             }
         }
 
-        fun hide() {
+        public fun hide() {
             if (isVisible) {
                 animate()
                     .alpha(0f)
@@ -69,7 +69,7 @@ class FullScreenLoaderView
             }
         }
 
-        companion object {
+        public companion object {
             private const val ANIM_DURATION = 200L
         }
     }
