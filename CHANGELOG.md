@@ -20,6 +20,13 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ### Added
 
+- **Enforced public API gate for `:core`.** `./gradlew :core:apiDump` writes `core/api/core.api`;
+  `:core:apiCheck` fails on any undeclared change and is wired into `check`. Driven by the official
+  `com.android.tools.metalava:metalava` (the tool AndroidX uses) rather than the community Gradle
+  plugin, which was last released in 2022. Known limitation: metalava runs with only the Android boot
+  classpath, so 4 of 885 lines (the reified `intentExtra`/`fragmentArg` delegates) show an unresolved
+  return type — see `docs/MODERNIZATION.md` F1.
+
 - **R8 is enabled for `:app`'s release build** (`isMinifyEnabled` + `isShrinkResources`), which also
   exercises `:core`'s `consumer-rules.pro` for the first time. The sample release APK is 2.71 MB,
   down from 20.49 MB at the start of this cycle. Validated on device against a signed minified

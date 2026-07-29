@@ -215,3 +215,90 @@ kover {
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Public API tracking (F1). binary-compatibility-validator cannot see Android library variants, so
+// this drives metalava -- the tool AndroidX itself uses -- directly. There is no maintained Gradle
+// plugin for standalone use (me.tylerbwong.gradle.metalava was last released in 2022), so the
+// wiring is a plain JavaExec over this module's sources plus the Android boot classpath.
+//
+//   ./gradlew :core:apiDump     regenerate core/api/core.api
+//   ./gradlew :core:apiCheck    fail if the committed dump is stale (wired into `check`)
+// ---------------------------------------------------------------------------------------------
+val metalavaClasspath: Configuration = configurations.create("metalavaClasspath")
+
+dependencies {
+    metalavaClasspath(libs.metalava)
+}
+
+// bootClasspath comes from androidComponents.sdkComponents in AGP 9 (the old
+// `android.bootClasspath` accessor is gone). Kept as a Provider and read inside an argument
+// provider so the configuration cache stays happy.
+val bootClasspathString =
+    androidComponents.sdkComponents.bootClasspath
+        .map { files ->
+            files.joinToString(File.pathSeparator) { it.asFile.absolutePath }
+        }
+
+val mainSourceDir = file("src/main/java")
+val committedApiFile = layout.projectDirectory.file("api/core.api").asFile
+val generatedApiFile =
+    layout.buildDirectory
+        .file("metalava/core.api")
+        .get()
+        .asFile
+
+fun JavaExec.configureMetalava(output: File) {
+    classpath = metalavaClasspath
+    mainClass.set("com.android.tools.metalava.Driver")
+    outputs.upToDateWhen { false }
+    val sourcePath = mainSourceDir.absolutePath
+    val outPath = output.absolutePath
+    val bootCp = bootClasspathString
+    doFirst { output.parentFile.mkdirs() }
+    argumentProviders.add(
+        CommandLineArgumentProvider {
+            listOf(
+                "main",
+                "--source-path",
+                sourcePath,
+                "--classpath",
+                bootCp.get(),
+                "--api",
+                outPath,
+                "--format",
+                "4.0",
+            )
+        },
+    )
+}
+
+tasks.register<JavaExec>("apiDump") {
+    group = "verification"
+    description = "Regenerates core/api/core.api from :core's public source API."
+    configureMetalava(committedApiFile)
+}
+
+val apiCheck =
+    tasks.register<JavaExec>("apiCheck") {
+        group = "verification"
+        description = "Fails if core/api/core.api is stale -- run :core:apiDump and review the diff."
+        configureMetalava(generatedApiFile)
+        // Copied into locals so the doLast action captures plain Files rather than a reference to
+        // this build script, which the configuration cache cannot serialize.
+        val committed = committedApiFile
+        val generated = generatedApiFile
+        doLast {
+            if (!committed.exists()) {
+                throw GradleException("core/api/core.api is missing. Run ./gradlew :core:apiDump and commit it.")
+            }
+            if (committed.readText() != generated.readText()) {
+                throw GradleException(
+                    ":core's public API differs from the committed core/api/core.api. " +
+                        "Run ./gradlew :core:apiDump, review the diff, and commit it if intended.",
+                )
+            }
+        }
+    }
+
+tasks.named("check") { dependsOn(apiCheck) }

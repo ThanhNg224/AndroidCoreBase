@@ -79,6 +79,35 @@ itself uses; it does support Android library variants, e.g. via the
 freeze publishes as `v1.0.0`, not `v3.0.0` — since that freeze is the point where an unenforced
 contract starts costing something.
 
+**Done 2026-07-29: `:core` now has an enforced API gate.** The community
+`me.tylerbwong.gradle.metalava` plugin was rejected on inspection, not tried — its last release is
+**2022-03-25**, from the AGP 7.1 era, and adopting an abandoned third-party plugin as the API gate of
+a published library trades one maintenance liability for another. Instead `core/build.gradle.kts`
+drives the official `com.android.tools.metalava:metalava` (1.0.0-alpha15, published 2026-07-15 — the
+tool AndroidX itself uses) as a plain `JavaExec`:
+
+- `./gradlew :core:apiDump` regenerates `core/api/core.api` (885 lines, committed).
+- `./gradlew :core:apiCheck` regenerates into `build/` and fails on any difference. **Wired into
+  `check`**, so a public API change now breaks the build until the dump is refreshed and reviewed.
+
+The gate was validated in both directions rather than assumed: `apiCheck` passes on the committed
+dump, **fails** when a `public fun` is added (probe added, failure observed, probe reverted), and
+passes again after reverting. An untested gate is worth nothing.
+
+Two things worth knowing before touching this wiring:
+
+- **`--classpath` carries only the Android boot classpath**, not `:core`'s own dependencies. AGP 9
+  no longer exposes `releaseCompileClasspath` eagerly, and Android dependencies are AARs metalava
+  cannot read directly. The consequence is 11 of 885 lines showing `ErrorType` for an unresolved
+  type. For 7 of them (`AppDispatchers`, `StateViewModel`, `ThemeManager` properties) the paired
+  `method` line carries the real type, so a type change is still caught. For the remaining 4 — the
+  reified `intentExtra`/`fragmentArg`/`…Nullable` delegates, whose `ReadOnlyProperty` return type has
+  no second line — a same-shaped type substitution could slip past. Documented rather than papered
+  over; fixing it means feeding metalava the resolved AAR classes.
+- The `doLast` comparison copies its two `File`s into locals inside the task-configuration block. Do
+  not inline them back to the script-level `val`s: the configuration cache then fails with "cannot
+  serialize Gradle script object references", which is what happened first time round.
+
 Evidence of the real cost: a prospective consumer needed 11 declarations that are `internal`
 (`DefaultAppDispatchers`, `DataStoreSettingsStore`, `appSettingsDataStore`, `RetrofitApiClient`,
 `AuthTokenInterceptor`, `ConnectivityInterceptor`, `AndroidConnectivityChecker`,
@@ -621,7 +650,7 @@ surfaced a real cross-module build bug — see F15.
 | **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
 | **4** | F7 — decide dependency topology **from measurement** | **Done 2026-07-29** — measured, then deleted rather than split: Room/SQLCipher removed, APK 20.49 → 13.16 MB. WorkManager/Lottie deferred to post-R8 (F16). See D5 |
 | **5** | F8 — locale spike | **Done 2026-07-29 — outcome: no change.** The flash it was premised on is already handled by `:core`'s `TransitionActivity`; see F8 |
-| — | **Pick an API-tracking tool (metalava), freeze the contract, publish `v1.0.0`** (see D4) | |
+| — | **Freeze the contract and publish `v1.0.0`** (D4). API-tracking tool chosen and wired: metalava, see F1 | |
 | **6** | Kalapa adopts the published AAR — the first real integration test | Kalapa builds and runs against the artifact, no workarounds |
 
 Phase 1 precedes Phase 5 deliberately: insets and predictive back are platform-correctness
