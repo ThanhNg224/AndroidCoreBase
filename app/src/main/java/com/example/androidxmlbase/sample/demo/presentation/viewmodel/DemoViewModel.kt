@@ -75,6 +75,7 @@ class DemoViewModel
         private fun AppError.toWeatherError(): DemoWeatherError =
             when (this) {
                 is AppError.Http -> DemoWeatherError.SERVER
+                is AppError.Business -> DemoWeatherError.SERVER
                 is AppError.Network -> DemoWeatherError.NO_CONNECTION
                 is AppError.Parse -> DemoWeatherError.UNEXPECTED_RESPONSE
                 AppError.EmptyBody -> DemoWeatherError.EMPTY_RESPONSE
