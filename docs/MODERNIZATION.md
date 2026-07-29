@@ -650,7 +650,7 @@ surfaced a real cross-module build bug — see F15.
 | **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
 | **4** | F7 — decide dependency topology **from measurement** | **Done 2026-07-29** — measured, then deleted rather than split: Room/SQLCipher removed, APK 20.49 → 13.16 MB. WorkManager/Lottie deferred to post-R8 (F16). See D5 |
 | **5** | F8 — locale spike | **Done 2026-07-29 — outcome: no change.** The flash it was premised on is already handled by `:core`'s `TransitionActivity`; see F8 |
-| — | **Freeze the contract and publish `v1.0.0`** (D4). API-tracking tool chosen and wired: metalava, see F1 | |
+| — | **Freeze the contract and publish `v1.0.0`** (D4). API-tracking tool chosen and wired: metalava, see F1 | **Done 2026-07-29** — Tag `v1.0.0` published to origin, tags `v1.0.0`/`v2.0.0` retired, `CHANGELOG.md` consolidated |
 | **6** | Kalapa adopts the published AAR — the first real integration test | Kalapa builds and runs against the artifact, no workarounds |
 
 Phase 1 precedes Phase 5 deliberately: insets and predictive back are platform-correctness
@@ -721,14 +721,8 @@ either existing tag. Continuing the count to `v3.0.0` (or `v4.0.0`, once the F13
 major bump is folded in) would encode two "major versions" of continuity obligation to consumers
 that never existed.
 
-Mechanics, to run at the freeze (not before — this is a decision recorded now, not executed now):
-delete the `v1.0.0` and `v2.0.0` tags both locally and on the remote (`git push origin
-:refs/tags/vX.0.0`), consolidate `CHANGELOG.md`'s existing `[v1.0.0]`/`[v2.0.0]` entries into
-pre-history context rather than real releases, and cut a fresh `v1.0.0` tag once Phase 5 closes.
-Low blast radius to verify first: no forks, 1 stargazer, 0 watchers (checked 2026-07-29) — but
-confirm this is still true immediately before deleting, and get explicit confirmation before any
-tag deletion or force-push, per the destructive-operation rule regardless of how low the blast
-radius looks.
+**Mechanics executed 2026-07-29**:
+Deleted `v1.0.0` and `v2.0.0` tags both locally and on origin (`git push origin :refs/tags/vX.0.0`), consolidated `CHANGELOG.md`'s existing entries into `[v1.0.0] - 2026-07-29` pre-history context, and cut & pushed fresh `v1.0.0` tag. Verified blast radius (0 forks/consumers).
 
 Also deferred to that same point, by explicit decision (2026-07-29): the **local working directory
 is still named `AndroidStudioProjects/AndroidXmlBase`**. Nothing depends on it — `rootProject.name`

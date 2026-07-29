@@ -60,16 +60,13 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:<tag>")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v1.0.0")
 }
 ```
 
 Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
 
-> **No published tag is consumable right now.** The existing `v1.0.0`/`v2.0.0` tags predate the
-> rename to `AndroidCoreBase`, so their artifact is still `AndroidXmlBase`, and both are retired at
-> the upcoming API freeze — which publishes a fresh `v1.0.0` (see `docs/MODERNIZATION.md` D4).
-> Substitute a real tag for `<tag>` once that release is cut.
+> **Published Tag**: Release `v1.0.0` is the initial stable release of `AndroidCoreBase` on JitPack.
 
 ### 3. Configure Your Own Module
 
@@ -93,10 +90,10 @@ android {
 }
 
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:<tag>")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v1.0.0")
     ksp("com.google.dagger:hilt-compiler:<version>")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:<tag>"))
+    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v1.0.0"))
 }
 ```
 
