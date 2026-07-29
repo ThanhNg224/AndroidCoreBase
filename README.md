@@ -278,6 +278,7 @@ For detailed guidelines and architectural specifications, refer to the `docs/` f
 - [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) – Theme, tokens, and component catalogue.
 - [STANDARD.md](docs/STANDARD.md) – Coding conventions, naming, and formatting rules.
 - [GIT_FLOW.md](docs/GIT_FLOW.md) – Branching strategy, commit conventions, and PR workflow.
+- [MODERNIZATION.md](docs/MODERNIZATION.md) – Rolling plan for hardening `:core` as a library, with what is already correct and why.
 - [CHANGELOG.md](CHANGELOG.md) – Released versions and breaking changes.
 
 Licensed under the [MIT License](LICENSE).

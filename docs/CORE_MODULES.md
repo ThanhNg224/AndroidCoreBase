@@ -4,6 +4,10 @@
 
 One section per `core/*` package that actually exists in this codebase today (verified against `core/src/main/java/com/thanhng224/androidxmlbase/core/` directly, not reconstructed from earlier phase plans). Each section lists the real public API surface and which feature(s) currently consume it. If a class/file isn't listed here, it doesn't exist yet — don't assume it does.
 
+> **Verify before you trust this file.** On 2026-07-29 three claims in the `core/architecture/result` section below were found to be wrong (a `map` extension and an `AppError` variant that did not exist, and a `ResultState.Error` field typed `String` when the code used `UiText`) — despite the paragraph above. They have been reconciled, but the lesson stands: check the source before building a decision on anything here. See `docs/MODERNIZATION.md` finding F2.
+
+`:core` runs in Kotlin **explicit API mode**, covering `src/main` and `src/testFixtures`. Every public declaration therefore carries an explicit `public` modifier and an explicit return type; anything not meant for consumers must be marked `internal`. Implementations stay `internal` behind a public interface with a Hilt binding, so a consumer injects the interface and never names an impl — see the audit table in `docs/MODERNIZATION.md`.
+
 ## `core/architecture`
 
 The MVVM primitives every feature is built on. Framework-light: only `StateViewModel` depends on `androidx.lifecycle`.
@@ -16,7 +20,7 @@ The MVVM primitives every feature is built on. Framework-light: only `StateViewM
 - `StateViewModel<S : UiState, E : UiEvent, F : UiEffect>(initialState: S)` (abstract, extends `ViewModel`) — exposes `state: StateFlow<S>`, `effect: Flow<F>` (buffered `Channel`-backed), `protected val currentState: S`, `abstract fun onEvent(event: E)`, `protected fun setState(reducer: S.() -> S)` (implemented via `MutableStateFlow.update {}`, atomic under concurrent calls), `protected fun sendEffect(effect: F)`.
 
 ### `core/architecture/result`
-- `ResultState<out T>` (sealed interface) — `Loading`, `Success<T>(val data: T)`, `Error(val message: String, val cause: Throwable? = null)`. Plus `inline fun <T, R> ResultState<T>.fold(onLoading, onSuccess, onError): R`.
+- `ResultState<out T>` (sealed interface) — `Loading`, `Success<T>(val data: T)`, `Error(val message: UiText, val cause: Throwable? = null)`. Plus `inline fun <T, R> ResultState<T>.fold(onLoading, onSuccess, onError): R`. `message` is a `UiText` (see `core/ui/text`), not a `String`, so a presentation-layer error can carry an unresolved string resource and be localised at render time.
 - `DomainResult<out T>` (sealed interface) — `Success<T>(data)` and `Error(error: AppError)` for domain/data results that should not carry UI strings. Contains `map` extension function to transform Success cases.
 - `AppError` (sealed interface) — reusable error categories: `Http(code, serverMessage)`, `Network(cause)`, `Parse(cause)`, `EmptyBody`, and `Business(code, message)`.
 
