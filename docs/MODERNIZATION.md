@@ -443,6 +443,40 @@ nothing".
 What must be preserved either way is the *knowledge*: if any future work re-inflates a live
 Activity, those two crash modes are real and must be covered by tests.
 
+**Resolved in Phase 5 (2026-07-29): no change. This finding's premise was already out of date when
+it was written.**
+
+F8 framed the choice as a tradeoff — `AppCompatDelegate.setApplicationLocales()` buys persistence and
+system-Settings integration but "costs" a recreate flash. That cost does not exist in this repo,
+because it never called `setApplicationLocales()` bare. Verified by driving a real language change on
+the device and reading logcat: choosing a language emits `SettingsUiEffect.ApplyLanguage`, which
+launches `:core`'s **`TransitionActivity`** with a `LanguageTransitionAction`, and the locale change
+plus the resulting activity recreation happen *behind* that themed transition screen
+(`core_activity_transition.xml`, `core_transition_loading_pulse.json`). Logcat shows the expected
+recreate — `SettingsActivity`'s window replaced by a new one, its layers torn down — with
+`TransitionActivity` holding focus across the whole swap, so the user sees an intentional animation
+rather than a flash.
+
+That mechanism is reusable base infrastructure, not app-level glue: `:core` owns `TransitionActivity`
+and the `TransitionAction` Hilt multibinding map (`@IntoMap @StringKey`), and a consuming app
+contributes its own action — `:app`'s `SettingsModule` binds `LanguageTransitionAction` into it.
+
+So the comparison F8 set up is settled in `AppCompatDelegate`'s favour with **no** remaining
+tradeoff: persistence and Settings integration kept, flash already handled. Adopting the older
+fork's in-place re-inflation would now be a strict regression — trading a working solution for a
+deprecated `Resources.updateConfiguration()` call, losing per-app-locale persistence and the API 33+
+Settings entry, and re-importing two documented on-device crash workarounds.
+
+Scope note, stated plainly: the animation *quality* was not re-tested here — the repo owner
+confirmed that splash/transition work is already done and asked that it not be re-litigated. What
+was verified is the mechanism and its wiring (logcat + source), not its visual polish.
+
+Still true from the original finding and deliberately left alone: `:core`'s manifest merges in
+`AppLocalesMetadataHolderService` with `autoStoreLocales=true`, imposing AppCompat's per-app-locale
+storage on consumers. That is the right default for the `AppCompatDelegate` path this base has
+settled on, so it stays — but a consumer wanting to own locale persistence must `tools:node="remove"`
+it, which belongs in the consumption docs.
+
 ## Phases
 
 Each phase is independently landable and gated on `./gradlew check` staying green (which
@@ -551,7 +585,7 @@ surfaced a real cross-module build bug — see F15.
 | **2.5** | Rebrand & Neutralize Base Architecture (`AndroidCoreBase`) | **Done 2026-07-29** — Root project, packages, themes rebranded to `AndroidCoreBase`; `BaseActivity` refactored into neutral `BaseActivity` + `BaseBindingActivity` + `BaseComposeActivity` stub |
 | **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
 | **4** | F7 — decide dependency topology **from measurement** | **Done 2026-07-29** — measured, then deleted rather than split: Room/SQLCipher removed, APK 20.49 → 13.16 MB. WorkManager/Lottie deferred to post-R8 (F16). See D5 |
-| **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |
+| **5** | F8 — locale spike | **Done 2026-07-29 — outcome: no change.** The flash it was premised on is already handled by `:core`'s `TransitionActivity`; see F8 |
 | — | **Pick an API-tracking tool (metalava), freeze the contract, publish `v1.0.0`** (see D4) | |
 | **6** | Kalapa adopts the published AAR — the first real integration test | Kalapa builds and runs against the artifact, no workarounds |
 
