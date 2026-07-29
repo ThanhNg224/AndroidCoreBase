@@ -316,6 +316,33 @@ screen, or a consuming app writing its own composables against this base, needs 
 applied on their side too — that requirement belongs in this base's consumption docs (README/
 `docs/CORE_MODULES.md`), not just inferred from `:core`'s own build file.
 
+### F16 — R8 cannot currently be enabled at all: the Compose plugin requests a nonexistent artifact (blocks F10)
+
+Discovered while trying to measure APK size with R8 on for Phase 4. Setting
+`optimization { enable = true }` + `isMinifyEnabled = true` on `:app`'s release build fails at
+configuration time:
+
+```
+Could not find org.jetbrains.kotlin:compose-group-mapping:2.2.10
+  Required by: project ':app'   (task :app:produceReleaseComposeMapping)
+```
+
+Enabling optimization activates the Compose compiler plugin's `produceReleaseComposeMapping` task,
+which resolves `compose-group-mapping` at version **2.2.10** — while this project is on Kotlin
+**2.4.10**, and no such artifact is published on Google's Maven or Maven Central. So the requested
+coordinate does not exist at all; this is a plugin-side version-resolution problem, not a missing
+repository.
+
+This is a hard blocker for F10 (enable R8 and validate `:core`'s consumer rules) and it did not
+exist before Phase 3 added the Compose compiler plugin. Options to investigate when F10 is taken up,
+in rough order of preference: check whether a newer `org.jetbrains.kotlin.plugin.compose` release
+fixes the coordinate; look for a `composeCompiler { }` switch that disables the mapping task; or
+disable the task directly. Do **not** downgrade Kotlin for it.
+
+Consequence for Phase 4: the topology decision had to be made from R8-off numbers. That was fine
+for SQLCipher, whose cost is native and therefore R8-independent, but it is exactly why WorkManager
+and Lottie were left for later instead of judged on inflated figures.
+
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
 `:core` depends on `com.intuit.sdp`/`com.intuit.ssp` 1.1.1, which work by generating hundreds of
@@ -359,6 +386,39 @@ Lottie into every consumer regardless of use.
 
 The manifest also merges in `AppLocalesMetadataHolderService` with `autoStoreLocales=true`,
 which is a per-app-locale storage decision imposed on consumers — relevant to F8.
+
+**Resolved in Phase 4 (2026-07-29) by measurement, and the measurement changed the plan.** The
+brief was "decide module topology from numbers". The numbers said there was nothing worth splitting
+— there was something to *delete*. Release APK of `:app` (R8 off, universal, four ABIs):
+
+| | Before | After |
+| --- | --- | --- |
+| APK total | 20.49 MB | **13.16 MB** |
+| `lib/` native | 7.34 MB | 0.07 MB |
+| `libsqlcipher.so` | 7.27 MB (arm64 slice ~2.0 MB) | gone |
+| dex | 10.98 MB | 10.92 MB |
+
+Three facts made this a deletion rather than a `:core-database` split:
+
+1. **R8 never strips native code.** The dex cost of an unused dependency is an R8 problem (F10);
+   a `.so` is charged to every consumer unconditionally. That is what made SQLCipher categorically
+   different from WorkManager/Lottie.
+2. **The entire database layer was 101 lines and every declaration was `internal`** — so consumers
+   did not merely *not* use it, they *could not*. Same category as F14's hollow
+   `BaseComposeActivity`: shipped, published, useless from outside.
+3. **Room's `@Database` cannot be extended across a module boundary.** Its `entities` list is fixed
+   at compile time in the annotated class, so no visibility change would have helped either — every
+   app must declare its own database. The design could never have worked for a consumer.
+
+`DbPassphraseProvider` was the one genuinely reusable piece and survives, now `public` in
+`core/storage/secure`, with no Room/SQLCipher dependency — see D5. Removing the unconditional
+`DbPassphraseWarmupInitializer` also deletes the startup-cost half of this finding outright rather
+than gating it: there is no longer any Keystore work at process start for a consumer with no
+database.
+
+WorkManager (1.75 MB) and Lottie (0.41 MB) are **deliberately left alone**: both are dex, so R8
+should strip them when unused, and deciding from R8-off numbers would overstate their cost. Revisit
+once F10/F16 make an R8 build possible.
 
 ### F8 — Locale switching: unresolved, and possibly correct as-is (Phase 5)
 
@@ -490,7 +550,7 @@ surfaced a real cross-module build bug — see F15.
 | **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers | **Done 2026-07-29** — `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit. `WindowSizeClass` deferred (no consumer yet); see F11/F12 for what the verification found |
 | **2.5** | Rebrand & Neutralize Base Architecture (`AndroidCoreBase`) | **Done 2026-07-29** — Root project, packages, themes rebranded to `AndroidCoreBase`; `BaseActivity` refactored into neutral `BaseActivity` + `BaseBindingActivity` + `BaseComposeActivity` stub |
 | **3** | F6/F14 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | **Done 2026-07-29** — `DesignSystemFragment` renders Compose inside its XML layout; verified by screenshot in both light and dark on a physical device |
-| **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
+| **4** | F7 — decide dependency topology **from measurement** | **Done 2026-07-29** — measured, then deleted rather than split: Room/SQLCipher removed, APK 20.49 → 13.16 MB. WorkManager/Lottie deferred to post-R8 (F16). See D5 |
 | **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |
 | — | **Pick an API-tracking tool (metalava), freeze the contract, publish `v1.0.0`** (see D4) | |
 | **6** | Kalapa adopts the published AAR — the first real integration test | Kalapa builds and runs against the artifact, no workarounds |
@@ -571,6 +631,23 @@ Low blast radius to verify first: no forks, 1 stargazer, 0 watchers (checked 202
 confirm this is still true immediately before deleting, and get explicit confirmation before any
 tag deletion or force-push, per the destructive-operation rule regardless of how low the blast
 radius looks.
+
+**D5 — `:core` ships no database; the passphrase helper stays.** *(2026-07-29)*
+
+Room, SQLCipher and the whole `core/storage/database` package are removed rather than split into a
+`:core-database` module. Measured cost was ~2 MB of native SQLCipher per ABI on every consumer
+(7.3 MB universal), unstrippable by R8, in exchange for 101 lines of entirely `internal` code that
+nothing consumed and — because Room's `@Database` is closed at compile time — nothing *could*
+consume. Splitting a module to preserve that would have added a boundary to maintain without fixing
+the underlying "a library cannot supply an extensible database" problem. Full numbers in F7.
+
+`DbPassphraseProvider` is kept, promoted to `public`, and moved to `core/storage/secure`: generating
+a passphrase once and keeping it behind the Keystore is genuinely reusable and needs no database
+dependency. Its unconditional startup warmup is *not* kept — the consumer decides where to absorb
+the first disk-reading call, documented in its KDoc.
+
+If a future consumer needs an encrypted database, the answer is that they declare their own
+`@Database` and add Room + SQLCipher in their own module, which is what Room requires regardless.
 
 ## Explicitly out of scope
 

@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.storage.database
+package com.thanhng224.androidcorebase.core.storage.secure
 
 import com.thanhng224.androidcorebase.core.testing.FakeSecureStore
 import kotlinx.coroutines.test.runTest

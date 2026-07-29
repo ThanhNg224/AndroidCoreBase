@@ -7,6 +7,27 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ## [Unreleased]
 
+### Removed
+
+- **`:core` no longer ships a database.** `AppDatabase`, `LocalSettingEntity`, `LocalSettingDao`,
+  `DatabaseModule`, `DbPassphraseWarmupInitializer` and the Room + SQLCipher dependencies are gone.
+  All of it was `internal` and consumed by nothing, and it could not be consumed: Room's
+  `@Database` fixes its `entities` list at compile time in the annotated class, so a library cannot
+  hand a consumer a database to extend. It cost every consuming app ~2 MB of native SQLCipher per
+  ABI (7.3 MB across four in a universal APK, which R8 cannot strip) plus Keystore I/O at every
+  process start. The `:app` sample's release APK went 20.49 MB → 13.16 MB. If you need an encrypted
+  database, declare your own `@Database` and add Room + SQLCipher yourself.
+
+### Changed
+
+- **`DbPassphraseProvider` is now public** and lives in `core.storage.secure` (was `internal` in
+  `core.storage.database`). It is the reusable half of the removed database layer: a stable random
+  passphrase persisted through `SecureStore`, memoized in memory, for your own SQLCipher
+  `SupportFactory`. Because `:core` no longer warms it during startup, deciding where to absorb the
+  first (disk-reading) call is now the consumer's — see its KDoc.
+- `:core`'s `consumer-rules.pro` no longer keeps `core.storage.database.**`; that Room keep rule
+  belongs in the build of whichever app declares the database.
+
 ## [v2.0.0]
 
 First release that a project outside this repository can realistically consume. `v1.0.0`

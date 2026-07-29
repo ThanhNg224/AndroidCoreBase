@@ -89,16 +89,12 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.sqlcipher.android)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.shimmer)
     implementation(libs.lottie)
     implementation(libs.timber)
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -107,10 +103,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-}
-
-configurations.all {
-    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
 }
 
 detekt {

@@ -1,7 +1,6 @@
 package com.thanhng224.androidcorebase.core.startup
 
 import com.thanhng224.androidcorebase.core.di.ApplicationScope
-import com.thanhng224.androidcorebase.core.storage.database.DbPassphraseProvider
 import com.thanhng224.androidcorebase.core.ui.theme.ThemeManager
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -17,8 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 internal interface AppStartupEntryPoint {
-    fun dbPassphraseProvider(): DbPassphraseProvider
-
     fun themeManager(): ThemeManager
 
     @ApplicationScope

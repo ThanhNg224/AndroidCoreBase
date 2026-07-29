@@ -20,9 +20,6 @@
                 android:name="com.thanhng224.androidcorebase.core.startup.TimberInitializer"
                 android:value="androidx.startup" />
             <meta-data
-                android:name="com.thanhng224.androidcorebase.core.startup.DbPassphraseWarmupInitializer"
-                android:value="androidx.startup" />
-            <meta-data
                 android:name="com.thanhng224.androidcorebase.core.startup.ThemeApplyInitializer"
                 android:value="androidx.startup" />
             <meta-data

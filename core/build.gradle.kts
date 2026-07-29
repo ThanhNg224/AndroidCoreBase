@@ -116,9 +116,6 @@ dependencies {
     api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.sqlcipher.android)
 
     // Dependency Injection
     api(libs.hilt.android)
@@ -131,7 +128,6 @@ dependencies {
 
     // KSP Annotation Processors
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
 
     // Test & Test Fixtures
@@ -143,10 +139,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-}
-
-configurations.all {
-    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
 }
 
 detekt {
@@ -204,8 +196,6 @@ kover {
                     "*.core.ui.base.ComposeInteropKt",
                     // Android System & Storage Services
                     "*.core.startup.*",
-                    "*.core.storage.database.AppDatabase*",
-                    "*.core.storage.database.LocalSettingDao*",
                     "*.core.storage.secure.EncryptedSecureStore*",
                     "*.core.storage.settings.AppDataStoreKt",
                     "*.core.localization.AppCompatLocaleApplier*",

@@ -41,15 +41,15 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 ### `core/storage/secure`
 - `SecureStoreKey`, `SecureStore`, `SecureStoreKeys` (all public) — string-secret storage contract for tokens/secrets. Built-in keys: `AUTH_TOKEN`, `REFRESH_TOKEN`.
 - `EncryptedSecureStore` (internal) — AES-256/GCM via an Android Keystore key (deliberately not the deprecated `EncryptedSharedPreferences`), behind the `SecureStore` interface. Provided as the app-wide `SecureStore` by Hilt. Prefs file `core_secure_store`, Keystore alias `core_secure_store_key` — `core_`-namespaced so they can't collide with a consuming app's own storage.
+- `DbPassphraseProvider` (public, `@Singleton`; moved here from `core/storage/database` in Phase 4) — `suspend fun getOrCreate(): String` returns a stable random passphrase persisted through `SecureStore` and memoized in memory. For a consumer's *own* SQLCipher `SupportFactory`; `:core` itself has no database. Its KDoc carries the wiring example and the `suspend`-vs-synchronous-`@Provides` tradeoff, which the consumer now owns since `:core` no longer warms it at startup.
 
 **Consumers:** `DemoRepositoryImpl` (sample-private counter key + `SettingsStore`); `SettingsRepositoryImpl` reaches theme persistence through `ThemeManager`; `SecureStoreAuthTokenProvider` reads `SecureStoreKeys.AUTH_TOKEN`.
 
-### `core/storage/database`
-- `DbPassphraseProvider` — memoized SQLCipher passphrase resolver (`suspend fun getOrCreate(): String`), backed by `SecureStore`. Warmed on `Dispatchers.IO` during process startup so `DatabaseModule`'s Hilt `@Provides` boundary doesn't block on disk I/O.
-- `AppDatabase` (Room, `@Database`, version 1, db file `core_app_database.db`) — SQLCipher-encrypted via `DatabaseModule`'s `SupportOpenHelperFactory`. No `fallbackToDestructiveMigration`: an upgrade with no matching `Migration` crashes instead of silently dropping data; `fallbackToDestructiveMigrationOnDowngrade(true)` only resets on a version downgrade (e.g. after a rollback).
-- `LocalSettingEntity` (`@Entity(tableName = "local_settings")`, `key`/`value` string columns) + `LocalSettingDao` (get/observe/save/delete by `key`) — a generic encrypted key-value table; reference shape only, not consumed by any feature yet.
+### `core/storage/database` — **removed in Phase 4**
 
-**Consumers:** none yet for `AppDatabase`/`LocalSettingDao` — add a `Migration` object here before bumping `version` past 1.
+`:core` ships **no database**. `AppDatabase`/`LocalSettingEntity`/`LocalSettingDao`/`DatabaseModule` and the Room + SQLCipher dependencies were deleted: they were entirely `internal`, consumed by nothing, and could not be consumed — Room's `@Database` fixes its `entities` list at compile time in the annotated class, so a library cannot hand a consumer a database to extend. Meanwhile SQLCipher's native library cost every consuming app ~2 MB per ABI (7.3 MB across the four in a universal APK), which R8 cannot strip. See `docs/MODERNIZATION.md` F7 and D5.
+
+The reusable part survives as `DbPassphraseProvider` in `core/storage/secure` (above). If you need an encrypted database, declare your own `@Database` and add Room + SQLCipher to your own module.
 
 ## `core/network`
 
@@ -108,9 +108,8 @@ Per-app language switching, backed by AndroidX's per-app language API (`AppCompa
 
 Formalizes process-startup work via `androidx.startup.Initializer` instead of `Application.onCreate()`.
 
-- `AppStartupEntryPoint` (Hilt `@EntryPoint`) — how Initializers (instantiated by reflection, no constructor injection available) reach `DbPassphraseProvider`, `ThemeManager`, and the `@ApplicationScope CoroutineScope`.
+- `AppStartupEntryPoint` (Hilt `@EntryPoint`) — how Initializers (instantiated by reflection, no constructor injection available) reach `ThemeManager` and the `@ApplicationScope CoroutineScope`.
 - `TimberInitializer` — plants `Timber.DebugTree()` or `ReleaseTree()` based on the **consuming app's** `ApplicationInfo.FLAG_DEBUGGABLE`, not `:core`'s own `BuildConfig.DEBUG` (which is always `false` in a published AAR and would silence debug logging for every consumer).
-- `DbPassphraseWarmupInitializer` — warms `DbPassphraseProvider` on `Dispatchers.IO`. Depends on `TimberInitializer`.
 - `ThemeApplyInitializer` — collects `ThemeManager.currentTheme` and applies it reactively. Depends on `TimberInitializer`.
 - `LocaleContextInitializer` — captures the process-wide `Context` into `LocaleAppContext` so `AppCompatLocaleApplier.currentLocaleTags()` can read the current per-app locale without an `AppCompatDelegate` needing to be alive yet.
 
@@ -238,8 +237,8 @@ the `intentExtra`/`fragmentArg` delegates, the navigation models, and the `ui/co
 
 Deliberately `internal`: every Hilt module, the framework-backed implementation behind each public
 interface (`EncryptedSecureStore`, `AndroidThemeManager`, `RetrofitApiClient`, `TokenAuthenticator`,
-`AndroidConnectivityChecker`, …), the `androidx.startup` initializers, `NetworkClientFactory`, the
-Room database/DAO/entity, and `HeartbeatWorker`.
+`AndroidConnectivityChecker`, …), the `androidx.startup` initializers, `NetworkClientFactory`, and
+`HeartbeatWorker`.
 
 There is currently **no automated binary-compatibility gate**:
 `binary-compatibility-validator` registers no `apiDump`/`apiCheck` tasks for a

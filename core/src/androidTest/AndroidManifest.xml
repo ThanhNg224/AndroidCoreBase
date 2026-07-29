@@ -10,9 +10,6 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="merge">
             <meta-data
-                android:name="com.thanhng224.androidcorebase.core.startup.DbPassphraseWarmupInitializer"
-                tools:node="remove" />
-            <meta-data
                 android:name="com.thanhng224.androidcorebase.core.startup.ThemeApplyInitializer"
                 tools:node="remove" />
         </provider>
