@@ -187,6 +187,54 @@ Not folded into Phase 1: turning R8 on means validating serialization, Room code
 against a real minified release build, which is its own scoped piece of work with its own
 verification. Tracked separately.
 
+### F11 — `com.intuit.sdp`'s 1:1 baseline is 300dp, not 360dp (found during Phase 2 verification)
+
+Phase 2's task brief asserted `@dimen/_16sdp` resolves to ~16dp "at the ~360dp baseline width sdp
+is calibrated to," so replacing `_Nsdp` with a literal fixed `Ndp` value would be a near-visual-noop
+on an ordinary phone. **That premise is false for `com.intuit.sdp:sdp-android:1.1.1`, verified
+directly against the library's own resources** (extracted from the Gradle cache transform, not
+inferred):
+
+| Bucket | `_16sdp` | `_24sdp` | `_72sdp` |
+| --- | --- | --- | --- |
+| `values-sw300dp` | 16.00dp | 24.00dp | 72.00dp |
+| `values-sw360dp` | 19.20dp | 28.80dp | 86.40dp |
+
+The library's true 1:1 calibration point is **300dp**, not 360dp — at 360dp (this repo's physical
+verification device: 1080×2400px, density 480/xxhdpi, exactly 360dp smallestScreenWidthDp) every
+sdp value was already being scaled up by the device's own factor of 360/300 = **1.2×** before this
+migration. Screenshotting before/after on that device (see Phase 2 verification below) confirms
+this concretely: `fragment_appshell_home.xml`'s greeting subtitle wraps to 2 lines before the
+migration and fits on 1 line after, because `paddingHorizontal="@dimen/_24sdp"` (28.8dp before) is
+measurably tighter than `core_space_24` (24dp, fixed) — a real ~17% reduction in every
+previously-scaled dimension on this device class, not a token-mapping bug. All 148 references were
+independently re-verified as a faithful 1:1 rename of the numeric suffix (see Phase 2 completion
+note); the discrepancy is entirely in the premise, not the execution.
+
+**Not fixed as part of Phase 2** — silently multiplying every new token by 1.2× (or by whatever
+ratio makes an arbitrary device's old look match) would be a unilateral design change to the entire
+spacing scale, not a mechanical migration, and the literal-numeric-suffix mapping was what Phase 2
+was explicitly briefed to do. Whether the base's spacing/radius/size scale should be tightened
+(current state), rescaled up to preserve the pre-Phase-2 density on ~360dp phones, or something
+else is a product decision for whoever owns the visual design, not something to decide inside a
+mechanical dependency-removal pass.
+
+### F12 — `docs/DESIGN_SYSTEM.md`'s `FrameButton`/`ShadowLayout` XML examples reference
+non-existent attributes (found during Phase 2 doc updates)
+
+`core/src/main/res/values/attrs.xml` declares `coreButtonBackgroundColor`, `coreButtonCornerRadius`,
+`coreButtonStrokeWidth`, `coreButtonStrokeColor`, `coreButtonShape`, `coreShadowCornerRadius`,
+`coreShadowBackgroundColor` — every real layout (`fragment_demo.xml`, `fragment_design_system.xml`,
+`core_dialog_prompt.xml`) uses these `core`-prefixed names. `docs/DESIGN_SYSTEM.md`'s `FrameButton`
+and `ShadowLayout` code samples use `buttonBackgroundColor`, `buttonCornerRadius`, `buttonShape`,
+`buttonStrokeColor`, `shadowCornerRadius` — none of which exist as declared attrs. This is the same
+class of defect as F2 (docs asserting API that isn't real), just in a code sample rather than prose.
+
+**Not fixed as part of Phase 2** — out of scope (Phase 2 only touched the dimension values inside
+those samples, keeping the pre-existing attribute names as-is to avoid conflating an unrelated fix
+with this migration). Fix by adding the `core` prefix to those 5 attribute names in
+`docs/DESIGN_SYSTEM.md`.
+
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
 `:core` depends on `com.intuit.sdp`/`com.intuit.ssp` 1.1.1, which work by generating hundreds of
@@ -288,11 +336,38 @@ opts in on all API levels, so the behaviour reproduces below Android 15 even tho
 it becomes mandatory. Content clears the status bar and the nav pill sits clear of the navigation
 bar with no internal dead space.
 
+**Phase 2 is complete (2026-07-29).** All 148 `_Nsdp`/`_Nssp` references (144 + 4, across the 13
+files F5 identified) are migrated to fixed `core_space_<n>` / `core_radius_<n>` / `core_size_<n>` /
+`core_stroke_width` / `core_text_size_<n>` tokens in `core/src/main/res/values/dimens.xml` — verified
+mechanically (a script built a full attribute+value inventory from source, applied a reviewed 1:1
+mapping, and a post-migration grep confirmed exactly 148 new-token references with zero `_Nsdp`/
+`_Nssp` left in `app/src/main/res` or `core/src/main/res`). `ResponsiveContextWrapper`/
+`ResponsiveConfig` are deleted along with `BaseActivity`'s `attachBaseContext` override and
+`responsiveConfig` property (their one call site); `com.intuit.sdp`/`com.intuit.ssp` are removed from
+`core/build.gradle.kts`, `app/build.gradle.kts` (which had its own direct dependency on both, not
+previously noted), and `gradle/libs.versions.toml`. The 3 `BodyEmphasis`/`BodyMedium`/`Micro` text
+styles are **kept** — `core_dialog_prompt.xml` actively uses all 3 — just repointed from `_Nssp` to
+`core_text_size_<n>`. `./gradlew check` is green (unit tests, lint, ktlint, detekt, Kover ≥80%).
+
+**`WindowSizeClass` is explicitly deferred, not added** — D1 named it as part of the target model,
+but no screen in this base branches on a breakpoint today, and `CLAUDE.md`'s base-building exception
+permits foundational infrastructure, not unused abstractions. Add `androidx.window` and the
+breakpoint-switching helper when a real screen needs one, not speculatively.
+
+**Verified by physical-device screenshot, not just `./gradlew check`** (device: 1080×2400px,
+density 480 / xxhdpi = exactly 360dp smallestScreenWidthDp), Home/Demo/UI Kit/Settings, before and
+after. Demo, UI Kit, and Settings are visually unchanged. **Home is not** — see F11: the premise that
+this migration is a near-no-op at "baseline ~360dp" turned out to be false for
+`com.intuit.sdp:sdp-android:1.1.1`, whose actual 1:1 calibration point is 300dp, so this exact
+360dp device was already 1.2× scaled beforehand. That is a finding about the premise, not a defect
+in the migration — the 148-reference mapping itself was independently verified as an exact,
+faithful rename.
+
 | Phase | Work | Gate |
 | --- | --- | --- |
 | **0** | F1 + F2 — public API contract; restore documented-but-missing API | `explicitApi()` green; internal/public audit recorded. **Enforced API dump deferred — BCV unusable, see F1** |
 | **1** | F3 + F9 — edge-to-edge insets; drop dead `statusBarColor`. F4 turned out to be a non-finding; R8 split out as F10 | **Done 2026-07-29** — verified by screenshot on a physical API 33 device |
-| **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers + `WindowSizeClass` | `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit |
+| **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers | **Done 2026-07-29** — `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit. `WindowSizeClass` deferred (no consumer yet); see F11/F12 for what the verification found |
 | **3** | F6 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | A sample screen in `:app` rendering Compose inside an XML layout |
 | **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
 | **5** | F8 — locale spike; valid outcome includes "no change" | Written finding in this file either way |
@@ -322,9 +397,26 @@ in Kotlin for structural layout changes. `ResponsiveContextWrapper` is deleted, 
 
 Rationale: it's the Google-recommended model, it drops a third-party dependency, layouts become
 readable, and it removes an entire overlapping layer. Cost is real and accepted: 148 references
-across 14 layouts, a `DESIGN_SYSTEM.md` rewrite, three text styles to reconsider, and a
+across 13 files, a `DESIGN_SYSTEM.md` rewrite, three text styles to reconsider, and a
 `CLAUDE.md` rule to change (it currently commits to spreading the sdp/ssp convention across all
 layouts — that commitment is withdrawn).
+
+**Executed 2026-07-29 (Phase 2), with one correction to this decision's own premise:** the fixed
+values use each `_Nsdp`/`_Nssp`'s literal numeric suffix as the new `Ndp`/`Nsp` constant — a
+same-number rename, not a rescale. That was believed to be close to a visual no-op on an ordinary
+phone; verification found that belief was wrong (see finding F11) — `com.intuit.sdp` 1.1.1's true
+1:1 point is 300dp, not ~360dp, so this rename is a real, measurable, roughly-17%-tighter spacing
+scale on a typical 360dp-wide phone versus what sdp/ssp actually rendered. The decision to retire
+sdp/ssp and `ResponsiveContextWrapper` stands regardless — that rationale (dropping a third-party
+dependency, removing a mechanism that broke `values-sw600dp/` resolution, readable layouts) doesn't
+depend on the calibration-baseline claim. Whether the resulting tighter density is desirable, or
+the scale should be multiplied up to match the old rendered sizes, is an open product decision —
+see F11.
+
+The `WindowSizeClass` half of this decision is **deferred, not implemented**: no screen in this
+base branches on a breakpoint today, so adding the dependency now would be speculative generality
+that `CLAUDE.md`'s base-building exception does not cover. Add it when a real screen needs
+breakpoint-based layout switching.
 
 **D2 — Open a Compose interop path; XML stays the default.** *(2026-07-29)*
 

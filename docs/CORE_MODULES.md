@@ -126,15 +126,6 @@ WorkManager wiring: `AndroidXmlBaseApplication` implements `Configuration.Provid
 
 **Consumers:** none yet — this is infrastructure for the first feature that needs background work.
 
-## `core/ui/responsive`
-
-A `smallestScreenWidthDp` clamp to avoid tablet/wide-screen layout issues.
-
-- `ResponsiveConfig(enabled: Boolean = true, minSmallestScreenWidthDp: Int = 320, maxSmallestScreenWidthDp: Int = 480)`.
-- `ResponsiveContextWrapper` (object) — `wrap(context, config): Context`, clamps `smallestScreenWidthDp` into `[min, max]` via `createConfigurationContext`.
-
-**Consumers:** `BaseActivity.attachBaseContext`.
-
 ## `core/ui/text`
 
 - `StringProvider` (interface) — `fun getString(@StringRes resId: Int): String`, lets a ViewModel resolve string resources without holding an Activity/View `Context`.
@@ -145,7 +136,7 @@ A `smallestScreenWidthDp` clamp to avoid tablet/wide-screen layout issues.
 
 Shared UI infrastructure.
 
-- `BaseActivity<VB : ViewBinding>` (abstract) — ViewBinding lifecycle, responsive context wrapping, immersive full-screen display cutout setup, and exit transitions.
+- `BaseActivity<VB : ViewBinding>` (abstract) — ViewBinding lifecycle, edge-to-edge inset handling, immersive full-screen display cutout setup, and exit transitions.
 - `BaseFragment<VB : ViewBinding>` — Fragment view lifecycle binding and flow collector.
 - `BaseDialogFragment<VB : ViewBinding>` — rounded dialog fragment base using `R.drawable.bg_dialog_surface`.
 - `BaseBottomSheetDialogFragment<VB : ViewBinding>` — Material bottom-sheet view base.
@@ -239,7 +230,7 @@ architecture primitives (`UiState`/`UiEvent`/`UiEffect`, `StateViewModel`, `UseC
 `LocaleManager`/`AppLanguage`/`SupportedLanguages`, `ThemeManager`/`AppTheme`, `ReleaseTree`,
 `ElapsedRealtimeClock`, `StringProvider`/`UiText`, the `Base*` UI hosts, `TransitionActivity`/`TransitionAction`,
 the `intentExtra`/`fragmentArg` delegates, the navigation models, and the `ui/components`,
-`ui/drawable`, `ui/responsive`, `ui/window` helpers.
+`ui/drawable`, `ui/window` helpers.
 
 Deliberately `internal`: every Hilt module, the framework-backed implementation behind each public
 interface (`EncryptedSecureStore`, `AndroidThemeManager`, `RetrofitApiClient`, `TokenAuthenticator`,

@@ -14,24 +14,24 @@
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
-    <!-- Added for the 3 sizes dialog_prompt.xml already needed raw (ssp-scaled, unlike the
-         3 styles above which inherit Material's fixed, non-scaled defaults) — not a full
-         type-scale expansion, since no other screen in this base needs more than these 6 yet.
-         Follow this same evidence-first rule for any future addition. -->
+    <!-- Added for the 3 sizes dialog_prompt.xml already needed raw, unlike the 3 styles above
+         which inherit Material's fixed defaults — not a full type-scale expansion, since no
+         other screen in this base needs more than these 6 yet. Follow this same evidence-first
+         rule for any future addition. -->
 
     <style name="TextAppearance.AndroidXmlBase.BodyEmphasis" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">@dimen/_15ssp</item>
+        <item name="android:textSize">@dimen/core_text_size_15</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textSize">@dimen/_14ssp</item>
+        <item name="android:textSize">@dimen/core_text_size_14</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 
     <style name="TextAppearance.AndroidXmlBase.Micro" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">@dimen/_10ssp</item>
+        <item name="android:textSize">@dimen/core_text_size_10</item>
         <item name="android:textColor">@color/core_color_on_surface</item>
     </style>
 

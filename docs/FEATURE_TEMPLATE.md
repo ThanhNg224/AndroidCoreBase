@@ -160,7 +160,7 @@ Don't force every use case in a feature onto the same interface just for consist
 - Need upload/download/streaming? Inject `FileTransferClient`; do not hand-roll OkHttp calls in a feature.
 - Need Activity navigation? Inject `ActivityNavigator` and navigate with `ActivityDestination`/`NavigationOptions`.
 - Buttons: use `core.ui.components.FrameButton` with design tokens from `docs/DESIGN_SYSTEM.md`, not a plain `<Button>` or hardcoded colors. Debounce the control most likely to be rapid-tapped with `View.setOnDebouncedClickListener` (not necessarily every control — one real usage per screen has been this codebase's bar so far).
-- Layout dimensions: use `@dimen/_<n>sdp` / `@dimen/_<n>ssp`, never a literal `16dp`/`14sp` (see `docs/DESIGN_SYSTEM.md` for the convention and its rationale).
+- Layout dimensions: use the fixed tokens in `core/src/main/res/values/dimens.xml` (`@dimen/core_space_<n>`, `core_radius_<n>`, `core_size_<n>`, `core_stroke_width`, `core_text_size_<n>`), never a literal `16dp`/`14sp` (see `docs/DESIGN_SYSTEM.md` for the convention and its rationale).
 - Loading/success/error UI: keep domain/data failures as `DomainResult<T>` + `AppError`, then map them in presentation to a feature UI state such as `DemoWeatherState`. For pure UI demos or simple presentation-only state, `ResultState<T>` is still available; see `DesignSystemFragment.render()`, which uses `ResultState.fold(...)` for text and `.toRenderState()` for visibility.
 - All user-facing strings go through `strings.xml` (and get a `values-vi/strings.xml` translation — see `sample/demo`'s `demo_title`/`increment`).
 

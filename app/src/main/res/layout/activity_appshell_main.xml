@@ -36,16 +36,16 @@
         android:id="@+id/bottomNavigationContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/_16sdp"
-        android:layout_marginBottom="@dimen/_12sdp"
+        android:layout_marginHorizontal="@dimen/core_space_16"
+        android:layout_marginBottom="@dimen/core_space_12"
         app:cardBackgroundColor="@color/core_color_surface"
-        app:cardCornerRadius="@dimen/_28sdp"
-        app:cardElevation="@dimen/_6sdp"
+        app:cardCornerRadius="@dimen/core_radius_28"
+        app:cardElevation="@dimen/core_space_6"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:strokeColor="@color/core_color_outline_variant"
-        app:strokeWidth="@dimen/_1sdp">
+        app:strokeWidth="@dimen/core_stroke_width">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"

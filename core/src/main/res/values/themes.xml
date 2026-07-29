@@ -60,19 +60,19 @@
         <item name="android:singleLine">false</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">none</item>
-        <item name="android:paddingLeft">@dimen/_4sdp</item>
-        <item name="android:paddingRight">@dimen/_4sdp</item>
+        <item name="android:paddingLeft">@dimen/core_space_4</item>
+        <item name="android:paddingRight">@dimen/core_space_4</item>
     </style>
 
     <!-- Shared button style enforcing 48dp height, 12dp corners, and icon styling. -->
     <style name="Widget.AndroidXmlBase.IconButton" parent="Widget.Material3.Button">
-        <item name="android:minHeight">@dimen/_48sdp</item>
+        <item name="android:minHeight">@dimen/core_size_48</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/_13ssp</item>
-        <item name="cornerRadius">@dimen/_12sdp</item>
+        <item name="android:textSize">@dimen/core_text_size_13</item>
+        <item name="cornerRadius">@dimen/core_radius_12</item>
         <item name="iconGravity">textStart</item>
-        <item name="iconPadding">@dimen/_8sdp</item>
-        <item name="iconSize">@dimen/_18sdp</item>
+        <item name="iconPadding">@dimen/core_space_8</item>
+        <item name="iconSize">@dimen/core_size_18</item>
     </style>
 
     <style name="Widget.AndroidXmlBase.BottomNavigation" parent="Widget.Material3Expressive.BottomNavigationView">

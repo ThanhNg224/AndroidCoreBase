@@ -1,22 +1,18 @@
 package com.thanhng224.androidxmlbase.core.ui.base
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import com.thanhng224.androidxmlbase.core.architecture.result.ResultState
-import com.thanhng224.androidxmlbase.core.ui.responsive.ResponsiveConfig
-import com.thanhng224.androidxmlbase.core.ui.responsive.ResponsiveContextWrapper
 import com.thanhng224.androidxmlbase.core.ui.window.applySystemBarInsetsAsPadding
 import com.thanhng224.androidxmlbase.core.ui.window.setImmersiveMode
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Common base for XML + ViewBinding activities: inflates [VB], applies the responsive
- * `attachBaseContext` wrapping every screen needs, handles edge-to-edge window insets, and offers
- * [collectOnStarted] for lifecycle-safe Flow collection.
+ * Common base for XML + ViewBinding activities: inflates [VB], handles edge-to-edge window
+ * insets, and offers [collectOnStarted] for lifecycle-safe Flow collection.
  */
 public abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     private var bindingOrNull: VB? = null
@@ -25,7 +21,6 @@ public abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     protected abstract fun inflateBinding(inflater: LayoutInflater): VB
 
-    protected open val responsiveConfig: ResponsiveConfig = ResponsiveConfig()
     protected open val useImmersiveMode: Boolean = false
 
     /**
@@ -40,10 +35,6 @@ public abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
      * for them would leave a dead strip.
      */
     protected open val applyInsetsToRoot: Boolean = true
-
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(ResponsiveContextWrapper.wrap(newBase, responsiveConfig))
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Before setContentView: enableEdgeToEdge() adjusts the window before the decor view is

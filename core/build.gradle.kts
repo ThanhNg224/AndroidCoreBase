@@ -112,8 +112,6 @@ dependencies {
     api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.intuit.sdp)
-    implementation(libs.intuit.ssp)
     api(libs.hilt.android)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

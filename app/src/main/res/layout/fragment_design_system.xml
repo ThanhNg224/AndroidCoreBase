@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/_16sdp">
+        android:padding="@dimen/core_space_16">
 
         <TextView
             android:layout_width="wrap_content"
@@ -22,45 +22,45 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginTop="@dimen/core_space_8"
             android:text="@string/design_system_body_sample"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_caption_sample"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_body_emphasis_sample"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_body_medium_sample"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/core_space_4"
             android:text="@string/design_system_micro_sample"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro" />
 
         <!-- FrameButton #1: primary filled -->
         <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_48sdp"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_height="@dimen/core_size_48"
+            android:layout_marginTop="@dimen/core_space_16"
             app:coreButtonBackgroundColor="@color/core_color_primary"
-            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonCornerRadius="@dimen/core_radius_8"
             app:coreButtonShape="rectangle">
 
             <TextView
@@ -75,13 +75,13 @@
         <!-- FrameButton #2: outlined -->
         <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_48sdp"
-            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_height="@dimen/core_size_48"
+            android:layout_marginTop="@dimen/core_space_12"
             app:coreButtonBackgroundColor="@color/core_color_surface"
-            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonCornerRadius="@dimen/core_radius_8"
             app:coreButtonShape="rectangle"
             app:coreButtonStrokeColor="@color/core_color_primary"
-            app:coreButtonStrokeWidth="@dimen/_1sdp">
+            app:coreButtonStrokeWidth="@dimen/core_stroke_width">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -100,15 +100,15 @@
         <com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_16sdp"
-            android:elevation="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/core_space_16"
+            android:elevation="@dimen/core_space_4"
             app:coreShadowBackgroundColor="@color/core_color_surface"
-            app:coreShadowCornerRadius="@dimen/_8sdp">
+            app:coreShadowCornerRadius="@dimen/core_radius_8">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_16sdp"
+                android:padding="@dimen/core_space_16"
                 android:text="@string/design_system_shadow_card_text"
                 android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body" />
 
@@ -117,17 +117,17 @@
         <com.thanhng224.androidxmlbase.core.ui.components.ThemedSwitch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/core_space_16"
             android:text="@string/design_system_switch_label" />
 
         <!-- FrameButton #3: triggers StyledSnackbar -->
         <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
             android:id="@+id/btnShowSnackbar"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_48sdp"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_height="@dimen/core_size_48"
+            android:layout_marginTop="@dimen/core_space_16"
             app:coreButtonBackgroundColor="@color/core_color_primary"
-            app:coreButtonCornerRadius="@dimen/_8sdp"
+            app:coreButtonCornerRadius="@dimen/core_radius_8"
             app:coreButtonShape="rectangle">
 
             <TextView
@@ -142,7 +142,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/core_space_16"
             android:text="@string/design_system_result_demo_title"
             android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption" />
 
@@ -150,7 +150,7 @@
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginTop="@dimen/core_space_8"
             android:orientation="horizontal">
 
             <Button
@@ -166,7 +166,7 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginStart="@dimen/core_space_8"
                 android:layout_weight="1"
                 android:text="@string/design_system_success_button" />
 
@@ -175,7 +175,7 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginStart="@dimen/core_space_8"
                 android:layout_weight="1"
                 android:text="@string/design_system_error_button" />
 
@@ -184,7 +184,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/core_space_16"
             android:orientation="vertical"
             android:gravity="center">
 
@@ -192,7 +192,7 @@
                 android:id="@+id/progressDemoResult"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_8sdp" />
+                android:layout_marginBottom="@dimen/core_space_8" />
 
             <TextView
                 android:id="@+id/tvDemoResult"

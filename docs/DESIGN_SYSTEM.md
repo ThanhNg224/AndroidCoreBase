@@ -27,11 +27,11 @@ Defined in `app/src/main/res/values/text_styles.xml` — 6 styles, each layered 
 - `TextAppearance.AndroidXmlBase.Headline` (parent `Headline6`, bold) — screen/section titles.
 - `TextAppearance.AndroidXmlBase.Body` (parent `Body1`) — primary body copy.
 - `TextAppearance.AndroidXmlBase.Caption` (parent `Caption`) — secondary/small text (e.g. section labels).
-- `TextAppearance.AndroidXmlBase.BodyEmphasis` (parent `Body1`, `_15ssp`, bold) — bold tappable-row/button label (`dialog_prompt.xml`'s action buttons).
-- `TextAppearance.AndroidXmlBase.BodyMedium` (parent `Body2`, `_14ssp`) — secondary body copy (`dialog_prompt.xml`'s message text).
-- `TextAppearance.AndroidXmlBase.Micro` (parent `Caption`, `_10ssp`) — fine print (`dialog_prompt.xml`'s technical-detail text).
+- `TextAppearance.AndroidXmlBase.BodyEmphasis` (parent `Body1`, 15sp, bold) — bold tappable-row/button label (`dialog_prompt.xml`'s action buttons).
+- `TextAppearance.AndroidXmlBase.BodyMedium` (parent `Body2`, 14sp) — secondary body copy (`dialog_prompt.xml`'s message text).
+- `TextAppearance.AndroidXmlBase.Micro` (parent `Caption`, 10sp) — fine print (`dialog_prompt.xml`'s technical-detail text).
 
-The last 3 exist only because `dialog_prompt.xml` already needed those exact sizes as raw, unscaled `android:textSize` — unlike the original 3 (which inherit Material's fixed, non-ssp-scaled defaults), these are explicitly set to `@dimen/_Nssp` so they participate in the sdp/ssp responsive convention below.
+The last 3 exist because `dialog_prompt.xml` needs those exact sizes as raw `android:textSize` — unlike the original 3 (which inherit Material's fixed defaults), these set `android:textSize` explicitly to `@dimen/core_text_size_<n>` (see the "Spacing, radius, size & text-size scale" section below). That token is a fixed `sp` value now — until Phase 2 (2026-07-29) it was `@dimen/_Nssp` from `com.intuit.ssp`; see `docs/MODERNIZATION.md` D1 for why that dependency was retired.
 
 Apply via `android:textAppearance="@style/TextAppearance.AndroidXmlBase.<Style>"`. When an instance needs a color that differs from a tier's baked default (e.g. `BodyEmphasis` used with `color_on_primary` inside a filled button), override `android:textColor` directly on the `TextView` rather than adding a new tier — see `dialog_prompt.xml`. This is still a deliberately small scale — **don't invent a larger type scale until a real screen needs more than these 6**; a project forked from this base with its own real screens (see e.g. the FaceOTP host's `docs/DESIGN_SYSTEM.md`) will likely need to grow this further, evidenced by its own raw sizes, not speculatively ahead of time.
 
@@ -46,9 +46,9 @@ A `FrameLayout`-based button — the **only** button shape this base has built. 
 ```xml
 <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_48sdp"
+    android:layout_height="@dimen/core_size_48"
     app:buttonBackgroundColor="@color/color_primary"
-    app:buttonCornerRadius="@dimen/_8sdp"
+    app:buttonCornerRadius="@dimen/core_radius_8"
     app:buttonShape="rectangle">
 
     <TextView
@@ -61,7 +61,7 @@ A `FrameLayout`-based button — the **only** button shape this base has built. 
 </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
 ```
 
-`fragment_design_system.xml` shows two styles side by side: filled (`buttonBackgroundColor="@color/color_primary"`, no stroke) and outlined (`buttonBackgroundColor="@color/color_surface"`, `buttonStrokeColor="@color/color_primary"`, `buttonStrokeWidth="@dimen/_1sdp"`).
+`fragment_design_system.xml` shows two styles side by side: filled (`buttonBackgroundColor="@color/color_primary"`, no stroke) and outlined (`buttonBackgroundColor="@color/color_surface"`, `buttonStrokeColor="@color/color_primary"`, `buttonStrokeWidth="@dimen/core_stroke_width"`).
 
 **`LinearButton`/`CardButton`/etc. do not exist yet.** The reference project this base ports from has 9 total button variants (all the same underlying `ButtonStyleDelegate`, composed onto a different base `View`/`ViewGroup` — a `LinearLayout`, a `CardView`, plain `TextView`, `ImageView`, ...). This base ported only `FrameButton`. Add another variant only when a real screen needs a shape `FrameButton` genuinely can't express (e.g. a button that must itself be an `ImageView`) — do not add one speculatively "for completeness." See `docs/FEATURE_TEMPLATE.md` anti-pattern 5.
 
@@ -75,9 +75,9 @@ A `FrameLayout` that draws a soft platform shadow behind its content via elevati
 <com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="@dimen/_4sdp"
+    android:elevation="@dimen/core_space_4"
     app:shadowBackgroundColor="@color/color_surface"
-    app:shadowCornerRadius="@dimen/_8sdp">
+    app:shadowCornerRadius="@dimen/core_radius_8">
     <!-- content -->
 </com.thanhng224.androidxmlbase.core.ui.components.ShadowLayout>
 ```
@@ -102,24 +102,49 @@ Use a Material single-choice dialog for a short, mutually exclusive settings val
 
 Monochrome vector sources use `color_on_surface`, never a hardcoded white fill. Apply a contextual tint only where the icon sits on a different semantic container (for example, `color_on_primary_container` in a settings-row icon). `Widget.AndroidXmlBase.Toolbar` explicitly supplies `colorControlNormal` and navigation-icon tint from `color_on_surface`, so app-bar action icons remain legible in both light and dark themes. White remains valid only for a foreground deliberately drawn on a colored container, such as the success checkmark.
 
-## sdp/ssp convention
+## Spacing, radius, size & text-size scale
 
-This base uses `com.intuit.sdp:sdp-android` / `com.intuit.ssp:ssp-android` (both pure resource-only artifacts) for responsive dimensions, applied as `@dimen/_<n>sdp` (density-independent, scales with `smallestScreenWidthDp`) and `@dimen/_<n>ssp` (same, for text sizes) directly in layout XML:
+**As of Phase 2 (2026-07-29) this base no longer uses `com.intuit.sdp`/`com.intuit.ssp`.** Dimensions
+are named, fixed `dp`/`sp` constants in `core/src/main/res/values/dimens.xml`, resolved the same on
+every device — no `smallestScreenWidthDp`-based scaling. See `docs/MODERNIZATION.md` finding F5 and
+decision D1 for why: the sdp/ssp buckets and the (also-removed) `ResponsiveContextWrapper` clamp
+fought each other, and clamping `smallestScreenWidthDp` broke `values-sw600dp/` qualifier resolution
+for tablets/large screens — the opposite of what a responsive strategy should do.
+
+Four token families, each named after what it represents rather than a raw number, so a layout
+reads as intent instead of arithmetic:
 
 ```xml
-android:layout_marginTop="@dimen/_16sdp"
-app:buttonCornerRadius="@dimen/_8sdp"
+android:layout_marginTop="@dimen/core_space_16"
+app:coreButtonCornerRadius="@dimen/core_radius_8"
+android:layout_width="@dimen/core_size_40"
+app:strokeWidth="@dimen/core_stroke_width"
+android:textSize="@dimen/core_text_size_14"
 ```
 
-**No hardcoded non-zero `dp`/`sp` literal belongs in a layout XML this convention covers** — use the sdp/ssp resources consistently in `activity_appshell_main.xml`, `fragment_appshell_home.xml`, and `fragment_demo.xml`.
+- **`core_space_<n>`** — margins, padding, gaps, elevation. (`2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 72`)
+- **`core_radius_<n>`** — card/button/drawable corner radius. (`8, 12, 16, 20, 24, 28`)
+- **`core_size_<n>`** — a view's own fixed width/height/minWidth/minHeight (icon boxes, avatars,
+  touch targets, illustrations) — kept distinct from `core_space_<n>` even where the number
+  coincides (e.g. `core_size_24` vs `core_space_24`), because a view's own dimension and a gap
+  between views are different design decisions that happen to share a value today.
+- **`core_stroke_width`** — the one hairline thickness this base uses, for card/button strokes and
+  divider lines alike.
+- **`core_text_size_<n>`** — fixed `sp` sizes, replacing `@dimen/_Nssp` (used by the 3 raw-size text
+  styles above and `Widget.AndroidXmlBase.IconButton`).
 
-**There is no `Int.sdp()` / `Int.ssp()` Kotlin extension function, and that is a deliberate decision, not a gap.** The Phase 5 plan resolved this explicitly:
+**No hardcoded non-zero `dp`/`sp` literal belongs in a layout XML** — use these tokens consistently,
+same as the sdp/ssp convention required before it.
 
-> "sdp/ssp resolved as: use the established `com.intuit.sdp`/`com.intuit.ssp` XML-dimens libraries directly (`@dimen/_16sdp` in layouts), not hand-rolled `Int.sdp()`/`Int.ssp()` Kotlin extension functions... The library's whole purpose is XML dimension resources auto-generated per `smallestScreenWidthDp` bucket — a Kotlin extension duplicating that is unnecessary; nothing in this codebase does programmatic (non-XML) dimension math."
+**There is no `Int.dp()` / `Int.sp()` Kotlin extension function.** Nothing in this codebase does
+programmatic (non-XML) dimension math; if a future screen needs one, that is a new, deliberate
+addition — not something to assume already exists.
 
-If a future screen needs a *programmatic* (non-XML) dp/sp conversion, that would be a new, deliberate addition — not something to assume already exists.
-
-Related: `core.ui.responsive.ResponsiveContextWrapper` clamps `smallestScreenWidthDp` into `[320, 480]` before sdp/ssp resources resolve, so the sdp/ssp buckets stay bounded even on tablets/foldables — see `docs/CORE_MODULES.md`'s "`core/ui/responsive`" section.
+**Migration note:** at the base's ~360dp calibration width, `@dimen/_16sdp` already resolved to
+~16dp, so swapping to `@dimen/core_space_16` is a visual no-op on ordinary phones. What *did*
+change on purpose is tablets/large screens: sdp/ssp scaled every dimension up continuously with
+screen width; fixed tokens do not. A screen that genuinely needs a different value on a large
+screen should add one to `values-sw600dp/dimens.xml`, not rely on scaling.
 
 ## Live reference
 

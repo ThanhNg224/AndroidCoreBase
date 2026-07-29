@@ -14,9 +14,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:cardCornerRadius="@dimen/_16sdp"
-        app:cardElevation="@dimen/_8sdp"
-        app:strokeWidth="@dimen/_1sdp"
+        app:cardCornerRadius="@dimen/core_radius_16"
+        app:cardElevation="@dimen/core_space_8"
+        app:strokeWidth="@dimen/core_stroke_width"
         app:strokeColor="@color/core_color_stroke_subtle"
         app:cardBackgroundColor="@color/core_color_surface"
         tools:ignore="MergeRootFrame">
@@ -26,13 +26,13 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/_24sdp"
-            android:paddingVertical="@dimen/_20sdp"
-            android:minWidth="@dimen/_150sdp">
+            android:paddingHorizontal="@dimen/core_space_24"
+            android:paddingVertical="@dimen/core_space_20"
+            android:minWidth="@dimen/core_size_150">
 
             <ProgressBar
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
+                android:layout_width="@dimen/core_size_40"
+                android:layout_height="@dimen/core_size_40"
                 android:indeterminateTint="@color/core_color_primary"
                 android:contentDescription="@null" />
 
@@ -40,7 +40,7 @@
                 android:id="@+id/tvLoaderStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_12sdp"
+                android:layout_marginTop="@dimen/core_space_12"
                 android:accessibilityLiveRegion="polite"
                 android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
                 android:textColor="@color/core_color_on_surface"
