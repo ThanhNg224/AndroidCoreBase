@@ -632,6 +632,12 @@ confirm this is still true immediately before deleting, and get explicit confirm
 tag deletion or force-push, per the destructive-operation rule regardless of how low the blast
 radius looks.
 
+Also deferred to that same point, by explicit decision (2026-07-29): the **local working directory
+is still named `AndroidStudioProjects/AndroidXmlBase`**. Nothing depends on it — `rootProject.name`
+is already `AndroidCoreBase` and the git remote points at the renamed repo — but renaming the
+directory breaks absolute paths in Android Studio's own config and in docs that cite them, so it
+happens once the modernization work is finished, not between phases.
+
 **D5 — `:core` ships no database; the passphrase helper stays.** *(2026-07-29)*
 
 Room, SQLCipher and the whole `core/storage/database` package are removed rather than split into a
