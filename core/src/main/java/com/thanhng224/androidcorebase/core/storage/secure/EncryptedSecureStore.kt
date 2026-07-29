@@ -19,10 +19,7 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.inject.Inject
 
 /**
- * [SecureStore] backed by a Keystore-resident AES-256/GCM key: `EncryptedSharedPreferences`
- * (androidx.security:security-crypto) is deprecated as of 1.1.0 with no replacement class, and
- * Google's guidance is to use the platform Keystore directly instead. The key never leaves the
- * TEE/StrongBox, so only ciphertext (IV-prefixed, Base64-encoded) is ever written to disk.
+ * [SecureStore] implementation backed by an AES-256/GCM key stored in the Android Keystore.
  */
 internal class EncryptedSecureStore
     @Inject

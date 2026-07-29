@@ -8,10 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Supplies the [ApiConfig] that :core deliberately does not ship a default for. Every app
- * consuming :core needs a module like this one.
- */
+/** Supplies application-level [ApiConfig] settings for network clients. */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppNetworkModule {

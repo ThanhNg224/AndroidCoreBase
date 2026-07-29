@@ -43,12 +43,7 @@ public sealed interface AppError {
         override val cause: Throwable? = null
     }
 
-    /**
-     * The transport succeeded but the server rejected the request at the business layer — the
-     * common "HTTP 200 with an error code in the response envelope" shape. Distinct from [Http],
-     * which carries a transport-level status, because callers usually branch on [code] to decide
-     * whether the failure is recoverable.
-     */
+    /** Business-layer error response (e.g., HTTP 200 response envelope with error code). */
     public data class Business(
         val code: Int,
         val message: String,

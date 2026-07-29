@@ -1,7 +1,7 @@
 # AndroidCoreBase
 
 [![JitPack](https://jitpack.io/v/ThanhNg224/AndroidCoreBase.svg)](https://jitpack.io/#ThanhNg224/AndroidCoreBase)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-blue.svg)](https://kotlinlang.org)
 [![MinSDK](https://img.shields.io/badge/MinSDK-24-green.svg)](https://developer.android.com)
 [![TargetSDK](https://img.shields.io/badge/TargetSDK-37-brightgreen.svg)](https://developer.android.com)
 [![JDK](https://img.shields.io/badge/JDK-21-orange.svg)](https://www.oracle.com/java)
@@ -27,11 +27,11 @@ A production-ready, state-of-the-art Android base repository utilizing **XML lay
 
 | Component | Specification / Technology |
 |---|---|
-| **Language & JDK** | Kotlin 2.0+ / Java 21 |
+| **Language & JDK** | Kotlin 2.4 / Java 21 |
 | **SDK Compatibility** | Min SDK 24 (Android 7.0) / Target SDK 37 |
 | **Dependency Injection** | Hilt (Dagger) + KSP |
 | **UI Framework** | Material 3, XML ViewBinding, ConstraintLayout, Lottie, Facebook Shimmer |
-| **Network & Serialization** | Retrofit 2, OkHttp 4, Kotlinx Serialization |
+| **Network & Serialization** | Retrofit 3, OkHttp 5, Kotlinx Serialization |
 | **Local Storage** | Jetpack DataStore Preferences, Android KeyStore (no database — declare your own) |
 | **Async & Concurrency** | Kotlin Coroutines, StateFlow, SharedFlow, WorkManager |
 | **Code Quality & Gates** | Detekt, KtLint, Kover, Baseline Profiles |
@@ -60,11 +60,16 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:<tag>")
 }
 ```
 
 Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
+
+> **No published tag is consumable right now.** The existing `v1.0.0`/`v2.0.0` tags predate the
+> rename to `AndroidCoreBase`, so their artifact is still `AndroidXmlBase`, and both are retired at
+> the upcoming API freeze — which publishes a fresh `v1.0.0` (see `docs/MODERNIZATION.md` D4).
+> Substitute a real tag for `<tag>` once that release is cut.
 
 ### 3. Configure Your Own Module
 
@@ -88,10 +93,10 @@ android {
 }
 
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:<tag>")
     ksp("com.google.dagger:hilt-compiler:<version>")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v2.0.0"))
+    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:<tag>"))
 }
 ```
 
@@ -111,6 +116,35 @@ against `AndroidCoreBaseTheme`/`ComposeView.setThemedContent`/`BaseComposeActivi
 `:core`. The Compose compiler transforms `@Composable` lambda parameters at the bytecode level per
 module; a module missing the plugin produces a call site that compiles cleanly but throws
 `NoSuchMethodError` at runtime.
+
+### Optional: your own encrypted database
+
+`:core` ships **no** database — Room's `@Database` fixes its `entities` list at compile time in the
+annotated class, so a library cannot hand you one to extend. Add Room + SQLCipher in your own module
+and declare your own `@Database`. What `:core` does give you is `DbPassphraseProvider`: a stable
+random passphrase, generated once and persisted behind the Keystore via `SecureStore`.
+
+```kotlin
+@Provides
+@Singleton
+fun provideDatabase(
+    @ApplicationContext context: Context,
+    passphraseProvider: DbPassphraseProvider,
+): MyDatabase {
+    val passphrase = runBlocking { passphraseProvider.getOrCreate() }
+    return Room.databaseBuilder(context, MyDatabase::class.java, "my_database.db")
+        .openHelperFactory(SupportOpenHelperFactory(passphrase.toByteArray()))
+        .build()
+}
+```
+
+`getOrCreate()` is `suspend` because the first call reads encrypted storage from disk, while a Hilt
+`@Provides` boundary is synchronous — hence the `runBlocking`. That is tolerable because it happens
+once and Room builds lazily on first query. To keep it off the critical path entirely, warm it from
+your own `androidx.startup` `Initializer` or `Application.onCreate` on a background dispatcher so
+the `@Provides` call hits the memoized value. `:core` used to register exactly such an initializer
+unconditionally, which charged every consuming app Keystore I/O at every process start even with no
+database at all; that is now your call (`docs/MODERNIZATION.md` F7/D5).
 
 ### Required: supply an `ApiConfig`
 
