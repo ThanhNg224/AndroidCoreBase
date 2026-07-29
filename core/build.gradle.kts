@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
@@ -13,8 +15,29 @@ plugins {
 android {
     namespace = "com.thanhng224.androidcorebase.core"
     resourcePrefix = "core_"
+
     compileSdk {
         version = release(37)
+    }
+
+    defaultConfig {
+        minSdk = 24
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+        compose = true
+    }
+
+    testFixtures {
+        enable = true
     }
 
     publishing {
@@ -23,33 +46,9 @@ android {
         }
     }
 
-    defaultConfig {
-        minSdk = 24
-
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    buildFeatures {
-        viewBinding = true
-        buildConfig = true
-        compose = true
-    }
-    // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
-    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidCoreBase:<v>"))
-    testFixtures {
-        enable = true
-    }
     lint {
         abortOnError = true
         checkReleaseBuilds = true
-        // Files, ids and styleables carry the core_ prefix. Styles/themes instead follow the
-        // platform's Type.Namespace.Variant convention (TextAppearance.AndroidCoreBase.Body, like
-        // TextAppearance.MaterialComponents.Body1) — already namespaced, and core_-prefixing them
-        // would be non-idiomatic. Kept visible as a warning rather than silenced.
         warning += "ResourceName"
     }
 }
@@ -80,10 +79,6 @@ publishing {
     }
 }
 
-// Explicit API mode: :core is a published library, so every public declaration must state its
-// visibility and return type. Covers src/testFixtures too -- those fakes are published for
-// consumers via testImplementation(testFixtures(...)), so they are API, not test code. Only
-// src/test and src/androidTest are exempt.
 kotlin {
     explicitApi()
 }
@@ -95,6 +90,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    // AndroidX & Core UI
     implementation(libs.androidx.core.ktx)
     api(libs.androidx.lifecycle.runtime.ktx)
     api(libs.androidx.lifecycle.viewmodel.ktx)
@@ -106,38 +102,47 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
     api(libs.material)
+    implementation(libs.lottie)
+    api(libs.timber)
+
+    // Coroutines
     api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Storage & Network
     implementation(libs.androidx.datastore.preferences)
     api(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization.converter)
     api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-    api(libs.hilt.android)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.sqlcipher.android)
-    implementation(libs.lottie)
-    api(libs.timber)
+
+    // Dependency Injection
+    api(libs.hilt.android)
+
+    // Compose
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+
+    // KSP Annotation Processors
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
-    testFixturesImplementation(libs.junit)
-    testFixturesImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.junit)
+
+    // Test & Test Fixtures
+    testFixturesApi(libs.junit)
+    testFixturesApi(libs.kotlinx.coroutines.test)
     testImplementation(testFixtures(project(":core")))
-    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
 configurations.all {
@@ -162,13 +167,11 @@ kover {
     reports {
         filters {
             includes {
-                // Whole module, not a hand-picked allowlist. Anything genuinely untestable on the
-                // JVM is excluded below with a reason.
                 classes("com.thanhng224.androidcorebase.core.*")
             }
             excludes {
                 classes(
-                    // Generated
+                    // Generated code
                     "*.BuildConfig",
                     "*.R",
                     "*.R$*",
@@ -179,16 +182,15 @@ kover {
                     "*Hilt_*",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    // DI wiring: declarations only, exercised by Hilt's own codegen
+                    // Dependency Injection
                     "*.core.di.*",
                     "*.core.ui.theme.ThemeModule*",
-                    // Android-framework glue: covered by androidTest, not JVM unit tests
+                    // Android UI & Components
                     "*Activity",
                     "*Activity$*",
                     "*Fragment",
                     "*Fragment$*",
                     "*DialogFragment",
-                    // Need a real Bundle / FragmentManager / View: instrumented-only
                     "*.core.navigation.ArgumentDelegatesKt",
                     "*.core.navigation.IntentExtraDelegate",
                     "*.core.navigation.IntentExtraNullableDelegate",
@@ -198,9 +200,9 @@ kover {
                     "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
                     "*.core.ui.window.*",
-                    // Compose UI functions (instrumented test only)
                     "*.core.ui.theme.ComposeThemeKt",
                     "*.core.ui.base.ComposeInteropKt",
+                    // Android System & Storage Services
                     "*.core.startup.*",
                     "*.core.storage.database.AppDatabase*",
                     "*.core.storage.database.LocalSettingDao*",
@@ -212,7 +214,6 @@ kover {
                     "*.core.network.connectivity.AndroidConnectivityChecker*",
                     "*.core.time.AndroidElapsedRealtimeClock*",
                     "*.core.ui.text.AndroidStringProvider*",
-                    // Reference implementation, intentionally unscheduled
                     "*.core.work.*",
                 )
             }
