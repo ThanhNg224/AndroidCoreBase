@@ -235,6 +235,59 @@ those samples, keeping the pre-existing attribute names as-is to avoid conflatin
 with this migration). Fix by adding the `core` prefix to those 5 attribute names in
 `docs/DESIGN_SYSTEM.md`.
 
+### F13 — `artifactId` no longer matches the GitHub repo name, which breaks JitPack (blocks any publish)
+
+The Phase 2.5 rebrand changed `core/build.gradle.kts`'s `artifactId` from `AndroidXmlBase` to
+`AndroidCoreBase` and updated the POM urls and `README.md` coordinates, but the GitHub repo is
+still `ThanhNg224/AndroidXmlBase` — `git remote` was never changed.
+
+That regresses a bug already diagnosed and fixed once (see the `jitpack-core-publishing` project
+memory, bug 3): because `:core` is the only module applying `maven-publish`, JitPack treats this as
+a **single-artifact repo** and serves it *only* at `com.github.<user>:<repo>:TAG`. So `artifactId`
+must equal the GitHub repo name.
+
+Verified locally rather than assumed — `./gradlew :core:publishToMavenLocal` produces:
+
+```
+~/.m2/repository/com/github/ThanhNg224/AndroidCoreBase/v2.0.0   <- what we now publish
+~/.m2/repository/com/github/ThanhNg224/AndroidXmlBase/<tag>      <- where JitPack looks
+```
+
+Consequences: the next tag pushed to JitPack resolves to "File not found", and `README.md:63/91/94`
+already advertise `com.github.ThanhNg224:AndroidCoreBase:v2.0.0`, which resolves for nobody — the
+repo is not renamed *and* tag `v2.0.0` predates the rebrand, so its published artifact is
+`AndroidXmlBase`.
+
+Chosen fix (2026-07-29): rename the GitHub repo to `AndroidCoreBase`, update `git remote`, and cut a
+fresh tag — a new tag is required either way before README's coordinate is truthful, since no
+existing tag contains a rebranded artifact. Note the version question this raises: the package
+rename (`com.thanhng224.androidxmlbase.core` → `...androidcorebase.core`) is a breaking change for
+any consumer, so it warrants a major bump, which collides with this file's plan to publish `v3.0.0`
+at the post-Phase-5 API freeze. Decide whether the rebrand takes `v3.0.0` and the freeze becomes
+`v4.0.0`, or the rebrand ships unpublished until the freeze.
+
+Verify per the memory, don't guess: fetch `https://jitpack.io/com/github/<user>/<repo>/<tag>/build.log`.
+
+### F14 — `BaseComposeActivity` is a published abstraction with no Compose in it (Phase 3)
+
+Phase 2.5 added `core/ui/base/BaseComposeActivity.kt` as a stub "ready for Phase 3". As shipped it
+contains **zero Compose code**, and `:core` has **no Compose dependency at all** — no BOM, no
+`androidx.compose.*`, no `activity-compose`. The whole class body renames `onCreate` to
+`onSetupComposeContent` and adds nothing over `BaseActivity`; a consumer could override `onCreate`
+and call `setContent` with identical results.
+
+Two problems. It is public API in a library published to JitPack, named as though it provides
+Compose support while providing none — a consumer extending it gets no theme bridge and no
+`ComposeView` support, and must supply every Compose dependency themselves. And it is the same
+speculative-generality category that `WindowSizeClass` was correctly *deferred* for in Phase 2
+(F5/D1), so the judgment is inconsistent: one unused abstraction was rightly held back, the other
+shipped.
+
+Not a defect in direction — D2 already decided to open a Compose interop path. It is premature
+packaging. Phase 3 resolves it by giving the class real substance (Compose BOM, `ComposeView`
+interop, XML-theme→`MaterialTheme` bridge) or by deleting it if D2's minimum turns out not to need a
+dedicated Activity base at all. Do not leave it hollow in a published release.
+
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
 `:core` depends on `com.intuit.sdp`/`com.intuit.ssp` 1.1.1, which work by generating hundreds of
