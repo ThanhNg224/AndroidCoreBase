@@ -34,7 +34,6 @@
     </style>
 
     <style name="Theme.AndroidXmlBase" parent="Base.Theme.AndroidXmlBase">
-        <item name="android:statusBarColor">@color/core_color_surface</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

@@ -27,7 +27,9 @@ only at the end, as an integration test that proves the API is actually usable f
 
 ## Baseline: what is already modern (do not "fix" these)
 
-Verified against source on 2026-07-29. `:core` is **not** carrying legacy debt:
+Verified against source on 2026-07-29. `:core` is **not** carrying legacy debt — with one
+exception found later, in XML rather than Kotlin: see F9 (`android:statusBarColor`). The scan
+below covered `.kt` files; treat "no deprecated usage" as proven for Kotlin only.
 
 - **Deprecated API usage is effectively zero.** The single `@Suppress("DEPRECATION")` in the
   module, `core/navigation/ActivityNavigator.kt:75`, is a correct API-level fallback:
@@ -139,12 +141,51 @@ no `ViewCompat.setOnApplyWindowInsetsListener`, no `fitsSystemWindows`, and no
 Every consuming app therefore renders content under the status bar by default. This is a
 correctness bug against the platform contract, not a preference.
 
-### F4 — No predictive back (Phase 1)
+### F4 — Predictive back: **not a real gap. This finding was overstated.**
 
-`android:enableOnBackInvokedCallback` appears nowhere, and there is no `OnBackPressedCallback`
-usage. Notable because `:core` ships `ui/base/TransitionActivity` and custom
-`overrideActivityTransition` animations — back-navigation animation is clearly something this
-base cares about, yet the modern back mechanism is entirely absent.
+Originally written as "predictive back is entirely absent" on the basis that
+`android:enableOnBackInvokedCallback` appears nowhere. Verified 2026-07-29 and that conclusion was
+wrong on both halves:
+
+- `targetSdk = 37`. Predictive back is **on by default** for apps targeting API 36+, and the
+  `enableOnBackInvokedCallback` manifest flag is ignored in that range. Adding it would be
+  cargo cult.
+- Nothing overrides the deprecated `Activity.onBackPressed()` anywhere in `:core` or `:app` — the
+  one back-related call site,
+  `feature/settings/.../SettingsActivity.kt:26`, uses
+  `onBackPressedDispatcher.onBackPressed()`, which is the correct modern form.
+
+So the base already gets predictive back, and nothing blocks it. The only remaining work is
+**optional polish**: custom predictive-back animations via `OnBackAnimationCallback`, which would
+pair with the `TransitionActivity`/`overrideActivityTransition` work `:core` already has. Not
+scheduled — it is a nice-to-have, not a correctness issue.
+
+### F9 — `android:statusBarColor` is deprecated and ignored on Android 15+ (Phase 1)
+
+Found while implementing F3, and it is also a **correction to the Baseline section above**: the
+"deprecated usage is effectively zero" claim came from grepping `.kt` files only. XML themes were
+not checked, and they do contain a deprecated API.
+
+`android:statusBarColor` is set in `core/src/main/res/values/themes.xml:37` and
+`core/src/main/res/values-night/themes.xml:4`. It has no effect once an app targets SDK 35+, so on
+`targetSdk 37` these two lines are dead. Worse, setting them encodes the assumption that the app
+is *not* laid out edge-to-edge — which is the same wrong assumption F3 describes.
+
+`android:windowLightStatusBar` in those same styles is **still honoured** (it controls status-bar
+icon contrast) and stays.
+
+### F10 — `:core`'s consumer ProGuard rules have never been executed (own phase)
+
+`app/build.gradle.kts` disables R8 for `release` (`optimization { enable = false }`), yet `:core`
+ships `core/consumer-rules.pro` specifically for consumers that *do* minify. Those rules —
+including the `-keep` on `storage.database.**` that Room needs — have therefore never run in any
+build in this repo. A consumer enabling R8 would be the first to discover whether they are
+correct, and the failure mode is a runtime crash in a release build, which is the worst place to
+find out.
+
+Not folded into Phase 1: turning R8 on means validating serialization, Room codegen and reflection
+against a real minified release build, which is its own scoped piece of work with its own
+verification. Tracked separately.
 
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
@@ -228,10 +269,28 @@ Adding `AppError.Business` made an exhaustive `when` in `:app`'s `DemoViewModel.
 non-exhaustive, which is exactly the signal wanted: the in-repo consumer catches sealed-hierarchy
 changes at compile time. Expect the same from any consumer branching on `AppError`.
 
+**Phase 1 is complete (2026-07-29).** `BaseActivity` now calls `enableEdgeToEdge()` before
+`setContentView` and pads the binding root via `applySystemBarInsetsAsPadding()`, opt-out through
+`applyInsetsToRoot` and skipped under `useImmersiveMode`. Both dead `android:statusBarColor` items
+are gone (F9). F4 was corrected to a non-finding, and R8 was split out as F10 rather than rushed.
+
+The inset helper takes per-edge flags because "apply insets once per edge" is the actual rule, and
+getting that wrong is visible: the first attempt padded the root's bottom edge while Material's
+`BottomNavigationView` also padded itself, leaving a dead strip inside the nav card. Note that
+`app:paddingBottomSystemWindowInsets="false"` does **not** suppress it on `BottomNavigationView` —
+that was tried and had no effect. What works is replacing the view's own listener
+(`MainActivity.onBindingReady`), since Material installs its inset handling as an
+`OnApplyWindowInsetsListener` and setting one overwrites it.
+
+Verification is a screenshot on a physical API 33 device, not a unit test: `enableEdgeToEdge()`
+opts in on all API levels, so the behaviour reproduces below Android 15 even though that is where
+it becomes mandatory. Content clears the status bar and the nav pill sits clear of the navigation
+bar with no internal dead space.
+
 | Phase | Work | Gate |
 | --- | --- | --- |
 | **0** | F1 + F2 — public API contract; restore documented-but-missing API | `explicitApi()` green; internal/public audit recorded. **Enforced API dump deferred — BCV unusable, see F1** |
-| **1** | F3 + F4 — edge-to-edge insets, predictive back, R8 posture | Instrumented test on a device with visible system bars |
+| **1** | F3 + F9 — edge-to-edge insets; drop dead `statusBarColor`. F4 turned out to be a non-finding; R8 split out as F10 | **Done 2026-07-29** — verified by screenshot on a physical API 33 device |
 | **2** | F5 — retire sdp/ssp and `ResponsiveContextWrapper`; spacing scale + qualifiers + `WindowSizeClass` | `DESIGN_SYSTEM.md` and `CLAUDE.md` updated in the same commit |
 | **3** | F6 — `ComposeView` interop + XML-theme→`MaterialTheme` bridge | A sample screen in `:app` rendering Compose inside an XML layout |
 | **4** | F7 — opt-in initializers; decide module topology **from measurement** | Before/after APK size and startup trace of an empty consumer |
