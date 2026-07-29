@@ -199,7 +199,8 @@ qualifiers resolve**, so `values-sw600dp/` becomes unreachable on devices that s
 The reason two mechanisms exist is that sdp/ssp alone doesn't produce good results, so a clamp
 was layered on top. Removing both removes a layer rather than adding one.
 
-Scale of the change: 14 layout files, 144 `@dimen/_Nsdp` references, a dedicated "sdp/ssp
+Scale of the change: 148 references (144 `_Nsdp` + 4 `_Nssp`) across 13 layout, drawable,
+theme and text-style files, a dedicated "sdp/ssp
 convention" section in `docs/DESIGN_SYSTEM.md`, and three text styles
 (`TextAppearance.AndroidXmlBase.BodyEmphasis`/`BodyMedium`/`Micro`) that exist *only* to
 participate in the ssp convention. `ResponsiveContextWrapper` itself has exactly one call site,
@@ -320,7 +321,7 @@ in Kotlin for structural layout changes. `ResponsiveContextWrapper` is deleted, 
 `smallestScreenWidthDp` actively breaks the qualifier mechanism this model depends on (F5).
 
 Rationale: it's the Google-recommended model, it drops a third-party dependency, layouts become
-readable, and it removes an entire overlapping layer. Cost is real and accepted: 144 references
+readable, and it removes an entire overlapping layer. Cost is real and accepted: 148 references
 across 14 layouts, a `DESIGN_SYSTEM.md` rewrite, three text styles to reconsider, and a
 `CLAUDE.md` rule to change (it currently commits to spreading the sdp/ssp convention across all
 layouts — that commitment is withdrawn).
