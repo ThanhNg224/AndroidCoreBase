@@ -133,17 +133,33 @@ WorkManager wiring: `AndroidCoreBaseApplication` implements `Configuration.Provi
 
 ## `core/ui/base`
 
-Shared UI infrastructure.
+The Activity/Fragment/Dialog base classes and the render helpers around them. Verified against
+`core/api/core.api` (the committed metalava dump), so this list is the real public surface rather
+than a reconstruction.
 
-- `BaseActivity<VB : ViewBinding>` (abstract) — ViewBinding lifecycle, edge-to-edge inset handling, immersive full-screen display cutout setup, and exit transitions.
-- `BaseFragment<VB : ViewBinding>` — Fragment view lifecycle binding and flow collector.
-- `BaseDialogFragment<VB : ViewBinding>` — rounded dialog fragment base using `R.drawable.bg_dialog_surface`.
-- `BaseBottomSheetDialogFragment<VB : ViewBinding>` — Material bottom-sheet view base.
-- `TransitionActivity` — opaque full-screen host for a single `core/ui/transition/TransitionAction`, looked up by a caller-supplied action key from a Hilt `@IntoMap` multibinding; one Activity/manifest entry covers every transition use case instead of a new Activity subclass per case. See `core/ui/transition` below.
-- `collectOnStartedBy(lifecycleOwner, action)` (in `LifecycleFlowExtensions.kt`) — shared lifecycle-safe Flow collection; each Base* host's `collectOnStarted` delegates here with its own `LifecycleOwner` (the host itself for `BaseActivity`, `viewLifecycleOwner` for the Fragment/BottomSheet hosts).
-- `renderResultState(result, contentRoot, dialogHost, onSuccess)` (in `ResultStateOverlay.kt`) — shared full-screen-loader + `PromptDialogFragment` error rendering; `BaseActivity`/`BaseFragment.bindResultState` both delegate here so the loading/error UI stays identical across hosts.
-- `Debouncer` — pure rate limiter with `View.setOnDebouncedClickListener` click rate limiting.
-- `ResultRenderState(isLoadingVisible, isContentVisible, isErrorVisible, errorMessage)` — visibility-only projection of a `ResultState<T>`. Not the same mechanism as `ResultStateOverlay`: this one toggles View visibility for screens that render inline (e.g. `sample/designsystem`); `ResultStateOverlay` drives a full-screen loader + dialog for `bindResultState` callers. Pick per-screen based on whether the loading/error UI should be inline or overlay the whole screen.
+**Activity hierarchy** — split in Phase 2.5 so Compose screens are not forced through ViewBinding:
+- `BaseActivity` (abstract) — the neutral base. Calls `enableEdgeToEdge()` before `setContentView`, applies `useImmersiveMode`, and offers `collectOnStarted` (lifecycle-safe Flow collection) and `bindResultState`. Two overridable flags: `useImmersiveMode` (default `false`) and `applyInsetsToRoot` (default `true`; see `core/ui/window`).
+- `BaseBindingActivity<VB : ViewBinding>` — XML path. Inflates `VB`, sets it as content, applies system-bar insets to `binding.root` unless opted out, then calls `onBindingReady`. Nulls the binding in `onDestroy`.
+- `BaseComposeActivity` — Compose path. Wraps an abstract `@Composable Content()` in `AndroidCoreBaseTheme` via `setContent`. Note it has no `binding.root` to pad, so a Compose screen applies insets itself inside `Content()` (`Modifier.safeDrawingPadding()` or a `Scaffold`'s `contentWindowInsets`).
+- `TransitionActivity` — runs a named `TransitionAction` (injected as a `Map<String, TransitionAction>` Hilt multibinding) behind a themed transition screen. `TransitionActivity.createIntent(context, actionKey, extras)` is the entry point. This is what keeps an activity-recreating operation from flashing; see `docs/MODERNIZATION.md` F8.
+
+**Fragment / dialog bases** — all three take `VB : ViewBinding`, expose `binding`, and require `inflateBinding` + `onBindingReady`:
+- `BaseFragment<VB>` — also offers `collectOnStarted` and `bindResultState`.
+- `BaseDialogFragment<VB>` — adds overridable `dialogAnimation` (`DialogAnimation`: `SLIDE`, `SCALE`, `FADE`, `NONE`) and `backgroundDrawableRes`, and clamps dialog width in `onStart` using `core_dialog_screen_margin`/`core_dialog_max_width`.
+- `BaseBottomSheetDialogFragment<VB>`.
+
+**Render helpers for `ResultState`:**
+- `ResultState<T>.toRenderState()` → `ResultRenderState(isLoadingVisible, isContentVisible, isErrorVisible, errorMessage: UiText?)`, plus `ResultRenderState.applyVisibilityTo(loadingView, contentView, errorView)` — for screens that own their own loading/error views.
+- `renderResultState(result, contentRoot, dialogHost, onSuccess)` — the batteries-included version: `FullScreenLoaderView` on `Loading`, `PromptDialogFragment` on `Error`. This is what `BaseActivity`/`BaseFragment`'s `bindResultState` calls.
+
+**These two are different mechanisms, pick per screen:** `ResultRenderState` toggles the visibility of views the screen already owns, so loading/error render *inline* (what `sample/designsystem` does). `renderResultState` overlays the whole screen. Choose based on whether the loading and error states should sit inside the layout or cover it.
+
+**Misc:**
+- `Debouncer(intervalMs = 600L)` with `shouldAllow(nowMs)`, and `View.setOnDebouncedClickListener(intervalMs, action)` — the extension is the normal entry point.
+- `Flow<T>.collectOnStartedBy(lifecycleOwner, action)` — the shared implementation behind every base class's `collectOnStarted`, so collection rules stay identical across hosts. Each host passes its own `LifecycleOwner`: the Activity itself for `BaseActivity`, `viewLifecycleOwner` for the Fragment/BottomSheet hosts.
+- `ComposeView.setThemedContent(content)` — see `core/ui/theme` for why it sets `DisposeOnViewTreeLifecycleDestroyed`.
+
+**Consumers:** `BaseBindingActivity` — `MainActivity`, `SettingsActivity`. `BaseFragment` — `HomeFragment`, `DemoFragment`, `DesignSystemFragment`. `TransitionActivity` + `setThemedContent` + `toRenderState` — `SettingsActivity`/`DesignSystemFragment`. `setOnDebouncedClickListener` — `DemoFragment`. **No consumer yet:** `BaseComposeActivity`, `BaseDialogFragment`, `BaseBottomSheetDialogFragment`, `renderResultState`/`bindResultState`, `applyVisibilityTo`, `collectOnStartedBy` (used internally by the base classes, not directly by `:app`).
 
 ## `core/ui/components`
 
@@ -182,8 +198,6 @@ App-wide light/dark/system theme, backed by AppCompat's night mode and persisted
 **Consumers:** `feature/settings` adapts `ThemeManager` through `SettingsRepository` for its settings-list state and appearance dialog; `applyTheme` is also called on app start to restore the persisted choice; `MainActivity` reads `isThemeApplied` for its splash screen keep-on-screen condition (Task 3).
 
 **Compose bridge (Phase 3):** `AndroidCoreBaseTheme` (a `@Composable` function, `ComposeTheme.kt`) wraps content in a Compose `MaterialTheme` whose `ColorScheme` is read from the same `core_color_*` resources this file's XML theme uses, so both stay in sync from one edit. `ComposeView.setThemedContent()` (`core/ui/base/ComposeInterop.kt`) is the interop entry point for embedding a themed `ComposeView` in an XML layout; `BaseComposeActivity` (`core/ui/base`) is the equivalent for a screen rendered entirely in Compose. **Any module that declares or calls `@Composable` code — including a consuming app writing its own composables — must apply `org.jetbrains.kotlin.plugin.compose` itself**; the Compose compiler transforms `@Composable` lambda parameters at the bytecode level per-module, and a module without the plugin produces a call site that compiles but throws `NoSuchMethodError` at runtime (see `docs/MODERNIZATION.md` F15). **Consumer:** `sample/designsystem`'s `DesignSystemFragment` embeds a themed `ComposeView`.
-
-*(Note: this file otherwise predates the Phase 2.5 rebrand's `BaseBindingActivity`/`BaseComposeActivity` split of the old `BaseActivity`; a full `core/ui/base` section reconciling that is still owed — not done here to keep this change scoped to Phase 3.)*
 
 ## `core/navigation`
 
