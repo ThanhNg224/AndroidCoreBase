@@ -37,9 +37,9 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -54,6 +54,21 @@ android {
     lint {
         abortOnError = false
         checkReleaseBuilds = false
+    }
+}
+
+// F16 workaround. Minifying activates the Compose compiler plugin's produceRelease/BenchmarkComposeMapping
+// tasks, which resolve org.jetbrains.kotlin:compose-group-mapping at a version the plugin hardcodes --
+// 2.2.10 as of plugin 2.4.10. That artifact only exists from 2.3.0-Beta1 onward, so the request can
+// never resolve and the build fails at configuration time. Forcing it to our Kotlin version works
+// because a matching artifact is published (verified: compose-group-mapping:2.4.10 is on Maven
+// Central). Remove this once the plugin stops hardcoding it -- see docs/MODERNIZATION.md F16.
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin" && requested.name == "compose-group-mapping") {
+            useVersion(libs.versions.kotlin.get())
+            because("plugin hardcodes a nonexistent version; see F16")
+        }
     }
 }
 

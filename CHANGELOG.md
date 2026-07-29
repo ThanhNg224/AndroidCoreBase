@@ -18,6 +18,14 @@ All notable changes to the published `:core` library are recorded here. Format f
   process start. The `:app` sample's release APK went 20.49 MB → 13.16 MB. If you need an encrypted
   database, declare your own `@Database` and add Room + SQLCipher yourself.
 
+### Added
+
+- **R8 is enabled for `:app`'s release build** (`isMinifyEnabled` + `isShrinkResources`), which also
+  exercises `:core`'s `consumer-rules.pro` for the first time. The sample release APK is 2.71 MB,
+  down from 20.49 MB at the start of this cycle. Validated on device against a signed minified
+  build: live network + kotlinx.serialization, Hilt, DataStore, per-app locale and the Compose
+  interop all work. `consumer-rules.pro` needed no additions.
+
 ### Changed
 
 - **`DbPassphraseProvider` is now public** and lives in `core.storage.secure` (was `internal` in

@@ -188,6 +188,34 @@ Not folded into Phase 1: turning R8 on means validating serialization, Room code
 against a real minified release build, which is its own scoped piece of work with its own
 verification. Tracked separately.
 
+**Resolved 2026-07-29, once F16 unblocked it.** `:app` release now runs R8 with
+`isMinifyEnabled`/`isShrinkResources`. The result is the largest single win of this whole effort:
+
+| APK (release) | Size |
+| --- | --- |
+| Start of Phase 4 (R8 off, Room+SQLCipher present) | 20.49 MB |
+| After Phase 4's deletion (R8 still off) | 13.16 MB |
+| **R8 on** | **2.71 MB** |
+
+dex went 10.92 MB → 1.46 MB, which **retroactively validates the Phase 4 call** to delete only
+SQLCipher and leave WorkManager and Lottie alone: their cost really was dex that R8 strips, exactly
+as predicted, whereas SQLCipher's was native and unstrippable. No further topology work is needed —
+the "heavy dependency" half of F7 is now closed by R8 rather than by module splitting.
+
+Validated on a physical device against a signed minified build, not just a compile — this is the
+first time `:core`'s `consumer-rules.pro` has ever been exercised:
+
+- Demo screen fetched and rendered **live weather data**, so Retrofit's interface reflection and
+  kotlinx.serialization deserialization both survive minification.
+- Hilt DI, DataStore-backed settings, theme and per-app locale all work.
+- The Phase 3 `ComposeView` interop renders with the correct brand colors under R8.
+- Zero `FATAL EXCEPTION` across Home/Demo/UI Kit/Settings. (Logcat shows `NoClassDefFoundError`/
+  `ClassNotFoundException` noise from OEM components — different PIDs, not this app.)
+
+`consumer-rules.pro` needed no additions to achieve this: Hilt, Retrofit, OkHttp,
+kotlinx.serialization and Compose all ship their own consumer rules, and `:core` has no remaining
+reflected-by-name classes of its own now that the Room layer is gone.
+
 ### F11 — `com.intuit.sdp`'s 1:1 baseline is 300dp, not 360dp (found during Phase 2 verification)
 
 Phase 2's task brief asserted `@dimen/_16sdp` resolves to ~16dp "at the ~360dp baseline width sdp
@@ -342,6 +370,13 @@ disable the task directly. Do **not** downgrade Kotlin for it.
 Consequence for Phase 4: the topology decision had to be made from R8-off numbers. That was fine
 for SQLCipher, whose cost is native and therefore R8-independent, but it is exactly why WorkManager
 and Lottie were left for later instead of judged on inflated figures.
+
+**Fixed 2026-07-29.** The requested version is simply wrong, not missing: `compose-group-mapping`
+*is* published on Maven Central, but only from **2.3.0-Beta1** onward, so the plugin's hardcoded
+`2.2.10` can never resolve for anyone. A matching `compose-group-mapping:2.4.10` does exist
+(verified, HTTP 200). Fix is a targeted `resolutionStrategy.eachDependency` in
+`app/build.gradle.kts` forcing that coordinate to `libs.versions.kotlin`, with a `because()` reason.
+Kotlin was **not** downgraded. Remove the workaround once the plugin stops hardcoding the version.
 
 ### F5 — Two overlapping responsive mechanisms, one of them a dated hack (Phase 2)
 
