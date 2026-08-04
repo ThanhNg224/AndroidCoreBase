@@ -248,6 +248,12 @@ val generatedApiFile =
         .get()
         .asFile
 
+fun canonicalApiText(file: File): String = file.readText().trimEnd() + "\n"
+
+fun writeCanonicalApiDump(file: File) {
+    file.writeText(canonicalApiText(file))
+}
+
 fun JavaExec.configureMetalava(output: File) {
     classpath = metalavaClasspath
     mainClass.set("com.android.tools.metalava.Driver")
@@ -277,6 +283,7 @@ tasks.register<JavaExec>("apiDump") {
     group = "verification"
     description = "Regenerates core/api/core.api from :core's public source API."
     configureMetalava(committedApiFile)
+    doLast { writeCanonicalApiDump(committedApiFile) }
 }
 
 val apiCheck =
@@ -292,7 +299,9 @@ val apiCheck =
             if (!committed.exists()) {
                 throw GradleException("core/api/core.api is missing. Run ./gradlew :core:apiDump and commit it.")
             }
-            if (committed.readText() != generated.readText()) {
+            val committedText = canonicalApiText(committed)
+            val generatedText = canonicalApiText(generated)
+            if (committed.readText() != committedText || committedText != generatedText) {
                 throw GradleException(
                     ":core's public API differs from the committed core/api/core.api. " +
                         "Run ./gradlew :core:apiDump, review the diff, and commit it if intended.",
