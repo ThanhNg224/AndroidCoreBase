@@ -1,7 +1,7 @@
-# AndroidXmlBase
+# AndroidCoreBase
 
-[![JitPack](https://jitpack.io/v/ThanhNg224/AndroidXmlBase.svg)](https://jitpack.io/#ThanhNg224/AndroidXmlBase)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg)](https://kotlinlang.org)
+[![JitPack](https://jitpack.io/v/ThanhNg224/AndroidCoreBase.svg)](https://jitpack.io/#ThanhNg224/AndroidCoreBase)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-blue.svg)](https://kotlinlang.org)
 [![MinSDK](https://img.shields.io/badge/MinSDK-24-green.svg)](https://developer.android.com)
 [![TargetSDK](https://img.shields.io/badge/TargetSDK-37-brightgreen.svg)](https://developer.android.com)
 [![JDK](https://img.shields.io/badge/JDK-21-orange.svg)](https://www.oracle.com/java)
@@ -14,7 +14,7 @@ A production-ready, state-of-the-art Android base repository utilizing **XML lay
 
 * **Modular Clean Architecture**: Strict separation of concerns between `:core` (published library) and `:app` (consuming application & reference samples).
 * **JitPack Distribution**: `:core` is configured with `maven-publish` for easy integration into any Android project via JitPack.
-* **Encrypted Storage & Database**: Secure local persistence powered by **Room + SQLCipher** (with runtime Keystore passphrase generation) and Android KeyStore-backed **`EncryptedSecureStore`**.
+* **Encrypted Storage**: Android KeyStore-backed **`EncryptedSecureStore`** for secrets, plus **`DbPassphraseProvider`** for apps that wire up their own SQLCipher database. `:core` ships no database of its own — see `docs/MODERNIZATION.md` D5.
 * **Self-Healing Network Layer**: **Retrofit + OkHttp** client with a token-refresh `Authenticator` (single-flight, pluggable `AuthTokenRefresher` your app implements against its own refresh endpoint), file upload/download progress tracking, and offline status interceptors.
 * **Per-App Locale & Dynamic Theme System**: Native per-app language selection (Android 13+ / Jetpack Compat) and zero-flash Light/Dark/System theme management backed by **Jetpack DataStore**.
 * **Encapsulated UI Toolkit**: Type-safe property delegates (`intentExtra`, `fragmentArg`), result state overlay renderers, custom Material 3 components, and smooth Lottie/Shimmer loading states.
@@ -27,12 +27,12 @@ A production-ready, state-of-the-art Android base repository utilizing **XML lay
 
 | Component | Specification / Technology |
 |---|---|
-| **Language & JDK** | Kotlin 2.0+ / Java 21 |
+| **Language & JDK** | Kotlin 2.4 / Java 21 |
 | **SDK Compatibility** | Min SDK 24 (Android 7.0) / Target SDK 37 |
 | **Dependency Injection** | Hilt (Dagger) + KSP |
 | **UI Framework** | Material 3, XML ViewBinding, ConstraintLayout, Lottie, Facebook Shimmer |
-| **Network & Serialization** | Retrofit 2, OkHttp 4, Kotlinx Serialization |
-| **Local Storage** | Room 2.6 + SQLCipher, Jetpack DataStore Preferences, KeyStore |
+| **Network & Serialization** | Retrofit 3, OkHttp 5, Kotlinx Serialization |
+| **Local Storage** | Jetpack DataStore Preferences, Android KeyStore (no database — declare your own) |
 | **Async & Concurrency** | Kotlin Coroutines, StateFlow, SharedFlow, WorkManager |
 | **Code Quality & Gates** | Detekt, KtLint, Kover, Baseline Profiles |
 
@@ -60,11 +60,13 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidXmlBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v1.0.0")
 }
 ```
 
-Check available tags and builds on [JitPack: ThanhNg224/AndroidXmlBase](https://jitpack.io/#ThanhNg224/AndroidXmlBase).
+Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
+
+> **Published Tag**: Release `v1.0.0` is the initial stable release of `AndroidCoreBase` on JitPack.
 
 ### 3. Configure Your Own Module
 
@@ -88,10 +90,10 @@ android {
 }
 
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidXmlBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v1.0.0")
     ksp("com.google.dagger:hilt-compiler:<version>")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:v2.0.0"))
+    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v1.0.0"))
 }
 ```
 
@@ -102,6 +104,44 @@ transitively as `api` dependencies — you do not need to redeclare them to use 
 ---
 
 ## ⚙️ Wiring `:core` Into Your App
+
+### If you write Compose screens
+
+Apply `org.jetbrains.kotlin.plugin.compose` (matching your Kotlin version) and set
+`buildFeatures { compose = true }` in **any module** that declares or calls `@Composable` code
+against `AndroidCoreBaseTheme`/`ComposeView.setThemedContent`/`BaseComposeActivity` — not only in
+`:core`. The Compose compiler transforms `@Composable` lambda parameters at the bytecode level per
+module; a module missing the plugin produces a call site that compiles cleanly but throws
+`NoSuchMethodError` at runtime.
+
+### Optional: your own encrypted database
+
+`:core` ships **no** database — Room's `@Database` fixes its `entities` list at compile time in the
+annotated class, so a library cannot hand you one to extend. Add Room + SQLCipher in your own module
+and declare your own `@Database`. What `:core` does give you is `DbPassphraseProvider`: a stable
+random passphrase, generated once and persisted behind the Keystore via `SecureStore`.
+
+```kotlin
+@Provides
+@Singleton
+fun provideDatabase(
+    @ApplicationContext context: Context,
+    passphraseProvider: DbPassphraseProvider,
+): MyDatabase {
+    val passphrase = runBlocking { passphraseProvider.getOrCreate() }
+    return Room.databaseBuilder(context, MyDatabase::class.java, "my_database.db")
+        .openHelperFactory(SupportOpenHelperFactory(passphrase.toByteArray()))
+        .build()
+}
+```
+
+`getOrCreate()` is `suspend` because the first call reads encrypted storage from disk, while a Hilt
+`@Provides` boundary is synchronous — hence the `runBlocking`. That is tolerable because it happens
+once and Room builds lazily on first query. To keep it off the critical path entirely, warm it from
+your own `androidx.startup` `Initializer` or `Application.onCreate` on a background dispatcher so
+the `@Provides` call hits the memoized value. `:core` used to register exactly such an initializer
+unconditionally, which charged every consuming app Keystore I/O at every process start even with no
+database at all; that is now your call (`docs/MODERNIZATION.md` F7/D5).
 
 ### Required: supply an `ApiConfig`
 
@@ -188,7 +228,7 @@ components (`FrameButton`, `ShadowLayout`, `ThemedSwitch`, `StyledSnackbar`, `Pr
 
 > **Note on resources:** every `:core` layout, anim, drawable, raw asset and styleable is
 > `core_`-prefixed so your own same-named resources can't silently override them. Styles keep
-> `TextAppearance.AndroidXmlBase.*` / `Theme.AndroidXmlBase.*` naming.
+> `TextAppearance.AndroidCoreBase.*` / `Theme.AndroidCoreBase.*` naming.
 
 > **Note on WorkManager:** `:core` leaves WorkManager's default initializer in place. If your app
 > supplies its own `Configuration.Provider`, remove the default initializer in *your* manifest.
@@ -198,9 +238,9 @@ components (`FrameButton`, `ShadowLayout`, `ThemedSwitch`, `StyledSnackbar`, `Pr
 ## 📂 Project Architecture
 
 ```
-AndroidXmlBase/
+AndroidCoreBase/
 ├── core/                                               # Reusable Library Module (Published to JitPack)
-│   └── src/main/java/com/thanhng224/androidxmlbase/core/
+│   └── src/main/java/com/thanhng224/androidcorebase/core/
 │       ├── architecture/                               # Base ResultState, DomainResult & StateViewModel
 │       ├── di/                                         # Hilt DI module bindings
 │       ├── localization/                               # Multi-language LocaleManager
@@ -208,14 +248,14 @@ AndroidXmlBase/
 │       ├── navigation/                                 # Activity & Fragment transition navigators
 │       ├── network/                                    # ApiClient, Auth Interceptors & File Transfer Clients
 │       ├── startup/                                    # App Startup Initializers (Timber, Theme, DB Warmup)
-│       ├── storage/                                    # Room + SQLCipher, EncryptedSecureStore, DataStore
+│       ├── storage/                                    # EncryptedSecureStore, DataStore settings, DbPassphraseProvider
 │       ├── time/                                       # Monotonic clocks
 │       ├── ui/                                         # Base Activity/Fragment, Custom Components, Delegates
 │       └── work/                                       # Background WorkManager workers
 │
 └── app/                                                # Application Shell & Sample Showcase
-    └── src/main/java/com/example/androidxmlbase/
-        ├── AndroidXmlBaseApplication.kt                # Application entry point
+    └── src/main/java/com/example/androidcorebase/
+        ├── AndroidCoreBaseApplication.kt                # Application entry point
         ├── MainActivity.kt                             # Shell container & bottom navigation
         ├── appshell/                                   # App shell destinations (Home)
         ├── feature/                                    # Concrete feature modules (Settings)
@@ -278,6 +318,7 @@ For detailed guidelines and architectural specifications, refer to the `docs/` f
 - [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) – Theme, tokens, and component catalogue.
 - [STANDARD.md](docs/STANDARD.md) – Coding conventions, naming, and formatting rules.
 - [GIT_FLOW.md](docs/GIT_FLOW.md) – Branching strategy, commit conventions, and PR workflow.
+- [MODERNIZATION.md](docs/MODERNIZATION.md) – Rolling plan for hardening `:core` as a library, with what is already correct and why.
 - [CHANGELOG.md](CHANGELOG.md) – Released versions and breaking changes.
 
 Licensed under the [MIT License](LICENSE).

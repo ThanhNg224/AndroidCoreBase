@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
@@ -6,14 +8,36 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
+    alias(libs.plugins.compose.compiler)
     `maven-publish`
 }
 
 android {
-    namespace = "com.thanhng224.androidxmlbase.core"
+    namespace = "com.thanhng224.androidcorebase.core"
     resourcePrefix = "core_"
+
     compileSdk {
         version = release(37)
+    }
+
+    defaultConfig {
+        minSdk = 24
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+        compose = true
+    }
+
+    testFixtures {
+        enable = true
     }
 
     publishing {
@@ -22,32 +46,9 @@ android {
         }
     }
 
-    defaultConfig {
-        minSdk = 24
-
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    buildFeatures {
-        viewBinding = true
-        buildConfig = true
-    }
-    // Publishes the fakes in src/testFixtures so consuming apps can test against :core's
-    // contracts without hand-rolling doubles: testImplementation(testFixtures("...:AndroidXmlBase:<v>"))
-    testFixtures {
-        enable = true
-    }
     lint {
         abortOnError = true
         checkReleaseBuilds = true
-        // Files, ids and styleables carry the core_ prefix. Styles/themes instead follow the
-        // platform's Type.Namespace.Variant convention (TextAppearance.AndroidXmlBase.Body, like
-        // TextAppearance.MaterialComponents.Body1) — already namespaced, and core_-prefixing them
-        // would be non-idiomatic. Kept visible as a warning rather than silenced.
         warning += "ResourceName"
     }
 }
@@ -56,7 +57,7 @@ publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.github.ThanhNg224"
-            artifactId = "AndroidXmlBase"
+            artifactId = "AndroidCoreBase"
             version = System.getenv("VERSION") ?: project.property("VERSION_NAME") as String
 
             afterEvaluate {
@@ -64,18 +65,22 @@ publishing {
             }
 
             pom {
-                name.set("AndroidXmlBase Core")
+                name.set("AndroidCoreBase Core")
                 description.set("Reusable XML + ViewBinding, MVVM + Clean Architecture Android base.")
-                url.set("https://github.com/ThanhNg224/AndroidXmlBase")
+                url.set("https://github.com/ThanhNg224/AndroidCoreBase")
                 licenses {
                     license {
                         name.set("MIT License")
-                        url.set("https://github.com/ThanhNg224/AndroidXmlBase/blob/main/LICENSE")
+                        url.set("https://github.com/ThanhNg224/AndroidCoreBase/blob/main/LICENSE")
                     }
                 }
             }
         }
     }
+}
+
+kotlin {
+    explicitApi()
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
@@ -85,6 +90,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    // AndroidX & Core UI
     implementation(libs.androidx.core.ktx)
     api(libs.androidx.lifecycle.runtime.ktx)
     api(libs.androidx.lifecycle.viewmodel.ktx)
@@ -96,40 +102,43 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
     api(libs.material)
+    implementation(libs.lottie)
+    api(libs.timber)
+
+    // Coroutines
     api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Storage & Network
     implementation(libs.androidx.datastore.preferences)
     api(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization.converter)
     api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.intuit.sdp)
-    implementation(libs.intuit.ssp)
+
+    // Dependency Injection
     api(libs.hilt.android)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.sqlcipher.android)
-    implementation(libs.lottie)
-    api(libs.timber)
+
+    // Compose
+    api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.ui)
+    api(libs.androidx.compose.material3)
+    implementation(libs.androidx.activity.compose)
+
+    // KSP Annotation Processors
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
-    testFixturesImplementation(libs.junit)
-    testFixturesImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.junit)
+
+    // Test & Test Fixtures
+    testFixturesApi(libs.junit)
+    testFixturesApi(libs.kotlinx.coroutines.test)
     testImplementation(testFixtures(project(":core")))
-    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-}
-
-configurations.all {
-    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
 }
 
 detekt {
@@ -150,13 +159,11 @@ kover {
     reports {
         filters {
             includes {
-                // Whole module, not a hand-picked allowlist. Anything genuinely untestable on the
-                // JVM is excluded below with a reason.
-                classes("com.thanhng224.androidxmlbase.core.*")
+                classes("com.thanhng224.androidcorebase.core.*")
             }
             excludes {
                 classes(
-                    // Generated
+                    // Generated code
                     "*.BuildConfig",
                     "*.R",
                     "*.R$*",
@@ -167,16 +174,15 @@ kover {
                     "*Hilt_*",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    // DI wiring: declarations only, exercised by Hilt's own codegen
+                    // Dependency Injection
                     "*.core.di.*",
                     "*.core.ui.theme.ThemeModule*",
-                    // Android-framework glue: covered by androidTest, not JVM unit tests
+                    // Android UI & Components
                     "*Activity",
                     "*Activity$*",
                     "*Fragment",
                     "*Fragment$*",
                     "*DialogFragment",
-                    // Need a real Bundle / FragmentManager / View: instrumented-only
                     "*.core.navigation.ArgumentDelegatesKt",
                     "*.core.navigation.IntentExtraDelegate",
                     "*.core.navigation.IntentExtraNullableDelegate",
@@ -185,11 +191,11 @@ kover {
                     "*.core.ui.base.ResultStateOverlayKt",
                     "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
-                    "*.core.ui.responsive.*",
                     "*.core.ui.window.*",
+                    "*.core.ui.theme.ComposeThemeKt",
+                    "*.core.ui.base.ComposeInteropKt",
+                    // Android System & Storage Services
                     "*.core.startup.*",
-                    "*.core.storage.database.AppDatabase*",
-                    "*.core.storage.database.LocalSettingDao*",
                     "*.core.storage.secure.EncryptedSecureStore*",
                     "*.core.storage.settings.AppDataStoreKt",
                     "*.core.localization.AppCompatLocaleApplier*",
@@ -198,7 +204,6 @@ kover {
                     "*.core.network.connectivity.AndroidConnectivityChecker*",
                     "*.core.time.AndroidElapsedRealtimeClock*",
                     "*.core.ui.text.AndroidStringProvider*",
-                    // Reference implementation, intentionally unscheduled
                     "*.core.work.*",
                 )
             }
@@ -210,3 +215,90 @@ kover {
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Public API tracking (F1). binary-compatibility-validator cannot see Android library variants, so
+// this drives metalava -- the tool AndroidX itself uses -- directly. There is no maintained Gradle
+// plugin for standalone use (me.tylerbwong.gradle.metalava was last released in 2022), so the
+// wiring is a plain JavaExec over this module's sources plus the Android boot classpath.
+//
+//   ./gradlew :core:apiDump     regenerate core/api/core.api
+//   ./gradlew :core:apiCheck    fail if the committed dump is stale (wired into `check`)
+// ---------------------------------------------------------------------------------------------
+val metalavaClasspath: Configuration = configurations.create("metalavaClasspath")
+
+dependencies {
+    metalavaClasspath(libs.metalava)
+}
+
+// bootClasspath comes from androidComponents.sdkComponents in AGP 9 (the old
+// `android.bootClasspath` accessor is gone). Kept as a Provider and read inside an argument
+// provider so the configuration cache stays happy.
+val bootClasspathString =
+    androidComponents.sdkComponents.bootClasspath
+        .map { files ->
+            files.joinToString(File.pathSeparator) { it.asFile.absolutePath }
+        }
+
+val mainSourceDir = file("src/main/java")
+val committedApiFile = layout.projectDirectory.file("api/core.api").asFile
+val generatedApiFile =
+    layout.buildDirectory
+        .file("metalava/core.api")
+        .get()
+        .asFile
+
+fun JavaExec.configureMetalava(output: File) {
+    classpath = metalavaClasspath
+    mainClass.set("com.android.tools.metalava.Driver")
+    outputs.upToDateWhen { false }
+    val sourcePath = mainSourceDir.absolutePath
+    val outPath = output.absolutePath
+    val bootCp = bootClasspathString
+    doFirst { output.parentFile.mkdirs() }
+    argumentProviders.add(
+        CommandLineArgumentProvider {
+            listOf(
+                "main",
+                "--source-path",
+                sourcePath,
+                "--classpath",
+                bootCp.get(),
+                "--api",
+                outPath,
+                "--format",
+                "4.0",
+            )
+        },
+    )
+}
+
+tasks.register<JavaExec>("apiDump") {
+    group = "verification"
+    description = "Regenerates core/api/core.api from :core's public source API."
+    configureMetalava(committedApiFile)
+}
+
+val apiCheck =
+    tasks.register<JavaExec>("apiCheck") {
+        group = "verification"
+        description = "Fails if core/api/core.api is stale -- run :core:apiDump and review the diff."
+        configureMetalava(generatedApiFile)
+        // Copied into locals so the doLast action captures plain Files rather than a reference to
+        // this build script, which the configuration cache cannot serialize.
+        val committed = committedApiFile
+        val generated = generatedApiFile
+        doLast {
+            if (!committed.exists()) {
+                throw GradleException("core/api/core.api is missing. Run ./gradlew :core:apiDump and commit it.")
+            }
+            if (committed.readText() != generated.readText()) {
+                throw GradleException(
+                    ":core's public API differs from the committed core/api/core.api. " +
+                        "Run ./gradlew :core:apiDump, review the diff, and commit it if intended.",
+                )
+            }
+        }
+    }
+
+tasks.named("check") { dependsOn(apiCheck) }

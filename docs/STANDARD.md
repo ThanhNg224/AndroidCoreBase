@@ -79,7 +79,7 @@ The resource type and the leading token communicate the kind of thing; the remai
 | Launcher asset | `ic_launcher` and `ic_launcher_round` only | Android adaptive-icon/mipmap convention; app-owned only |
 | Menu, navigation graph, animation | `<owner>_<surface>`, `<owner>_navigation`, `<owner>_<event-or-direction>` | `main_top_app_bar`, `main_navigation`, `dialog_slide_in` |
 | String | `<owner>_<meaning>` | `settings_appearance_title`, `demo_weather_loading` |
-| Style/theme/text appearance | Android style hierarchy with the base prefix | `Theme.AndroidXmlBase`, `Widget.AndroidXmlBase.Toolbar`, `TextAppearance.AndroidXmlBase.Body` |
+| Style/theme/text appearance | Android style hierarchy with the base prefix | `Theme.AndroidCoreBase`, `Widget.AndroidCoreBase.Toolbar`, `TextAppearance.AndroidCoreBase.Body` |
 
 `owner` is the nearest meaningful boundary: a feature (`settings`), sample (`demo`), shell surface (`nav`), or reusable component (`prompt`). Omit it only for an intentional global token such as `color_surface`, `error_network`, or `action_cancel`. A source in `core` is not enough reason to use a vague name: `ic_prompt_error` tells a caller that the icon is the error state owned by the reusable prompt component.
 

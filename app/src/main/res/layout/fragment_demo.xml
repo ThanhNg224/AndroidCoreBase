@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/_24sdp"
+    android:padding="@dimen/core_space_24"
     tools:context=".sample.demo.presentation.ui.DemoFragment">
 
     <TextView
@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/demo_weather_title"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,9 +21,9 @@
         android:id="@+id/cardWeather"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_marginTop="@dimen/core_space_12"
         app:cardBackgroundColor="@color/core_color_primary_container"
-        app:cardCornerRadius="@dimen/_16sdp"
+        app:cardCornerRadius="@dimen/core_radius_16"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,24 +34,24 @@
             android:id="@+id/tvWeather"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/_16sdp"
+            android:padding="@dimen/core_space_16"
             android:text="@string/demo_weather_loading"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.Body"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.Body"
             android:textColor="@color/core_color_on_primary_container"
             tools:text="Partly cloudy · 31.8°C · Feels like 37.0°C · Wind 11.0 km/h" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnRefreshWeather"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_48sdp"
-        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_height="@dimen/core_size_48"
+        android:layout_marginTop="@dimen/core_space_12"
         app:coreButtonBackgroundColor="@color/core_color_surface"
-        app:coreButtonCornerRadius="@dimen/_12sdp"
+        app:coreButtonCornerRadius="@dimen/core_radius_12"
         app:coreButtonShape="rectangle"
         app:coreButtonStrokeColor="@color/core_color_primary"
-        app:coreButtonStrokeWidth="@dimen/_1sdp"
+        app:coreButtonStrokeWidth="@dimen/core_stroke_width"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardWeather">
@@ -61,18 +61,18 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/demo_weather_refresh"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
     <TextView
         android:id="@+id/tvCounterTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_32sdp"
+        android:layout_marginTop="@dimen/core_space_32"
         android:text="@string/demo_counter_title"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.Caption"
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.Caption"
         android:textColor="@color/core_color_on_surface_variant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,20 +82,20 @@
         android:id="@+id/tvCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_8sdp"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.Headline"
+        android:layout_marginTop="@dimen/core_space_8"
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.Headline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvCounterTitle"
         tools:text="0" />
 
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnIncrement"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_48sdp"
-        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_height="@dimen/core_size_48"
+        android:layout_marginTop="@dimen/core_space_12"
         app:coreButtonBackgroundColor="@color/core_color_primary"
-        app:coreButtonCornerRadius="@dimen/_12sdp"
+        app:coreButtonCornerRadius="@dimen/core_radius_12"
         app:coreButtonShape="rectangle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -106,9 +106,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/demo_increment"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_on_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

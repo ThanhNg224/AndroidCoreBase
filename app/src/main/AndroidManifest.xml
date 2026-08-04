@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".AndroidXmlBaseApplication"
+        android:name=".AndroidCoreBaseApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,11 +12,11 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AndroidXmlBase">
+        android:theme="@style/Theme.AndroidCoreBase">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AndroidXmlBase.Splash"
+            android:theme="@style/Theme.AndroidCoreBase.Splash"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
             android:name=".feature.settings.presentation.ui.SettingsActivity"
             android:exported="false"
             android:label="@string/settings_title"
-            android:theme="@style/Theme.AndroidXmlBase" />
+            android:theme="@style/Theme.AndroidCoreBase" />
         <!-- This app supplies its own WorkManager Configuration via Configuration.Provider, so
              the default initializer must not also run. Consuming apps that don't do that should
              leave WorkManager's own initializer in place. -->

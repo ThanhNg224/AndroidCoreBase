@@ -5,13 +5,13 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="@dimen/_24sdp">
+    android:padding="@dimen/core_space_24">
 
     <!-- Prompt status indicator icon -->
     <ImageView
         android:id="@+id/ivPromptIcon"
-        android:layout_width="@dimen/_48sdp"
-        android:layout_height="@dimen/_48sdp"
+        android:layout_width="@dimen/core_size_48"
+        android:layout_height="@dimen/core_size_48"
         android:contentDescription="@null" />
 
     <!-- Prompt message text -->
@@ -19,28 +19,28 @@
         android:id="@+id/tvPromptMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_marginTop="@dimen/core_space_12"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyMedium" />
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyMedium" />
 
     <!-- Technical details / code (optional) -->
     <TextView
         android:id="@+id/tvPromptCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginTop="@dimen/core_space_4"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AndroidXmlBase.Micro"
+        android:textAppearance="@style/TextAppearance.AndroidCoreBase.Micro"
         android:alpha="0.6" />
 
     <!-- Primary Action Button -->
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnPrimary"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
-        android:layout_marginTop="@dimen/_16sdp"
+        android:layout_height="@dimen/core_size_50"
+        android:layout_marginTop="@dimen/core_space_16"
         app:coreButtonBackgroundColor="@color/core_color_primary"
-        app:coreButtonCornerRadius="@dimen/_12sdp"
+        app:coreButtonCornerRadius="@dimen/core_radius_12"
         app:coreButtonShape="rectangle">
 
         <TextView
@@ -48,17 +48,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_on_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
     <!-- Secondary Action Button -->
-    <com.thanhng224.androidxmlbase.core.ui.components.FrameButton
+    <com.thanhng224.androidcorebase.core.ui.components.FrameButton
         android:id="@+id/btnSecondary"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
-        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_height="@dimen/core_size_50"
+        android:layout_marginTop="@dimen/core_space_8"
         app:coreButtonBackgroundColor="@android:color/transparent"
         app:coreButtonShape="rectangle">
 
@@ -67,9 +67,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textAppearance="@style/TextAppearance.AndroidXmlBase.BodyEmphasis"
+            android:textAppearance="@style/TextAppearance.AndroidCoreBase.BodyEmphasis"
             android:textColor="@color/core_color_primary" />
 
-    </com.thanhng224.androidxmlbase.core.ui.components.FrameButton>
+    </com.thanhng224.androidcorebase.core.ui.components.FrameButton>
 
 </LinearLayout>

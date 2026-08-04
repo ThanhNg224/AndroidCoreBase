@@ -254,11 +254,11 @@ Improve architecture incrementally by making small, safe refactors that preserve
 
 Everything above this section describes the target architecture. The folders below are what actually exists in the codebase today; check here (or the source tree) before assuming something already exists.
 
-The base was later split into its own `:core` Gradle module (package `com.thanhng224.androidxmlbase.core`, published to JitPack) — `core/` is **no longer** a subfolder of `app/`'s package. See `docs/CORE_MODULES.md` for `:core`'s real, current layout; only the `:app`-side tree (feature/sample code) is shown below. See also `docs/FEATURE_TEMPLATE.md` and `docs/DESIGN_SYSTEM.md` for a full walkthrough of building a new feature on top of it.
+The base was later split into its own `:core` Gradle module (package `com.thanhng224.androidcorebase.core`, published to JitPack) — `core/` is **no longer** a subfolder of `app/`'s package. See `docs/CORE_MODULES.md` for `:core`'s real, current layout; only the `:app`-side tree (feature/sample code) is shown below. See also `docs/FEATURE_TEMPLATE.md` and `docs/DESIGN_SYSTEM.md` for a full walkthrough of building a new feature on top of it.
 
 `feature/settings` is the first product vertical slice. It owns app-preference presentation and adapts the app-wide theme and locale services through its own repository contract. `sample/` remains reference code only.
 
-app/src/main/java/com/example/androidxmlbase/
+app/src/main/java/com/example/androidcorebase/
   MainActivity.kt                            # app shell: app bar + NavHostFragment + bottom navigation
   appshell/
     home/HomeFragment.kt                     # shell-owned landing destination; no business layer

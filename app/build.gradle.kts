@@ -7,16 +7,24 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.baselineprofile)
+    // Required because :app writes @Composable code (DesignSystemFragment's ComposeInteropDemo
+    // and the lambda it passes into :core's ComposeView.setThemedContent). Without this plugin,
+    // this module's compiler treats @Composable () -> Unit as a plain Function0 instead of doing
+    // the composer-parameter ABI transform, so a call site here would produce a Function0 call
+    // against a callee that :core (which does have the plugin) compiled as Function2 -- a
+    // NoSuchMethodError at runtime that compiles cleanly, because Kotlin's type checker sees the
+    // same declared type on both sides and only the bytecode shape actually differs.
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.example.androidxmlbase"
+    namespace = "com.example.androidcorebase"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.androidxmlbase"
+        applicationId = "com.example.androidcorebase"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -29,9 +37,9 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -41,10 +49,26 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
     lint {
         abortOnError = false
         checkReleaseBuilds = false
+    }
+}
+
+// F16 workaround. Minifying activates the Compose compiler plugin's produceRelease/BenchmarkComposeMapping
+// tasks, which resolve org.jetbrains.kotlin:compose-group-mapping at a version the plugin hardcodes --
+// 2.2.10 as of plugin 2.4.10. That artifact only exists from 2.3.0-Beta1 onward, so the request can
+// never resolve and the build fails at configuration time. Forcing it to our Kotlin version works
+// because a matching artifact is published (verified: compose-group-mapping:2.4.10 is on Maven
+// Central). Remove this once the plugin stops hardcoding it -- see docs/MODERNIZATION.md F16.
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin" && requested.name == "compose-group-mapping") {
+            useVersion(libs.versions.kotlin.get())
+            because("plugin hardcodes a nonexistent version; see F16")
+        }
     }
 }
 
@@ -79,19 +103,13 @@ dependencies {
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.intuit.sdp)
-    implementation(libs.intuit.ssp)
     implementation(libs.hilt.android)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.sqlcipher.android)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.shimmer)
     implementation(libs.lottie)
     implementation(libs.timber)
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.androidx.hilt.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -100,10 +118,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.work.testing)
-}
-
-configurations.all {
-    exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
 }
 
 detekt {
@@ -146,7 +160,7 @@ kover {
                     "*Hilt_*",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    "*.AndroidXmlBaseApplication",
+                    "*.AndroidCoreBaseApplication",
                     "*.MainActivity",
                     "*Activity",
                     "*Fragment",

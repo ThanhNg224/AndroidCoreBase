@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is a **reusable Android XML base project**, not a finished product app. It is an **XML + ViewBinding, MVVM + Clean Architecture** base; `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and the source tree are the current source of truth.
 
-The starter Compose surface has been removed from `app`: ViewBinding is enabled, layouts live under `app/src/main/res/layout/`, and the current source tree already includes the core packages described in `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and `docs/DESIGN_SYSTEM.md`. Treat those docs and the real source under `app/src/main/java/com/example/androidxmlbase/` as the current state before adding new core modules or feature code.
+The starter Compose surface has been removed from `app`: ViewBinding is enabled, layouts live under `app/src/main/res/layout/`, and the current source tree already includes the core packages described in `docs/ARCHITECTURE.md`, `docs/CORE_MODULES.md`, `docs/FEATURE_TEMPLATE.md`, and `docs/DESIGN_SYSTEM.md`. Treat those docs and the real source under `app/src/main/java/com/example/androidcorebase/` as the current state before adding new core modules or feature code.
 
 Reference project for generic ideas only (do not copy blindly, and never touch this path):
 ```
@@ -36,15 +36,15 @@ Once feature development on top of this base starts, the strict "proven need" ru
 ./gradlew check                     # full local gate: unit tests, lint, ktlint, detekt, Kover coverage
 ./gradlew :app:ktlintFormat         # auto-format Kotlin where ktlint can safely fix
 ./gradlew connectedAndroidTest      # run instrumented tests (app/src/androidTest), needs device/emulator
-./gradlew :app:testDebugUnitTest --tests "com.example.androidxmlbase.SomeTest"   # run a single unit test class
-./gradlew :app:testDebugUnitTest --tests "com.example.androidxmlbase.SomeTest.someMethod"  # run a single test method
+./gradlew :app:testDebugUnitTest --tests "com.example.androidcorebase.SomeTest"   # run a single unit test class
+./gradlew :app:testDebugUnitTest --tests "com.example.androidcorebase.SomeTest.someMethod"  # run a single test method
 ```
 
 Quality gates are part of the base: Android lint, ktlint, detekt, and Kover coverage are wired into `check`. Kover enforces 80%+ line coverage on the explicitly unit-testable core/domain/data/viewmodel surface, excluding Android UI glue, Hilt generated code, and generated databinding/R classes.
 
 ## Architecture
 
-Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidxmlbase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidxmlbase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
+Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidcorebase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidcorebase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
 
 Dependency direction:
 ```
@@ -80,5 +80,5 @@ Even though the reference HeyJapan project is the source of ideas, never bring a
 - Before adding any Activity, Fragment, ViewModel, UseCase, Repository, Mapper, Adapter, Dialog, or Custom View, search the codebase for an existing one to extend/reuse first.
 - Naming: classes `PascalCase`; functions/variables `camelCase`; constants `UPPER_SNAKE_CASE`; resources/layouts/drawables/colors/dimens `lowercase_with_underscores`.
 - Kotlin: prefer `val`, avoid `!!`, use sealed classes for finite UI state, avoid `GlobalScope`, use structured concurrency and `viewModelScope`.
-- No hardcoded `dp`/`sp` in XML layouts once the sdp/ssp convention lands (Phase 5) — use `@dimen/_<n>sdp` / `_<n>ssp`. No hardcoded hex colors in layouts except launcher assets. All user-facing text goes through string resources.
+- No hardcoded non-zero `dp`/`sp` in XML layouts — use the fixed spacing/radius/size/text-size tokens in `core/src/main/res/values/dimens.xml` (`@dimen/core_space_<n>`, `core_radius_<n>`, `core_size_<n>`, `core_stroke_width`, `core_text_size_<n>`; see `docs/DESIGN_SYSTEM.md`). A value that is genuinely local and decorative — not a design-system step other screens should reuse — belongs in the consuming module's own `dimens.xml` with a semantic name (see `app/src/main/res/values/dimens.xml`'s `shimmer_line_width_*`), not bolted onto `:core`'s shared scale. This base does **not** use `com.intuit.sdp`/`com.intuit.ssp` — retired in Phase 2 of `docs/MODERNIZATION.md` (D1). No hardcoded hex colors in layouts except launcher assets. All user-facing text goes through string resources.
 - Keep refactors scoped to what's requested; don't rewrite unrelated files or introduce abstractions without a repeated, proven need (base-infrastructure hardening in `core/` is exempted — see "Current Phase" above).

@@ -1,0 +1,45 @@
+package com.thanhng224.androidcorebase.core.storage.secure
+
+import com.thanhng224.androidcorebase.core.testing.FakeSecureStore
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Test
+
+class DbPassphraseProviderTest {
+    @Test
+    fun `generates and persists a new passphrase when none exists`() =
+        runTest {
+            val secureStore = FakeSecureStore()
+            val provider = DbPassphraseProvider(secureStore)
+
+            val passphrase = provider.getOrCreate()
+
+            assertNotNull(passphrase)
+            assertEquals(passphrase, secureStore.stored["db_passphrase"])
+        }
+
+    @Test
+    fun `reuses the existing passphrase instead of generating a new one`() =
+        runTest {
+            val secureStore = FakeSecureStore().apply { stored["db_passphrase"] = "existing-key" }
+            val provider = DbPassphraseProvider(secureStore)
+
+            val passphrase = provider.getOrCreate()
+
+            assertEquals("existing-key", passphrase)
+        }
+
+    @Test
+    fun `caches the passphrase so a second call does not read the store again`() =
+        runTest {
+            val secureStore = FakeSecureStore()
+            val provider = DbPassphraseProvider(secureStore)
+
+            val first = provider.getOrCreate()
+            secureStore.stored.clear()
+            val second = provider.getOrCreate()
+
+            assertEquals(first, second)
+        }
+}

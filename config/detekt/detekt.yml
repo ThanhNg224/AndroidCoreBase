@@ -15,6 +15,11 @@ style:
   ReturnCount:
     active: false
 
+naming:
+  # Allow PascalCase for @Composable UI functions
+  FunctionNaming:
+    ignoreAnnotated: ["Composable"]
+
 exceptions:
   TooGenericExceptionCaught:
     active: false

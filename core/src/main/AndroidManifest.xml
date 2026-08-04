@@ -10,23 +10,20 @@
             android:name=".ui.base.TransitionActivity"
             android:configChanges="locale|layoutDirection"
             android:exported="false"
-            android:theme="@style/Theme.AndroidXmlBase.Transition" />
+            android:theme="@style/Theme.AndroidCoreBase.Transition" />
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="com.thanhng224.androidxmlbase.core.startup.TimberInitializer"
+                android:name="com.thanhng224.androidcorebase.core.startup.TimberInitializer"
                 android:value="androidx.startup" />
             <meta-data
-                android:name="com.thanhng224.androidxmlbase.core.startup.DbPassphraseWarmupInitializer"
+                android:name="com.thanhng224.androidcorebase.core.startup.ThemeApplyInitializer"
                 android:value="androidx.startup" />
             <meta-data
-                android:name="com.thanhng224.androidxmlbase.core.startup.ThemeApplyInitializer"
-                android:value="androidx.startup" />
-            <meta-data
-                android:name="com.thanhng224.androidxmlbase.core.startup.LocaleContextInitializer"
+                android:name="com.thanhng224.androidcorebase.core.startup.LocaleContextInitializer"
                 android:value="androidx.startup" />
         </provider>
         <service

@@ -10,16 +10,16 @@
 
         <View
             android:id="@+id/transitionGlow"
-            android:layout_width="@dimen/_260sdp"
-            android:layout_height="@dimen/_260sdp"
+            android:layout_width="@dimen/core_size_260"
+            android:layout_height="@dimen/core_size_260"
             android:layout_gravity="center"
             android:alpha="0.6"
             android:background="@drawable/core_bg_transition_glow" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/transitionLoader"
-            android:layout_width="@dimen/_180sdp"
-            android:layout_height="@dimen/_180sdp"
+            android:layout_width="@dimen/core_size_180"
+            android:layout_height="@dimen/core_size_180"
             android:layout_gravity="center"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"

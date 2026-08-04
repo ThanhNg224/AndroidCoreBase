@@ -7,90 +7,37 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ## [Unreleased]
 
-## [v2.0.0]
+## [v1.0.0] - 2026-07-29
 
-First release that a project outside this repository can realistically consume. `v1.0.0`
-published an artifact, but several things only worked because the in-repo `:app` happened to
-redeclare the same dependencies and supply its own WorkManager configuration.
-
-### Breaking
-
-- **`ApiConfig` is now supplied by the consuming app.** `:core` no longer ships a base URL
-  (`v1.0.0` baked the sample's demo weather API into the AAR through a `buildConfigField`, and
-  `ApiConfig` was `internal`, so it could be neither changed nor named). Provide one from your own
-  Hilt module; injecting `Retrofit`/`OkHttpClient` without a binding now fails with a message
-  showing the module to write. `ApiConfig` also gained per-timeout overrides.
-- **`AppLanguage` is a data class, not an enum.** Consumers could not add a language to a closed
-  enum. `AppLanguage.ENGLISH`/`VIETNAMESE` still resolve, but `entries`/`values()` and exhaustive
-  `when` no longer apply — use `AppLanguage.BUILT_IN`, or supply your own list via the
-  `SupportedLanguages` Hilt binding or `LocaleManager`'s constructor.
-- **`locales_config` moved to the app.** The locales an app ships are the app's concern; declare
-  your own `@xml/locales_config` and point `android:localeConfig` at it.
-- **Resources are `core_`-prefixed.** Layouts, anims, drawables, raw assets and styleables were
-  renamed (`activity_transition` → `core_activity_transition`, `FrameButton` →
-  `CoreFrameButton`, …) so a consumer's same-named resource can no longer silently override
-  `:core`'s. Styles/themes keep `Type.AndroidXmlBase.Variant` naming, which is already namespaced.
-- **Storage identifiers are namespaced.** The DataStore (`app_settings` → `core_app_settings`),
-  database (`app_database.db` → `core_app_database.db`), encrypted-prefs file and KeyStore alias
-  were renamed off app-specific names. Existing installs start from empty state for these stores.
-- `:core` no longer removes `androidx.work.WorkManagerInitializer` from the merged manifest. If
-  your app implements `Configuration.Provider`, add that `tools:node="remove"` entry yourself.
+First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v1.0.0`). Consolidated and hardened base library after full baseline modernization effort.
 
 ### Added
-
-- `AuthTokenRefresher` — bind your own implementation to make `TokenAuthenticator` actually
-  refresh on a 401. `AuthSession` exposes access/refresh token read/write and `clear()`.
-- `testFixtures` artifact with reusable doubles: `MainDispatcherRule`, `FakeSecureStore`,
-  `FakeSettingsStore`, `FakeConnectivityChecker`, `FakeAuthTokenProvider`,
-  `FakeAuthTokenRefresher`, `FakeAppLocaleApplier`. Consume with
-  `testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:<version>"))`.
-- `LICENSE` (MIT), referenced from the publication POM. `v1.0.0` shipped with no license.
-- CI (`.github/workflows/check.yml`) running the full gate on pushes and PRs, and a `jitpack.yml`
-  pinning JDK 21 instead of relying on JitPack's default.
+- **Enforced public API gate for `:core`**: `./gradlew :core:apiDump` writes `core/api/core.api`; `:core:apiCheck` fails on any undeclared change and is wired into `./gradlew check`. Driven by `com.android.tools.metalava:metalava` (1.0.0-alpha15).
+- **R8 minification & resource shrinking enabled**: `:app` release build runs R8 (`isMinifyEnabled = true`, `isShrinkResources = true`), exercising `:core`'s `consumer-rules.pro`. Sample release APK size reduced from 20.49 MB down to 2.71 MB.
+- **Compose Interop Support**: `AndroidCoreBaseTheme` bridges XML theme token colors to Compose `MaterialTheme`; `ComposeView.setThemedContent()` handles safe disposal; `BaseComposeActivity` for Compose screens.
+- **Edge-to-edge Window Insets handling**: `BaseActivity` enables edge-to-edge by default and applies window insets as padding.
+- `AuthTokenRefresher` interface for `TokenAuthenticator` standard token refresh logic.
+- `testFixtures` artifact providing unit test doubles (`MainDispatcherRule`, `FakeSecureStore`, `FakeSettingsStore`, `FakeConnectivityChecker`, etc.).
+- MIT License included in publication POM.
 
 ### Changed
+- **Rebranded project**: Package namespace modernized to `com.thanhng224.androidcorebase.core` and artifact ID to `AndroidCoreBase`.
+- **Refactored Activity Base Hierarchy**: Neutral `BaseActivity` (MVI + Edge-to-edge), `BaseBindingActivity<VB : ViewBinding>`, and `BaseComposeActivity`.
+- **`DbPassphraseProvider` is now public** and lives in `core.storage.secure` (reusable Keystore-backed AES passphrase generator).
+- **Fixed spacing & sizing tokens**: Replaced `com.intuit.sdp`/`ssp` continuous scaling with predictable, fixed `core_space_<n>`, `core_radius_<n>`, `core_size_<n>`, `core_text_size_<n>` design tokens.
+- `ApiConfig` is supplied by consuming apps via Hilt DI instead of baked-in base URLs.
+- `AppLanguage` converted to data class to support custom consumer language lists.
+- Public API surface audit: Dependencies exposing types in public signatures set to `api(...)` configuration.
 
-- Dependencies whose types appear in `:core`'s public API are now `api(...)` instead of
-  `implementation(...)` — Retrofit, OkHttp, coroutines, AppCompat, Fragment, lifecycle-viewmodel,
-  Material and Timber. Previously they landed in the POM's runtime scope only, so an external
-  consumer could not compile against `ApiClient`, `SettingsStore`, `BaseActivity` or
-  `StateViewModel`.
-- Widened to public the contracts the README advertises but that were `internal`: `SecureStore`,
-  `FileTransferClient`/`TransferResult`, the `intentExtra`/`fragmentArg` delegates,
-  `BaseDialogFragment`, `BaseBottomSheetDialogFragment`, `AppDispatchers`, `StringProvider`,
-  `ConnectivityChecker`/`NoConnectivityException`, `ShadowLayout`, `FullScreenLoaderView`,
-  `PromptDialogFragment`, `ReleaseTree` and friends. Framework implementations behind those
-  interfaces stay `internal`.
-- Android Lint now runs with `abortOnError`/`checkReleaseBuilds` enabled on the published module;
-  both had been disabled.
-- Kover measures the whole module instead of a hand-picked ~25-class allowlist, with each
-  exclusion stating why. The honest figure is ~82% line coverage; `v1.0.0`'s advertised "80%+"
-  described a curated subset.
+### Removed
+- **Unused Room + SQLCipher database stack removed**: Removed `AppDatabase`, `LocalSettingEntity`, `LocalSettingDao`, `DatabaseModule`, and `DbPassphraseWarmupInitializer` along with 7.3 MB native `.so` binaries. Consuming apps declare their own `@Database` if persistence is required.
+- **Deprecated `android:statusBarColor`** removed from XML themes in favor of modern system bar inset handling.
+- **Removed sdp/ssp dependencies** (`com.intuit.sdp` / `com.intuit.ssp`) and deleted `ResponsiveContextWrapper`.
 
 ### Fixed
+- Fixed Compose Compiler plugin artifact coordinate resolution for release builds (`compose-group-mapping`).
+- Redacted `Authorization` header in OkHttp logging interceptor to avoid leaking bearer tokens.
+- `TimberInitializer` respects consumer application's `FLAG_DEBUGGABLE` status instead of AAR build flag.
 
-- `TokenAuthenticator` never refreshed anything: on a 401 it re-read the same cached token twice.
-  It now delegates to `AuthTokenRefresher` behind a mutex so parallel 401s share one refresh, and
-  gives up after two attempts instead of looping.
-- `TimberInitializer` branched on `:core`'s own `BuildConfig.DEBUG`, which is always `false` in a
-  published AAR — consumers' debug builds got `ReleaseTree` and lost all `DEBUG`/`INFO` logging.
-  It now reads the consuming app's `FLAG_DEBUGGABLE`.
-- `AppDatabase` used `fallbackToDestructiveMigration(true)` with no migrations defined, so the
-  first schema bump would silently wipe every consuming app's local data. Only downgrades reset now.
-- The OkHttp logging interceptor did not redact `Authorization`, so enabling request logging
-  printed bearer tokens to Logcat.
-
-### Known gaps
-
-- No binary-compatibility gate. `binary-compatibility-validator` 0.18.1 registers no
-  `apiDump`/`apiCheck` tasks for a `com.android.library` module, so it was removed rather than
-  left applied doing nothing. Public API changes are currently caught by review plus the
-  `internal`-by-default discipline.
-
-## [v1.0.0]
-
-- Initial JitPack publication of `:core`.
-
-[Unreleased]: https://github.com/ThanhNg224/AndroidXmlBase/compare/v2.0.0...HEAD
-[v2.0.0]: https://github.com/ThanhNg224/AndroidXmlBase/compare/v1.0.0...v2.0.0
-[v1.0.0]: https://github.com/ThanhNg224/AndroidXmlBase/releases/tag/v1.0.0
+[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...HEAD
+[v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0

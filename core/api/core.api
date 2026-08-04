@@ -1,0 +1,883 @@
+// Signature format: 4.0
+package com.thanhng224.androidcorebase.core.architecture {
+
+  public interface AppDispatchers {
+    method @InaccessibleFromKotlin public CoroutineDispatcher getDefault();
+    method @InaccessibleFromKotlin public CoroutineDispatcher getIo();
+    method @InaccessibleFromKotlin public CoroutineDispatcher getMain();
+    property public abstract ErrorType default;
+    property public abstract ErrorType io;
+    property public abstract ErrorType main;
+  }
+
+  public abstract class StateViewModel<S extends com.thanhng224.androidcorebase.core.architecture.UiState, E extends com.thanhng224.androidcorebase.core.architecture.UiEvent, F extends com.thanhng224.androidcorebase.core.architecture.UiEffect> {
+    ctor public StateViewModel(S initialState);
+    method @InaccessibleFromKotlin protected final S getCurrentState();
+    method @InaccessibleFromKotlin public final Flow<F> getEffect();
+    method @InaccessibleFromKotlin public final StateFlow<S> getState();
+    method public abstract void onEvent(E event);
+    method protected final void sendEffect(F effect);
+    method protected final void setState(kotlin.jvm.functions.Function1<? super S,? extends S> reducer);
+    property protected final S currentState;
+    property public final ErrorType effect;
+    property public final ErrorType state;
+  }
+
+  public interface UiEffect {
+  }
+
+  public interface UiEvent {
+  }
+
+  public interface UiState {
+  }
+
+  public interface UseCase<P, R> {
+    method public suspend operator Object? invoke(P params, error.NonExistentClass);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.architecture.result {
+
+  public sealed exhaustive interface AppError {
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    property public abstract Throwable? cause;
+  }
+
+  public static final class AppError.Business implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
+    ctor public AppError.Business(int code, String message);
+    method public int component1();
+    method public String component2();
+    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Business copy(optional int code, optional String message);
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    method @InaccessibleFromKotlin public int getCode();
+    method @InaccessibleFromKotlin public String getMessage();
+    property public Throwable? cause;
+    property public int code;
+    property public String message;
+  }
+
+  public static final class AppError.EmptyBody implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    property public Throwable? cause;
+    field public static final com.thanhng224.androidcorebase.core.architecture.result.AppError.EmptyBody INSTANCE;
+  }
+
+  public static final class AppError.Http implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
+    ctor public AppError.Http(int code, String serverMessage);
+    method public int component1();
+    method public String component2();
+    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Http copy(optional int code, optional String serverMessage);
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    method @InaccessibleFromKotlin public int getCode();
+    method @InaccessibleFromKotlin public String getServerMessage();
+    property public Throwable? cause;
+    property public int code;
+    property public String serverMessage;
+  }
+
+  public static final class AppError.Network implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
+    ctor public AppError.Network(Throwable cause);
+    method public Throwable component1();
+    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Network copy(optional Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
+  public static final class AppError.Parse implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
+    ctor public AppError.Parse(Throwable cause);
+    method public Throwable component1();
+    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Parse copy(optional Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
+  public sealed exhaustive interface DomainResult<T> {
+  }
+
+  public static final class DomainResult.Error implements com.thanhng224.androidcorebase.core.architecture.result.DomainResult {
+    ctor public DomainResult.Error(com.thanhng224.androidcorebase.core.architecture.result.AppError error);
+    method public com.thanhng224.androidcorebase.core.architecture.result.AppError component1();
+    method public com.thanhng224.androidcorebase.core.architecture.result.DomainResult.Error copy(optional com.thanhng224.androidcorebase.core.architecture.result.AppError error);
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.architecture.result.AppError getError();
+    property public com.thanhng224.androidcorebase.core.architecture.result.AppError error;
+  }
+
+  public static final class DomainResult.Success<T> implements com.thanhng224.androidcorebase.core.architecture.result.DomainResult<T> {
+    ctor public DomainResult.Success(T data);
+    method public T component1();
+    method public com.thanhng224.androidcorebase.core.architecture.result.DomainResult.Success<T> copy(optional T data);
+    method @InaccessibleFromKotlin public T getData();
+    property public T data;
+  }
+
+  public final class DomainResultKt {
+    method public static inline <T, R> com.thanhng224.androidcorebase.core.architecture.result.DomainResult<R> map(com.thanhng224.androidcorebase.core.architecture.result.DomainResult<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
+  }
+
+  public sealed exhaustive interface ResultState<T> {
+  }
+
+  public static final class ResultState.Error implements com.thanhng224.androidcorebase.core.architecture.result.ResultState {
+    ctor public ResultState.Error(com.thanhng224.androidcorebase.core.ui.text.UiText message, optional Throwable? cause);
+    method public com.thanhng224.androidcorebase.core.ui.text.UiText component1();
+    method public Throwable? component2();
+    method public com.thanhng224.androidcorebase.core.architecture.result.ResultState.Error copy(optional com.thanhng224.androidcorebase.core.ui.text.UiText message, optional Throwable? cause);
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.ui.text.UiText getMessage();
+    property public Throwable? cause;
+    property public com.thanhng224.androidcorebase.core.ui.text.UiText message;
+  }
+
+  public static final class ResultState.Loading implements com.thanhng224.androidcorebase.core.architecture.result.ResultState {
+    field public static final com.thanhng224.androidcorebase.core.architecture.result.ResultState.Loading INSTANCE;
+  }
+
+  public static final class ResultState.Success<T> implements com.thanhng224.androidcorebase.core.architecture.result.ResultState<T> {
+    ctor public ResultState.Success(T data);
+    method public T component1();
+    method public com.thanhng224.androidcorebase.core.architecture.result.ResultState.Success<T> copy(optional T data);
+    method @InaccessibleFromKotlin public T getData();
+    property public T data;
+  }
+
+  public final class ResultStateKt {
+    method public static inline <T, R> R fold(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T>, kotlin.jvm.functions.Function0<? extends R> onLoading, kotlin.jvm.functions.Function1<? super T,? extends R> onSuccess, kotlin.jvm.functions.Function2<? super com.thanhng224.androidcorebase.core.ui.text.UiText,? super java.lang.Throwable?,? extends R> onError);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.di {
+
+  @kotlin.annotation.Retention(AnnotationRetention.BINARY) public @interface ApplicationScope {
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.localization {
+
+  public final class AppCompatLocaleApplier implements com.thanhng224.androidcorebase.core.localization.AppLocaleApplier {
+    ctor public AppCompatLocaleApplier();
+    method public void applyLocales(String tag);
+    method public String currentLocaleTags();
+  }
+
+  public final class AppLanguage {
+    ctor public AppLanguage(String languageTag, int displayNameResId);
+    method public String component1();
+    method public int component2();
+    method public com.thanhng224.androidcorebase.core.localization.AppLanguage copy(optional String languageTag, optional int displayNameResId);
+    method @InaccessibleFromKotlin public int getDisplayNameResId();
+    method @InaccessibleFromKotlin public String getLanguageTag();
+    property public int displayNameResId;
+    property public String languageTag;
+    field public static final com.thanhng224.androidcorebase.core.localization.AppLanguage.Companion Companion;
+  }
+
+  public static final class AppLanguage.Companion {
+    method public com.thanhng224.androidcorebase.core.localization.AppLanguage? findByLanguageTag(String languageTag, optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> candidates);
+    method @InaccessibleFromKotlin public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> getBUILT_IN();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.localization.AppLanguage getENGLISH();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.localization.AppLanguage getVIETNAMESE();
+    property public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> BUILT_IN;
+    property public com.thanhng224.androidcorebase.core.localization.AppLanguage ENGLISH;
+    property public com.thanhng224.androidcorebase.core.localization.AppLanguage VIETNAMESE;
+  }
+
+  public interface AppLocaleApplier {
+    method public void applyLocales(String tag);
+    method public String currentLocaleTags();
+  }
+
+  public final class LocaleManager {
+    ctor public LocaleManager();
+    ctor public LocaleManager(optional com.thanhng224.androidcorebase.core.localization.AppLocaleApplier localeApplier, optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> supportedLanguages);
+    method public com.thanhng224.androidcorebase.core.localization.AppLanguage? currentLanguage();
+    method public void setLanguage(com.thanhng224.androidcorebase.core.localization.AppLanguage language);
+    method public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> supportedLanguages();
+    method public void useSystemLanguage();
+  }
+
+  public final class SupportedLanguages {
+    ctor public SupportedLanguages(java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> values);
+    method public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> component1();
+    method public com.thanhng224.androidcorebase.core.localization.SupportedLanguages copy(optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> values);
+    method @InaccessibleFromKotlin public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> getValues();
+    property public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> values;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.logging {
+
+  public final class ReleaseTree {
+    ctor public ReleaseTree();
+    method public boolean isLoggable(String? tag, int priority);
+    method public void log(int priority, String? tag, String message, Throwable? t);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.navigation {
+
+  public final class ActivityDestination {
+    ctor public ActivityDestination(kotlin.reflect.KClass<? extends android.app.Activity> activityClass, optional android.os.Bundle? extras, optional com.thanhng224.androidcorebase.core.navigation.NavigationOptions options);
+    method public kotlin.reflect.KClass<? extends android.app.Activity> component1();
+    method public android.os.Bundle? component2();
+    method public com.thanhng224.androidcorebase.core.navigation.NavigationOptions component3();
+    method public com.thanhng224.androidcorebase.core.navigation.ActivityDestination copy(optional kotlin.reflect.KClass<? extends android.app.Activity> activityClass, optional android.os.Bundle? extras, optional com.thanhng224.androidcorebase.core.navigation.NavigationOptions options);
+    method @InaccessibleFromKotlin public kotlin.reflect.KClass<? extends android.app.Activity> getActivityClass();
+    method @InaccessibleFromKotlin public android.os.Bundle? getExtras();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.navigation.NavigationOptions getOptions();
+    property public kotlin.reflect.KClass<? extends android.app.Activity> activityClass;
+    property public android.os.Bundle? extras;
+    property public com.thanhng224.androidcorebase.core.navigation.NavigationOptions options;
+  }
+
+  public final class ActivityNavigator {
+    ctor public ActivityNavigator();
+    method public void finish(android.app.Activity activity);
+    method public void navigate(android.content.Context context, com.thanhng224.androidcorebase.core.navigation.ActivityDestination destination);
+    field public static final com.thanhng224.androidcorebase.core.navigation.ActivityNavigator.Companion Companion;
+    field public static final String EXTRA_TRANSITION_TYPE = "extra_transition_type";
+  }
+
+  public static final class ActivityNavigator.Companion {
+    method public void applyTransition(android.app.Activity activity, com.thanhng224.androidcorebase.core.navigation.TransitionType type, boolean isOpen);
+    property public static String EXTRA_TRANSITION_TYPE;
+  }
+
+  public final class ArgumentDelegatesKt {
+    method @KotlinOnly public static inline <reified T> ErrorType fragmentArg(String key, optional T? defaultValue);
+    method @KotlinOnly public static inline <reified T> ErrorType fragmentArgNullable(String key);
+    method public static <T> T? getTyped(android.os.Bundle, String key, Class<T> clazz);
+    method @KotlinOnly public static inline <reified T> ErrorType intentExtra(String key, optional T? defaultValue);
+    method @KotlinOnly public static inline <reified T> ErrorType intentExtraNullable(String key);
+  }
+
+  public final class NavigationOptions {
+    ctor public NavigationOptions();
+    ctor public NavigationOptions(optional boolean clearTask, optional boolean singleTop, optional boolean noAnimation, optional com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType);
+    method public boolean component1();
+    method public boolean component2();
+    method public boolean component3();
+    method public com.thanhng224.androidcorebase.core.navigation.TransitionType component4();
+    method public com.thanhng224.androidcorebase.core.navigation.NavigationOptions copy(optional boolean clearTask, optional boolean singleTop, optional boolean noAnimation, optional com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType);
+    method @InaccessibleFromKotlin public boolean getClearTask();
+    method @InaccessibleFromKotlin public boolean getNoAnimation();
+    method @InaccessibleFromKotlin public boolean getSingleTop();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.navigation.TransitionType getTransitionType();
+    method public int toIntentFlags();
+    property public boolean clearTask;
+    property public boolean noAnimation;
+    property public boolean singleTop;
+    property public com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType;
+  }
+
+  public enum TransitionType {
+    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType DEFAULT;
+    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType FADE;
+    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType NONE;
+    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType SLIDE_HORIZONTAL;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.network {
+
+  public interface ApiClient {
+    method public suspend <T> Object? execute(kotlin.jvm.functions.Function1<? super error.NonExistentClass<retrofit2.Response<T>!>!,? extends java.lang.Object?> call, error.NonExistentClass);
+  }
+
+  public final class ApiConfig {
+    ctor public ApiConfig(String baseUrl, optional boolean enableLogging, optional long connectTimeoutSeconds, optional long readTimeoutSeconds, optional long writeTimeoutSeconds);
+    method public String component1();
+    method public boolean component2();
+    method public long component3();
+    method public long component4();
+    method public long component5();
+    method public com.thanhng224.androidcorebase.core.network.ApiConfig copy(optional String baseUrl, optional boolean enableLogging, optional long connectTimeoutSeconds, optional long readTimeoutSeconds, optional long writeTimeoutSeconds);
+    method @InaccessibleFromKotlin public String getBaseUrl();
+    method @InaccessibleFromKotlin public long getConnectTimeoutSeconds();
+    method @InaccessibleFromKotlin public boolean getEnableLogging();
+    method @InaccessibleFromKotlin public long getReadTimeoutSeconds();
+    method @InaccessibleFromKotlin public long getWriteTimeoutSeconds();
+    property public String baseUrl;
+    property public long connectTimeoutSeconds;
+    property public boolean enableLogging;
+    property public long readTimeoutSeconds;
+    property public long writeTimeoutSeconds;
+    field public static final com.thanhng224.androidcorebase.core.network.ApiConfig.Companion Companion;
+    field public static final long DEFAULT_TIMEOUT_SECONDS = 30L; // 0x1eL
+  }
+
+  public static final class ApiConfig.Companion {
+    property public static long DEFAULT_TIMEOUT_SECONDS;
+  }
+
+  public sealed exhaustive interface ApiResult<T> {
+  }
+
+  public static final class ApiResult.EmptyBody implements com.thanhng224.androidcorebase.core.network.ApiResult {
+    field public static final com.thanhng224.androidcorebase.core.network.ApiResult.EmptyBody INSTANCE;
+  }
+
+  public static final class ApiResult.HttpError implements com.thanhng224.androidcorebase.core.network.ApiResult {
+    ctor public ApiResult.HttpError(int code, String message);
+    method public int component1();
+    method public String component2();
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.HttpError copy(optional int code, optional String message);
+    method @InaccessibleFromKotlin public int getCode();
+    method @InaccessibleFromKotlin public String getMessage();
+    property public int code;
+    property public String message;
+  }
+
+  public static final class ApiResult.NetworkError implements com.thanhng224.androidcorebase.core.network.ApiResult {
+    ctor public ApiResult.NetworkError(Throwable cause);
+    method public Throwable component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.NetworkError copy(optional Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
+  public static final class ApiResult.ParseError implements com.thanhng224.androidcorebase.core.network.ApiResult {
+    ctor public ApiResult.ParseError(Throwable cause);
+    method public Throwable component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.ParseError copy(optional Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
+  public static final class ApiResult.Success<T> implements com.thanhng224.androidcorebase.core.network.ApiResult<T> {
+    ctor public ApiResult.Success(T data);
+    method public T component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.Success<T> copy(optional T data);
+    method @InaccessibleFromKotlin public T getData();
+    property public T data;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.network.auth {
+
+  public final class AuthSession {
+    method public suspend Object? clear(error.NonExistentClass);
+    method public suspend Object? getAccessToken(error.NonExistentClass);
+    method public suspend Object? getRefreshToken(error.NonExistentClass);
+    method public suspend Object? setTokens(String accessToken, optional String? refreshToken, error.NonExistentClass);
+  }
+
+  public interface AuthTokenProvider {
+    method public suspend Object? getToken(error.NonExistentClass);
+  }
+
+  public interface AuthTokenRefresher {
+    method public suspend Object? refresh(String? refreshToken, error.NonExistentClass);
+  }
+
+  public final class NoOpAuthTokenProvider implements com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider {
+    ctor public NoOpAuthTokenProvider();
+    method public suspend Object? getToken(error.NonExistentClass);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.network.connectivity {
+
+  public interface ConnectivityChecker {
+    method public boolean isConnected();
+  }
+
+  public final class NoConnectivityException extends java.io.IOException {
+    ctor public NoConnectivityException();
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.network.transfer {
+
+  public interface FileTransferClient {
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<java.io.File!>!> download(Request request, java.io.File destination);
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.StreamChunk!>!> stream(Request request, optional int chunkSizeBytes);
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse!>!> upload(Request request);
+    field public static final com.thanhng224.androidcorebase.core.network.transfer.FileTransferClient.Companion Companion;
+    field public static final int DEFAULT_STREAM_CHUNK_SIZE_BYTES = 8192; // 0x2000
+  }
+
+  public static final class FileTransferClient.Companion {
+    property public static int DEFAULT_STREAM_CHUNK_SIZE_BYTES;
+    field public static final int DEFAULT_STREAM_CHUNK_SIZE_BYTES = 8192; // 0x2000
+  }
+
+  public final class HttpTransferResponse {
+    ctor public HttpTransferResponse(int code, String? body);
+    method public int component1();
+    method public String? component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse copy(optional int code, optional String? body);
+    method @InaccessibleFromKotlin public String? getBody();
+    method @InaccessibleFromKotlin public int getCode();
+    property public String? body;
+    property public int code;
+  }
+
+  public final class StreamChunk {
+    ctor public StreamChunk(byte[] bytes, long bytesRead);
+    method public byte[] component1();
+    method public long component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.StreamChunk copy(optional byte[] bytes, optional long bytesRead);
+    method @InaccessibleFromKotlin public byte[] getBytes();
+    method @InaccessibleFromKotlin public long getBytesRead();
+    property public byte[] bytes;
+    property public long bytesRead;
+  }
+
+  public sealed exhaustive interface TransferResult<T> {
+  }
+
+  public static final class TransferResult.Failure implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult {
+    ctor public TransferResult.Failure(String message, optional Throwable? cause);
+    method public String component1();
+    method public Throwable? component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Failure copy(optional String message, optional Throwable? cause);
+    method @InaccessibleFromKotlin public Throwable? getCause();
+    method @InaccessibleFromKotlin public String getMessage();
+    property public Throwable? cause;
+    property public String message;
+  }
+
+  public static final class TransferResult.Progress implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult {
+    ctor public TransferResult.Progress(long bytesTransferred, long totalBytes);
+    method public long component1();
+    method public long component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Progress copy(optional long bytesTransferred, optional long totalBytes);
+    method @InaccessibleFromKotlin public long getBytesTransferred();
+    method @InaccessibleFromKotlin public Integer? getPercent();
+    method @InaccessibleFromKotlin public long getTotalBytes();
+    property public long bytesTransferred;
+    property public Integer? percent;
+    property public long totalBytes;
+  }
+
+  public static final class TransferResult.Success<T> implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult<T> {
+    ctor public TransferResult.Success(T data);
+    method public T component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Success<T> copy(optional T data);
+    method @InaccessibleFromKotlin public T getData();
+    property public T data;
+  }
+
+  public typealias DownloadResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<java.io.File>;
+
+  public typealias StreamResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.StreamChunk>;
+
+  public typealias UploadResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse>;
+
+}
+
+package com.thanhng224.androidcorebase.core.storage.secure {
+
+  public final class DbPassphraseProvider {
+    ctor public DbPassphraseProvider(com.thanhng224.androidcorebase.core.storage.secure.SecureStore secureStore);
+    method public suspend Object? getOrCreate(error.NonExistentClass);
+  }
+
+  public interface SecureStore {
+    method public suspend Object? clear(error.NonExistentClass);
+    method @KotlinOnly public suspend Object? getString(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.String?>);
+    method @KotlinOnly public suspend Object? putString(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, String value, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @KotlinOnly public suspend Object? remove(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.Void>);
+  }
+
+  public final value class SecureStoreKey {
+    ctor @KotlinOnly public SecureStoreKey(String name);
+    method @InaccessibleFromKotlin public String getName();
+    property public String name;
+  }
+
+  public final class SecureStoreKeys {
+    property public com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey AUTH_TOKEN;
+    property public com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey REFRESH_TOKEN;
+    field public static final com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKeys INSTANCE;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.storage.settings {
+
+  public final class AppSettingsKeys {
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.BooleanKey getDEBUG_LOGGING_ENABLED();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.LongKey getFIRST_OPEN_AT();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.IntKey getOPEN_COUNT();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.StringKey getTHEME_MODE();
+    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.BooleanKey DEBUG_LOGGING_ENABLED;
+    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.LongKey FIRST_OPEN_AT;
+    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.IntKey OPEN_COUNT;
+    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.StringKey THEME_MODE;
+    field public static final com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys INSTANCE;
+  }
+
+  public abstract sealed exhaustive class SettingsKey<T> {
+    method @InaccessibleFromKotlin public final T getDefaultValue();
+    method @InaccessibleFromKotlin public final String getName();
+    property public final T defaultValue;
+    property public final String name;
+  }
+
+  public static final class SettingsKey.BooleanKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Boolean> {
+    ctor public SettingsKey.BooleanKey(String name, optional boolean defaultValue);
+  }
+
+  public static final class SettingsKey.FloatKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Float> {
+    ctor public SettingsKey.FloatKey(String name, optional float defaultValue);
+  }
+
+  public static final class SettingsKey.IntKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Integer> {
+    ctor public SettingsKey.IntKey(String name, optional int defaultValue);
+  }
+
+  public static final class SettingsKey.LongKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Long> {
+    ctor public SettingsKey.LongKey(String name, optional long defaultValue);
+  }
+
+  public static final class SettingsKey.StringKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.String> {
+    ctor public SettingsKey.StringKey(String name, optional String defaultValue);
+  }
+
+  public interface SettingsStore {
+    method public suspend <T> Object? get(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, error.NonExistentClass);
+    method public <T> Flow<T> observe(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key);
+    method public suspend <T> Object? remove(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, error.NonExistentClass);
+    method public suspend <T> Object? set(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, T value, error.NonExistentClass);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.time {
+
+  public fun interface ElapsedRealtimeClock {
+    method public long nowMillis();
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.base {
+
+  public abstract class BaseActivity {
+    ctor public BaseActivity();
+    method protected final <T> void bindResultState(Flow<com.thanhng224.androidcorebase.core.architecture.result.ResultState<T>!> flow, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
+    method protected final <T> void collectOnStarted(Flow<T>, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
+    method @InaccessibleFromKotlin protected boolean getApplyInsetsToRoot();
+    method @InaccessibleFromKotlin protected boolean getUseImmersiveMode();
+    method public void onCreate(android.os.Bundle? savedInstanceState);
+    property protected boolean applyInsetsToRoot;
+    property protected boolean useImmersiveMode;
+  }
+
+  public abstract class BaseBindingActivity<VB> extends com.thanhng224.androidcorebase.core.ui.base.BaseActivity {
+    ctor public BaseBindingActivity();
+    method @InaccessibleFromKotlin protected final VB getBinding();
+    method protected abstract VB inflateBinding(android.view.LayoutInflater inflater);
+    method protected abstract void onBindingReady(android.os.Bundle? savedInstanceState);
+    method public void onDestroy();
+    property protected final VB binding;
+  }
+
+  public abstract class BaseBottomSheetDialogFragment<VB> {
+    ctor public BaseBottomSheetDialogFragment();
+    method protected final <T> void collectOnStarted(Flow<T>, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
+    method @InaccessibleFromKotlin protected final VB getBinding();
+    method protected abstract VB inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
+    method protected abstract void onBindingReady(android.view.View view, android.os.Bundle? savedInstanceState);
+    method public android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
+    method public void onDestroyView();
+    method public void onViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
+    property protected final VB binding;
+  }
+
+  public abstract class BaseComposeActivity extends com.thanhng224.androidcorebase.core.ui.base.BaseActivity {
+    ctor public BaseComposeActivity();
+    method protected abstract void Content();
+  }
+
+  public abstract class BaseDialogFragment<VB> {
+    ctor public BaseDialogFragment();
+    method @InaccessibleFromKotlin protected int getBackgroundDrawableRes();
+    method @InaccessibleFromKotlin protected final VB getBinding();
+    method @InaccessibleFromKotlin protected com.thanhng224.androidcorebase.core.ui.base.DialogAnimation getDialogAnimation();
+    method protected abstract VB inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
+    method protected abstract void onBindingReady(android.os.Bundle? savedInstanceState);
+    method public android.view.View? onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
+    method public void onDestroyView();
+    method public void onStart();
+    method public void onViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
+    property protected int backgroundDrawableRes;
+    property protected final VB binding;
+    property protected com.thanhng224.androidcorebase.core.ui.base.DialogAnimation dialogAnimation;
+  }
+
+  public abstract class BaseFragment<VB> {
+    ctor public BaseFragment();
+    method protected final <T> void bindResultState(Flow<com.thanhng224.androidcorebase.core.architecture.result.ResultState<T>!> flow, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
+    method protected final <T> void collectOnStarted(Flow<T>, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
+    method @InaccessibleFromKotlin protected final VB getBinding();
+    method protected abstract VB inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
+    method protected abstract void onBindingReady(android.view.View view, android.os.Bundle? savedInstanceState);
+    method public android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
+    method public void onDestroyView();
+    method public void onViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
+    property protected final VB binding;
+  }
+
+  public final class ComposeInteropKt {
+    method public static void setThemedContent(ComposeView, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class Debouncer {
+    ctor public Debouncer();
+    ctor public Debouncer(optional long intervalMs);
+    method public boolean shouldAllow(long nowMs);
+    field public static final com.thanhng224.androidcorebase.core.ui.base.Debouncer.Companion Companion;
+    field public static final long DEFAULT_INTERVAL_MS = 600L; // 0x258L
+  }
+
+  public static final class Debouncer.Companion {
+    property public static long DEFAULT_INTERVAL_MS;
+  }
+
+  public final class DebouncerKt {
+    method public static void setOnDebouncedClickListener(android.view.View, optional long intervalMs, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
+  }
+
+  public enum DialogAnimation {
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.base.DialogAnimation FADE;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.base.DialogAnimation NONE;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.base.DialogAnimation SCALE;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.base.DialogAnimation SLIDE;
+  }
+
+  public final class LifecycleFlowExtensionsKt {
+    method public static <T> void collectOnStartedBy(Flow<T>, LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
+  }
+
+  public final class ResultRenderState {
+    ctor public ResultRenderState(boolean isLoadingVisible, boolean isContentVisible, boolean isErrorVisible, com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage);
+    method public boolean component1();
+    method public boolean component2();
+    method public boolean component3();
+    method public com.thanhng224.androidcorebase.core.ui.text.UiText? component4();
+    method public com.thanhng224.androidcorebase.core.ui.base.ResultRenderState copy(optional boolean isLoadingVisible, optional boolean isContentVisible, optional boolean isErrorVisible, optional com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage);
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.ui.text.UiText? getErrorMessage();
+    method @InaccessibleFromKotlin public boolean isContentVisible();
+    method @InaccessibleFromKotlin public boolean isErrorVisible();
+    method @InaccessibleFromKotlin public boolean isLoadingVisible();
+    property public com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage;
+    property public boolean isContentVisible;
+    property public boolean isErrorVisible;
+    property public boolean isLoadingVisible;
+  }
+
+  public final class ResultRenderStateKt {
+    method public static void applyVisibilityTo(com.thanhng224.androidcorebase.core.ui.base.ResultRenderState, android.view.View loadingView, android.view.View contentView, android.view.View errorView);
+    method public static <T> com.thanhng224.androidcorebase.core.ui.base.ResultRenderState toRenderState(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T>);
+  }
+
+  public final class ResultStateOverlayKt {
+    method public static <T> void renderResultState(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T> result, android.view.ViewGroup contentRoot, FragmentManager dialogHost, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
+  }
+
+  public final class TransitionActivity {
+    ctor public TransitionActivity();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> getActions();
+    method public void onCreate(android.os.Bundle? savedInstanceState);
+    method public void onSaveInstanceState(android.os.Bundle outState);
+    method @InaccessibleFromKotlin public void setActions(java.util.Map<java.lang.String,? extends com.thanhng224.androidcorebase.core.ui.transition.TransitionAction>);
+    property public java.util.Map<java.lang.String,com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> actions;
+    field public static final com.thanhng224.androidcorebase.core.ui.base.TransitionActivity.Companion Companion;
+    field public java.util.Map<java.lang.String,? extends com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> actions;
+  }
+
+  public static final class TransitionActivity.Companion {
+    method public android.content.Intent createIntent(android.content.Context context, String actionKey, optional android.os.Bundle extras);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.components {
+
+  public final class ButtonStyleDelegate {
+    ctor public ButtonStyleDelegate(android.view.View targetView, com.thanhng224.androidcorebase.core.ui.drawable.DrawableShape shape, int backgroundColor, float cornerRadiusPx, optional float strokeWidthPx, optional int strokeColor);
+    method public void apply();
+    field public static final int FALLBACK_RIPPLE_ALPHA = 51; // 0x33
+  }
+
+  public final class FrameButton extends android.widget.FrameLayout {
+    ctor public FrameButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    field public static final int MIN_TOUCH_TARGET_DP = 48; // 0x30
+    field public static final int SHAPE_OVAL_ORDINAL = 1; // 0x1
+  }
+
+  public final class FullScreenLoaderView extends android.widget.FrameLayout {
+    ctor public FullScreenLoaderView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    method public void hide();
+    method public void show();
+    method public void show(int statusResId);
+    method public void show(String statusText);
+    field public static final com.thanhng224.androidcorebase.core.ui.components.FullScreenLoaderView.Companion Companion;
+  }
+
+  public static final class FullScreenLoaderView.Companion {
+  }
+
+  public final class PromptDialogFragment extends com.thanhng224.androidcorebase.core.ui.base.BaseDialogFragment<CoreDialogPromptBinding!> {
+    ctor public PromptDialogFragment();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnClose();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnPrimary();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRetry();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnSecondary();
+    method protected CoreDialogPromptBinding inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
+    method protected void onBindingReady(android.os.Bundle? savedInstanceState);
+    method @InaccessibleFromKotlin public void setOnClose(kotlin.jvm.functions.Function0<kotlin.Unit>?);
+    method @InaccessibleFromKotlin public void setOnPrimary(kotlin.jvm.functions.Function0<kotlin.Unit>?);
+    method @InaccessibleFromKotlin public void setOnRetry(kotlin.jvm.functions.Function0<kotlin.Unit>?);
+    method @InaccessibleFromKotlin public void setOnSecondary(kotlin.jvm.functions.Function0<kotlin.Unit>?);
+    property protected com.thanhng224.androidcorebase.core.ui.base.DialogAnimation dialogAnimation;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onClose;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onPrimary;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onRetry;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onSecondary;
+    field public static final com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment.Companion Companion;
+    field public static final String EVENT_CLOSE = "secondary";
+    field public static final String EVENT_KEY = "event";
+    field public static final String EVENT_PRIMARY = "primary";
+    field public static final String EVENT_RETRY = "primary";
+    field public static final String EVENT_SECONDARY = "secondary";
+    field public static final String RESULT_KEY = "com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment.result";
+  }
+
+  public static final class PromptDialogFragment.Companion {
+    method public com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment newInstance(String message, optional String? technicalCode, optional com.thanhng224.androidcorebase.core.ui.components.PromptType type, optional int primaryButtonTextResId, optional Integer? secondaryButtonTextResId);
+    property public static String EVENT_CLOSE;
+    property public static String EVENT_KEY;
+    property public static String EVENT_PRIMARY;
+    property public static String EVENT_RETRY;
+    property public static String EVENT_SECONDARY;
+    property public static String RESULT_KEY;
+  }
+
+  public enum PromptType {
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType ERROR;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType INFO;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType SUCCESS;
+  }
+
+  public final class ShadowLayout extends android.widget.FrameLayout {
+    ctor public ShadowLayout(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+  }
+
+  public final class StyledSnackbar {
+    method public Snackbar show(android.view.View anchorView, String message, optional int duration);
+    field public static final com.thanhng224.androidcorebase.core.ui.components.StyledSnackbar INSTANCE;
+  }
+
+  public class ThemedSwitch {
+    ctor public ThemedSwitch(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.drawable {
+
+  public enum DrawableShape {
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.drawable.DrawableShape OVAL;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.drawable.DrawableShape RECTANGLE;
+  }
+
+  public final class ShapeDrawableFactory {
+    method public android.graphics.drawable.GradientDrawable buildDrawable(com.thanhng224.androidcorebase.core.ui.drawable.DrawableShape shape, float cornerRadiusPx, int fillColor, optional float strokeWidthPx, optional int strokeColor);
+    field public static final com.thanhng224.androidcorebase.core.ui.drawable.ShapeDrawableFactory INSTANCE;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.text {
+
+  public interface StringProvider {
+    method public String getString(int resId);
+  }
+
+  public sealed exhaustive interface UiText {
+  }
+
+  public static final class UiText.DynamicString implements com.thanhng224.androidcorebase.core.ui.text.UiText {
+    ctor public UiText.DynamicString(String value);
+    method public String component1();
+    method public com.thanhng224.androidcorebase.core.ui.text.UiText.DynamicString copy(optional String value);
+    method @InaccessibleFromKotlin public String getValue();
+    property public String value;
+  }
+
+  public static final class UiText.StringResource implements com.thanhng224.androidcorebase.core.ui.text.UiText {
+    ctor public UiText.StringResource(int resId, optional java.util.List<?> formatArgs);
+    method public int component1();
+    method public java.util.List<java.lang.Object> component2();
+    method public com.thanhng224.androidcorebase.core.ui.text.UiText.StringResource copy(optional int resId, optional java.util.List<?> formatArgs);
+    method @InaccessibleFromKotlin public java.util.List<java.lang.Object> getFormatArgs();
+    method @InaccessibleFromKotlin public int getResId();
+    property public java.util.List<java.lang.Object> formatArgs;
+    property public int resId;
+  }
+
+  public final class UiTextKt {
+    method public static String resolve(com.thanhng224.androidcorebase.core.ui.text.UiText, android.content.Context context);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.theme {
+
+  public enum AppTheme {
+    method @InaccessibleFromKotlin public String getKey();
+    property public String key;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.theme.AppTheme DARK;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.theme.AppTheme LIGHT;
+    enum_constant public static final com.thanhng224.androidcorebase.core.ui.theme.AppTheme SYSTEM;
+    field public static final com.thanhng224.androidcorebase.core.ui.theme.AppTheme.Companion Companion;
+  }
+
+  public static final class AppTheme.Companion {
+    method public com.thanhng224.androidcorebase.core.ui.theme.AppTheme fromKey(String key);
+  }
+
+  public final class ComposeThemeKt {
+    method public static void AndroidCoreBaseTheme(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public interface ThemeManager {
+    method public void applyTheme(com.thanhng224.androidcorebase.core.ui.theme.AppTheme theme);
+    method @InaccessibleFromKotlin public Flow<com.thanhng224.androidcorebase.core.ui.theme.AppTheme!> getCurrentTheme();
+    method public suspend Object? getTheme(error.NonExistentClass);
+    method @InaccessibleFromKotlin public StateFlow<java.lang.Boolean!> isThemeApplied();
+    method public suspend Object? setTheme(com.thanhng224.androidcorebase.core.ui.theme.AppTheme theme, error.NonExistentClass);
+    property public abstract ErrorType currentTheme;
+    property public abstract ErrorType isThemeApplied;
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.transition {
+
+  public fun interface TransitionAction {
+    method public suspend Object? perform(android.os.Bundle extras, error.NonExistentClass);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.window {
+
+  public final class WindowExtensionsKt {
+    method public static void applySystemBarInsetsAsPadding(android.view.View, optional boolean left, optional boolean top, optional boolean right, optional boolean bottom);
+    method public static void setImmersiveMode(android.view.Window, boolean enabled);
+  }
+}

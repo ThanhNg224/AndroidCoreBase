@@ -1,8 +1,12 @@
 # CORE_MODULES.md
 
-`core/` lives in the `:core` Gradle module under `com.thanhng224.androidxmlbase.core`; `:app` consumes it through `implementation(project(":core"))`.
+`core/` lives in the `:core` Gradle module under `com.thanhng224.androidcorebase.core`; `:app` consumes it through `implementation(project(":core"))`.
 
-One section per `core/*` package that actually exists in this codebase today (verified against `core/src/main/java/com/thanhng224/androidxmlbase/core/` directly, not reconstructed from earlier phase plans). Each section lists the real public API surface and which feature(s) currently consume it. If a class/file isn't listed here, it doesn't exist yet — don't assume it does.
+One section per `core/*` package that actually exists in this codebase today (verified against `core/src/main/java/com/thanhng224/androidcorebase/core/` directly, not reconstructed from earlier phase plans). Each section lists the real public API surface and which feature(s) currently consume it. If a class/file isn't listed here, it doesn't exist yet — don't assume it does.
+
+> **Verify before you trust this file.** On 2026-07-29 three claims in the `core/architecture/result` section below were found to be wrong (a `map` extension and an `AppError` variant that did not exist, and a `ResultState.Error` field typed `String` when the code used `UiText`) — despite the paragraph above. They have been reconciled, but the lesson stands: check the source before building a decision on anything here. See `docs/MODERNIZATION.md` finding F2.
+
+`:core` runs in Kotlin **explicit API mode**, covering `src/main` and `src/testFixtures`. Every public declaration therefore carries an explicit `public` modifier and an explicit return type; anything not meant for consumers must be marked `internal`. Implementations stay `internal` behind a public interface with a Hilt binding, so a consumer injects the interface and never names an impl — see the audit table in `docs/MODERNIZATION.md`.
 
 ## `core/architecture`
 
@@ -16,7 +20,7 @@ The MVVM primitives every feature is built on. Framework-light: only `StateViewM
 - `StateViewModel<S : UiState, E : UiEvent, F : UiEffect>(initialState: S)` (abstract, extends `ViewModel`) — exposes `state: StateFlow<S>`, `effect: Flow<F>` (buffered `Channel`-backed), `protected val currentState: S`, `abstract fun onEvent(event: E)`, `protected fun setState(reducer: S.() -> S)` (implemented via `MutableStateFlow.update {}`, atomic under concurrent calls), `protected fun sendEffect(effect: F)`.
 
 ### `core/architecture/result`
-- `ResultState<out T>` (sealed interface) — `Loading`, `Success<T>(val data: T)`, `Error(val message: String, val cause: Throwable? = null)`. Plus `inline fun <T, R> ResultState<T>.fold(onLoading, onSuccess, onError): R`.
+- `ResultState<out T>` (sealed interface) — `Loading`, `Success<T>(val data: T)`, `Error(val message: UiText, val cause: Throwable? = null)`. Plus `inline fun <T, R> ResultState<T>.fold(onLoading, onSuccess, onError): R`. `message` is a `UiText` (see `core/ui/text`), not a `String`, so a presentation-layer error can carry an unresolved string resource and be localised at render time.
 - `DomainResult<out T>` (sealed interface) — `Success<T>(data)` and `Error(error: AppError)` for domain/data results that should not carry UI strings. Contains `map` extension function to transform Success cases.
 - `AppError` (sealed interface) — reusable error categories: `Http(code, serverMessage)`, `Network(cause)`, `Parse(cause)`, `EmptyBody`, and `Business(code, message)`.
 
@@ -37,15 +41,15 @@ A typed, testable settings store backed by Jetpack DataStore (`androidx.datastor
 ### `core/storage/secure`
 - `SecureStoreKey`, `SecureStore`, `SecureStoreKeys` (all public) — string-secret storage contract for tokens/secrets. Built-in keys: `AUTH_TOKEN`, `REFRESH_TOKEN`.
 - `EncryptedSecureStore` (internal) — AES-256/GCM via an Android Keystore key (deliberately not the deprecated `EncryptedSharedPreferences`), behind the `SecureStore` interface. Provided as the app-wide `SecureStore` by Hilt. Prefs file `core_secure_store`, Keystore alias `core_secure_store_key` — `core_`-namespaced so they can't collide with a consuming app's own storage.
+- `DbPassphraseProvider` (public, `@Singleton`; moved here from `core/storage/database` in Phase 4) — `suspend fun getOrCreate(): String` returns a stable random passphrase persisted through `SecureStore` and memoized in memory. For a consumer's *own* SQLCipher `SupportFactory`; `:core` itself has no database. `README.md`'s "Optional: your own encrypted database" section carries the wiring example and the `suspend`-vs-synchronous-`@Provides` tradeoff, which the consumer now owns since `:core` no longer warms it at startup.
 
 **Consumers:** `DemoRepositoryImpl` (sample-private counter key + `SettingsStore`); `SettingsRepositoryImpl` reaches theme persistence through `ThemeManager`; `SecureStoreAuthTokenProvider` reads `SecureStoreKeys.AUTH_TOKEN`.
 
-### `core/storage/database`
-- `DbPassphraseProvider` — memoized SQLCipher passphrase resolver (`suspend fun getOrCreate(): String`), backed by `SecureStore`. Warmed on `Dispatchers.IO` during process startup so `DatabaseModule`'s Hilt `@Provides` boundary doesn't block on disk I/O.
-- `AppDatabase` (Room, `@Database`, version 1, db file `core_app_database.db`) — SQLCipher-encrypted via `DatabaseModule`'s `SupportOpenHelperFactory`. No `fallbackToDestructiveMigration`: an upgrade with no matching `Migration` crashes instead of silently dropping data; `fallbackToDestructiveMigrationOnDowngrade(true)` only resets on a version downgrade (e.g. after a rollback).
-- `LocalSettingEntity` (`@Entity(tableName = "local_settings")`, `key`/`value` string columns) + `LocalSettingDao` (get/observe/save/delete by `key`) — a generic encrypted key-value table; reference shape only, not consumed by any feature yet.
+### `core/storage/database` — **removed in Phase 4**
 
-**Consumers:** none yet for `AppDatabase`/`LocalSettingDao` — add a `Migration` object here before bumping `version` past 1.
+`:core` ships **no database**. `AppDatabase`/`LocalSettingEntity`/`LocalSettingDao`/`DatabaseModule` and the Room + SQLCipher dependencies were deleted: they were entirely `internal`, consumed by nothing, and could not be consumed — Room's `@Database` fixes its `entities` list at compile time in the annotated class, so a library cannot hand a consumer a database to extend. Meanwhile SQLCipher's native library cost every consuming app ~2 MB per ABI (7.3 MB across the four in a universal APK), which R8 cannot strip. See `docs/MODERNIZATION.md` F7 and D5.
+
+The reusable part survives as `DbPassphraseProvider` in `core/storage/secure` (above). If you need an encrypted database, declare your own `@Database` and add Room + SQLCipher to your own module.
 
 ## `core/network`
 
@@ -104,32 +108,22 @@ Per-app language switching, backed by AndroidX's per-app language API (`AppCompa
 
 Formalizes process-startup work via `androidx.startup.Initializer` instead of `Application.onCreate()`.
 
-- `AppStartupEntryPoint` (Hilt `@EntryPoint`) — how Initializers (instantiated by reflection, no constructor injection available) reach `DbPassphraseProvider`, `ThemeManager`, and the `@ApplicationScope CoroutineScope`.
+- `AppStartupEntryPoint` (Hilt `@EntryPoint`) — how Initializers (instantiated by reflection, no constructor injection available) reach `ThemeManager` and the `@ApplicationScope CoroutineScope`.
 - `TimberInitializer` — plants `Timber.DebugTree()` or `ReleaseTree()` based on the **consuming app's** `ApplicationInfo.FLAG_DEBUGGABLE`, not `:core`'s own `BuildConfig.DEBUG` (which is always `false` in a published AAR and would silence debug logging for every consumer).
-- `DbPassphraseWarmupInitializer` — warms `DbPassphraseProvider` on `Dispatchers.IO`. Depends on `TimberInitializer`.
 - `ThemeApplyInitializer` — collects `ThemeManager.currentTheme` and applies it reactively. Depends on `TimberInitializer`.
 - `LocaleContextInitializer` — captures the process-wide `Context` into `LocaleAppContext` so `AppCompatLocaleApplier.currentLocaleTags()` can read the current per-app locale without an `AppCompatDelegate` needing to be alive yet.
 
 All four are registered as `<meta-data>` entries under `androidx.startup.InitializationProvider` in `AndroidManifest.xml`.
 
-**Consumers:** `AndroidXmlBaseApplication` no longer does any of this directly — see its class doc comment.
+**Consumers:** `AndroidCoreBaseApplication` no longer does any of this directly — see its class doc comment.
 
 ## `core/work`
 
-WorkManager wiring: `AndroidXmlBaseApplication` implements `Configuration.Provider`, supplying `HiltWorkerFactory` so `@HiltWorker` classes get constructor injection. WorkManager's default initializer is disabled in `AndroidManifest.xml` (`androidx.work.WorkManagerInitializer` removed from the `androidx.startup.InitializationProvider` merge) so this custom configuration is the one actually used.
+WorkManager wiring: `AndroidCoreBaseApplication` implements `Configuration.Provider`, supplying `HiltWorkerFactory` so `@HiltWorker` classes get constructor injection. WorkManager's default initializer is disabled in `AndroidManifest.xml` (`androidx.work.WorkManagerInitializer` removed from the `androidx.startup.InitializationProvider` merge) so this custom configuration is the one actually used.
 
 - `HeartbeatWorker` (`@HiltWorker`, `CoroutineWorker`) — reference implementation only, not scheduled by default. Copy this shape (constructor pattern, `@Assisted context`/`@Assisted workerParameters`) for real background work.
 
 **Consumers:** none yet — this is infrastructure for the first feature that needs background work.
-
-## `core/ui/responsive`
-
-A `smallestScreenWidthDp` clamp to avoid tablet/wide-screen layout issues.
-
-- `ResponsiveConfig(enabled: Boolean = true, minSmallestScreenWidthDp: Int = 320, maxSmallestScreenWidthDp: Int = 480)`.
-- `ResponsiveContextWrapper` (object) — `wrap(context, config): Context`, clamps `smallestScreenWidthDp` into `[min, max]` via `createConfigurationContext`.
-
-**Consumers:** `BaseActivity.attachBaseContext`.
 
 ## `core/ui/text`
 
@@ -139,17 +133,33 @@ A `smallestScreenWidthDp` clamp to avoid tablet/wide-screen layout issues.
 
 ## `core/ui/base`
 
-Shared UI infrastructure.
+The Activity/Fragment/Dialog base classes and the render helpers around them. Verified against
+`core/api/core.api` (the committed metalava dump), so this list is the real public surface rather
+than a reconstruction.
 
-- `BaseActivity<VB : ViewBinding>` (abstract) — ViewBinding lifecycle, responsive context wrapping, immersive full-screen display cutout setup, and exit transitions.
-- `BaseFragment<VB : ViewBinding>` — Fragment view lifecycle binding and flow collector.
-- `BaseDialogFragment<VB : ViewBinding>` — rounded dialog fragment base using `R.drawable.bg_dialog_surface`.
-- `BaseBottomSheetDialogFragment<VB : ViewBinding>` — Material bottom-sheet view base.
-- `TransitionActivity` — opaque full-screen host for a single `core/ui/transition/TransitionAction`, looked up by a caller-supplied action key from a Hilt `@IntoMap` multibinding; one Activity/manifest entry covers every transition use case instead of a new Activity subclass per case. See `core/ui/transition` below.
-- `collectOnStartedBy(lifecycleOwner, action)` (in `LifecycleFlowExtensions.kt`) — shared lifecycle-safe Flow collection; each Base* host's `collectOnStarted` delegates here with its own `LifecycleOwner` (the host itself for `BaseActivity`, `viewLifecycleOwner` for the Fragment/BottomSheet hosts).
-- `renderResultState(result, contentRoot, dialogHost, onSuccess)` (in `ResultStateOverlay.kt`) — shared full-screen-loader + `PromptDialogFragment` error rendering; `BaseActivity`/`BaseFragment.bindResultState` both delegate here so the loading/error UI stays identical across hosts.
-- `Debouncer` — pure rate limiter with `View.setOnDebouncedClickListener` click rate limiting.
-- `ResultRenderState(isLoadingVisible, isContentVisible, isErrorVisible, errorMessage)` — visibility-only projection of a `ResultState<T>`. Not the same mechanism as `ResultStateOverlay`: this one toggles View visibility for screens that render inline (e.g. `sample/designsystem`); `ResultStateOverlay` drives a full-screen loader + dialog for `bindResultState` callers. Pick per-screen based on whether the loading/error UI should be inline or overlay the whole screen.
+**Activity hierarchy** — split in Phase 2.5 so Compose screens are not forced through ViewBinding:
+- `BaseActivity` (abstract) — the neutral base. Calls `enableEdgeToEdge()` before `setContentView`, applies `useImmersiveMode`, and offers `collectOnStarted` (lifecycle-safe Flow collection) and `bindResultState`. Two overridable flags: `useImmersiveMode` (default `false`) and `applyInsetsToRoot` (default `true`; see `core/ui/window`).
+- `BaseBindingActivity<VB : ViewBinding>` — XML path. Inflates `VB`, sets it as content, applies system-bar insets to `binding.root` unless opted out, then calls `onBindingReady`. Nulls the binding in `onDestroy`.
+- `BaseComposeActivity` — Compose path. Wraps an abstract `@Composable Content()` in `AndroidCoreBaseTheme` via `setContent`. Note it has no `binding.root` to pad, so a Compose screen applies insets itself inside `Content()` (`Modifier.safeDrawingPadding()` or a `Scaffold`'s `contentWindowInsets`).
+- `TransitionActivity` — runs a named `TransitionAction` (injected as a `Map<String, TransitionAction>` Hilt multibinding) behind a themed transition screen. `TransitionActivity.createIntent(context, actionKey, extras)` is the entry point. This is what keeps an activity-recreating operation from flashing; see `docs/MODERNIZATION.md` F8.
+
+**Fragment / dialog bases** — all three take `VB : ViewBinding`, expose `binding`, and require `inflateBinding` + `onBindingReady`:
+- `BaseFragment<VB>` — also offers `collectOnStarted` and `bindResultState`.
+- `BaseDialogFragment<VB>` — adds overridable `dialogAnimation` (`DialogAnimation`: `SLIDE`, `SCALE`, `FADE`, `NONE`) and `backgroundDrawableRes`, and clamps dialog width in `onStart` using `core_dialog_screen_margin`/`core_dialog_max_width`.
+- `BaseBottomSheetDialogFragment<VB>`.
+
+**Render helpers for `ResultState`:**
+- `ResultState<T>.toRenderState()` → `ResultRenderState(isLoadingVisible, isContentVisible, isErrorVisible, errorMessage: UiText?)`, plus `ResultRenderState.applyVisibilityTo(loadingView, contentView, errorView)` — for screens that own their own loading/error views.
+- `renderResultState(result, contentRoot, dialogHost, onSuccess)` — the batteries-included version: `FullScreenLoaderView` on `Loading`, `PromptDialogFragment` on `Error`. This is what `BaseActivity`/`BaseFragment`'s `bindResultState` calls.
+
+**These two are different mechanisms, pick per screen:** `ResultRenderState` toggles the visibility of views the screen already owns, so loading/error render *inline* (what `sample/designsystem` does). `renderResultState` overlays the whole screen. Choose based on whether the loading and error states should sit inside the layout or cover it.
+
+**Misc:**
+- `Debouncer(intervalMs = 600L)` with `shouldAllow(nowMs)`, and `View.setOnDebouncedClickListener(intervalMs, action)` — the extension is the normal entry point.
+- `Flow<T>.collectOnStartedBy(lifecycleOwner, action)` — the shared implementation behind every base class's `collectOnStarted`, so collection rules stay identical across hosts. Each host passes its own `LifecycleOwner`: the Activity itself for `BaseActivity`, `viewLifecycleOwner` for the Fragment/BottomSheet hosts.
+- `ComposeView.setThemedContent(content)` — see `core/ui/theme` for why it sets `DisposeOnViewTreeLifecycleDestroyed`.
+
+**Consumers:** `BaseBindingActivity` — `MainActivity`, `SettingsActivity`. `BaseFragment` — `HomeFragment`, `DemoFragment`, `DesignSystemFragment`. `TransitionActivity` + `setThemedContent` + `toRenderState` — `SettingsActivity`/`DesignSystemFragment`. `setOnDebouncedClickListener` — `DemoFragment`. **No consumer yet:** `BaseComposeActivity`, `BaseDialogFragment`, `BaseBottomSheetDialogFragment`, `renderResultState`/`bindResultState`, `applyVisibilityTo`, `collectOnStartedBy` (used internally by the base classes, not directly by `:app`).
 
 ## `core/ui/components`
 
@@ -187,6 +197,8 @@ App-wide light/dark/system theme, backed by AppCompat's night mode and persisted
 
 **Consumers:** `feature/settings` adapts `ThemeManager` through `SettingsRepository` for its settings-list state and appearance dialog; `applyTheme` is also called on app start to restore the persisted choice; `MainActivity` reads `isThemeApplied` for its splash screen keep-on-screen condition (Task 3).
 
+**Compose bridge (Phase 3):** `AndroidCoreBaseTheme` (a `@Composable` function, `ComposeTheme.kt`) wraps content in a Compose `MaterialTheme` whose `ColorScheme` is read from the same `core_color_*` resources this file's XML theme uses, so both stay in sync from one edit. `ComposeView.setThemedContent()` (`core/ui/base/ComposeInterop.kt`) is the interop entry point for embedding a themed `ComposeView` in an XML layout; `BaseComposeActivity` (`core/ui/base`) is the equivalent for a screen rendered entirely in Compose. **Any module that declares or calls `@Composable` code — including a consuming app writing its own composables — must apply `org.jetbrains.kotlin.plugin.compose` itself**; the Compose compiler transforms `@Composable` lambda parameters at the bytecode level per-module, and a module without the plugin produces a call site that compiles but throws `NoSuchMethodError` at runtime (see `docs/MODERNIZATION.md` F15). **Consumer:** `sample/designsystem`'s `DesignSystemFragment` embeds a themed `ComposeView`.
+
 ## `core/navigation`
 
 - `NavigationOptions` — option model containing custom `TransitionType` (DEFAULT, NONE, SLIDE_HORIZONTAL, FADE).
@@ -215,7 +227,7 @@ A `com.android.test`-type module containing only a Macrobenchmark profile genera
 
 Enabled with `testFixtures { enable = true }`, so both `:core`'s own tests and consuming apps share
 one set of doubles instead of re-writing them. Consume with
-`testImplementation(testFixtures("com.github.ThanhNg224:AndroidXmlBase:<version>"))`.
+`testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:<version>"))`.
 
 - `MainDispatcherRule` — swaps `Dispatchers.Main` for a `TestDispatcher`.
 - `FakeSecureStore` — in-memory `SecureStore`; its `stored` map (keyed by `SecureStoreKey.name`) is seedable and assertable.
@@ -235,12 +247,12 @@ architecture primitives (`UiState`/`UiEvent`/`UiEffect`, `StateViewModel`, `UseC
 `LocaleManager`/`AppLanguage`/`SupportedLanguages`, `ThemeManager`/`AppTheme`, `ReleaseTree`,
 `ElapsedRealtimeClock`, `StringProvider`/`UiText`, the `Base*` UI hosts, `TransitionActivity`/`TransitionAction`,
 the `intentExtra`/`fragmentArg` delegates, the navigation models, and the `ui/components`,
-`ui/drawable`, `ui/responsive`, `ui/window` helpers.
+`ui/drawable`, `ui/window` helpers.
 
 Deliberately `internal`: every Hilt module, the framework-backed implementation behind each public
 interface (`EncryptedSecureStore`, `AndroidThemeManager`, `RetrofitApiClient`, `TokenAuthenticator`,
-`AndroidConnectivityChecker`, …), the `androidx.startup` initializers, `NetworkClientFactory`, the
-Room database/DAO/entity, and `HeartbeatWorker`.
+`AndroidConnectivityChecker`, …), the `androidx.startup` initializers, `NetworkClientFactory`, and
+`HeartbeatWorker`.
 
 There is currently **no automated binary-compatibility gate**:
 `binary-compatibility-validator` registers no `apiDump`/`apiCheck` tasks for a

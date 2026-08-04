@@ -1,7 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Programmatic dialog window sizing (Kotlin needs a plain dp resource here since
-         android.nonTransitiveRClass hides sdp-android's dimens from this module's own R class). -->
+    <!-- Dialog window sizing, read from Kotlin in BaseDialogFragment (not from a layout) to clamp
+         a dialog's width. Kept outside the spacing scale below on purpose: core_dialog_max_width is
+         a layout constraint, not a spacing step, and nothing should reuse it as one. -->
     <dimen name="core_dialog_screen_margin">24dp</dimen>
     <dimen name="core_dialog_max_width">360dp</dimen>
+
+    <!-- Spacing scale: margins, padding, gaps, elevation. Fixed dp — see docs/MODERNIZATION.md
+         Phase 2 (D1) for why this replaces com.intuit.sdp's @dimen/_Nsdp buckets. -->
+    <dimen name="core_space_2">2dp</dimen>
+    <dimen name="core_space_4">4dp</dimen>
+    <dimen name="core_space_6">6dp</dimen>
+    <dimen name="core_space_8">8dp</dimen>
+    <dimen name="core_space_10">10dp</dimen>
+    <dimen name="core_space_12">12dp</dimen>
+    <dimen name="core_space_16">16dp</dimen>
+    <dimen name="core_space_20">20dp</dimen>
+    <dimen name="core_space_24">24dp</dimen>
+    <dimen name="core_space_32">32dp</dimen>
+    <dimen name="core_space_72">72dp</dimen>
+
+    <!-- Corner radius scale: card/button/drawable rounding. -->
+    <dimen name="core_radius_8">8dp</dimen>
+    <dimen name="core_radius_12">12dp</dimen>
+    <dimen name="core_radius_16">16dp</dimen>
+    <dimen name="core_radius_20">20dp</dimen>
+    <dimen name="core_radius_24">24dp</dimen>
+    <dimen name="core_radius_28">28dp</dimen>
+
+    <!-- Hairline stroke/divider thickness. One value, every use in this base is a 1dp line. -->
+    <dimen name="core_stroke_width">1dp</dimen>
+
+    <!-- Fixed element sizes: icon/avatar boxes, touch targets, illustrations. Distinct from the
+         spacing scale even where a number coincides (e.g. core_size_24 vs core_space_24) because
+         these are a view's own dimension, not a gap between views. -->
+    <dimen name="core_size_10">10dp</dimen>
+    <dimen name="core_size_12">12dp</dimen>
+    <dimen name="core_size_18">18dp</dimen>
+    <dimen name="core_size_24">24dp</dimen>
+    <dimen name="core_size_40">40dp</dimen>
+    <dimen name="core_size_48">48dp</dimen>
+    <dimen name="core_size_50">50dp</dimen>
+    <dimen name="core_size_80">80dp</dimen>
+    <dimen name="core_size_150">150dp</dimen>
+    <dimen name="core_size_180">180dp</dimen>
+    <dimen name="core_size_260">260dp</dimen>
+
+    <!-- Text sizes replacing com.intuit.ssp's @dimen/_Nssp. -->
+    <dimen name="core_text_size_10">10sp</dimen>
+    <dimen name="core_text_size_13">13sp</dimen>
+    <dimen name="core_text_size_14">14sp</dimen>
+    <dimen name="core_text_size_15">15sp</dimen>
 </resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shimmer placeholder line widths. App-local rather than part of :core's core_size_* scale:
+         these are arbitrary decorative lengths whose only job is to vary so the skeleton reads like
+         real text, not design-system sizes any other screen should reuse. -->
+    <dimen name="shimmer_line_width_short">120dp</dimen>
+    <dimen name="shimmer_line_width_medium">150dp</dimen>
+    <dimen name="shimmer_line_width_long">180dp</dimen>
+</resources>
