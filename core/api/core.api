@@ -880,6 +880,4 @@ package com.thanhng224.androidcorebase.core.ui.window {
     method public static void applySystemBarInsetsAsPadding(android.view.View, optional boolean left, optional boolean top, optional boolean right, optional boolean bottom);
     method public static void setImmersiveMode(android.view.Window, boolean enabled);
   }
-
 }
-
