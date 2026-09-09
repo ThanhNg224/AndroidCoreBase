@@ -1,0 +1,22 @@
+// Signature format: 4.0
+package com.thanhng224.androidcorebase.core.ui.base {
+
+  public abstract class BaseComposeActivity {
+    ctor public BaseComposeActivity();
+    method protected abstract void Content();
+    method public void onCreate(android.os.Bundle? savedInstanceState);
+  }
+
+  public final class ComposeInteropKt {
+    method public static void setThemedContent(ComposeView, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.ui.theme {
+
+  public final class ComposeThemeKt {
+    method public static void AndroidCoreBaseTheme(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+}

@@ -596,11 +596,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
     property protected final VB binding;
   }
 
-  public abstract class BaseComposeActivity extends com.thanhng224.androidcorebase.core.ui.base.BaseActivity {
-    ctor public BaseComposeActivity();
-    method protected abstract void Content();
-  }
-
   public abstract class BaseDialogFragment<VB> {
     ctor public BaseDialogFragment();
     method @InaccessibleFromKotlin protected int getBackgroundDrawableRes();
@@ -628,10 +623,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
     method public void onDestroyView();
     method public void onViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
     property protected final VB binding;
-  }
-
-  public final class ComposeInteropKt {
-    method public static void setThemedContent(ComposeView, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class Debouncer {
@@ -848,10 +839,6 @@ package com.thanhng224.androidcorebase.core.ui.theme {
 
   public static final class AppTheme.Companion {
     method public com.thanhng224.androidcorebase.core.ui.theme.AppTheme fromKey(String key);
-  }
-
-  public final class ComposeThemeKt {
-    method public static void AndroidCoreBaseTheme(kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public interface ThemeManager {

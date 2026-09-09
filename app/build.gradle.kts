@@ -80,6 +80,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core:ui-compose"))
     testImplementation(testFixtures(project(":core")))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

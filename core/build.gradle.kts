@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -21,7 +20,6 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
-        compose = true
     }
 
     testFixtures {
@@ -69,12 +67,6 @@ dependencies {
 
     // Dependency Injection
     api(libs.hilt.android)
-
-    // Compose
-    api(platform(libs.androidx.compose.bom))
-    api(libs.androidx.compose.ui)
-    api(libs.androidx.compose.material3)
-    implementation(libs.androidx.activity.compose)
 
     // KSP Annotation Processors
     ksp(libs.hilt.compiler)
@@ -128,8 +120,6 @@ kover {
                     "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
                     "*.core.ui.window.*",
-                    "*.core.ui.theme.ComposeThemeKt",
-                    "*.core.ui.base.ComposeInteropKt",
                     // Android System & Storage Services
                     "*.core.startup.*",
                     "*.core.storage.secure.EncryptedSecureStore*",

@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 rootProject.name = "AndroidCoreBase"
 include(":app")
 include(":core")
+include(":core:ui-compose")
 include(":baselineprofile")
