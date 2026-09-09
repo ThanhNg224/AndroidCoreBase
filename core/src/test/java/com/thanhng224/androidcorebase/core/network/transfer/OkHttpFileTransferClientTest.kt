@@ -16,8 +16,8 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -253,11 +253,11 @@ class OkHttpFileTransferClientTest {
     fun `stream fails synchronously for a non-positive chunk size before any Flow is collected`() {
         val request = Request.Builder().url(server.url("/stream")).build()
 
-        try {
-            client.stream(request, chunkSizeBytes = 0)
-            fail("expected IllegalArgumentException")
-        } catch (e: IllegalArgumentException) {
-            // expected
-        }
+        val thrown =
+            assertThrows(IllegalArgumentException::class.java) {
+                client.stream(request, chunkSizeBytes = 0)
+            }
+
+        assertTrue(thrown.message.orEmpty().contains("chunkSizeBytes"))
     }
 }

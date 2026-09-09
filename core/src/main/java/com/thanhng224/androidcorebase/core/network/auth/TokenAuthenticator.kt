@@ -58,5 +58,4 @@ internal class TokenAuthenticator
             authSession.setTokens(newToken)
             return newToken
         }
-
     }
