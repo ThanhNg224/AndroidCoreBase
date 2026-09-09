@@ -122,7 +122,8 @@ kover {
                     "*.core.ui.window.*",
                     // Android System & Storage Services
                     "*.core.startup.*",
-                    "*.core.storage.secure.EncryptedSecureStore*",
+                    "*.core.storage.secure.EncryptedFileSecureStore*",
+                    "*.core.storage.secure.EncryptedFileCodec*",
                     "*.core.storage.settings.AppDataStoreKt",
                     "*.core.localization.AppCompatLocaleApplier*",
                     "*.core.localization.LocaleAppContext*",

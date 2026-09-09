@@ -10,7 +10,7 @@ import com.thanhng224.androidcorebase.core.localization.LocaleManager
 import com.thanhng224.androidcorebase.core.localization.SupportedLanguages
 import com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider
 import com.thanhng224.androidcorebase.core.network.auth.SecureStoreAuthTokenProvider
-import com.thanhng224.androidcorebase.core.storage.secure.EncryptedSecureStore
+import com.thanhng224.androidcorebase.core.storage.secure.EncryptedFileSecureStore
 import com.thanhng224.androidcorebase.core.storage.settings.DataStoreSettingsStore
 import com.thanhng224.androidcorebase.core.storage.settings.appSettingsDataStore
 import dagger.Binds
@@ -32,7 +32,7 @@ internal abstract class AppCoreBindingsModule {
 
     @Binds
     @Singleton
-    abstract fun bindSecureStore(implementation: EncryptedSecureStore): SecureStore
+    abstract fun bindSecureStore(implementation: EncryptedFileSecureStore): SecureStore
 
     @Binds
     @Singleton
