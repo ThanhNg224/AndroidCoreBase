@@ -23,6 +23,17 @@ detekt {
 // Coverage bounds are a per-module decision, not a shared convention: :core keeps its own filtered
 // `verify` rule and :core:ui-compose declares none, since it is lifecycle/UI glue with no
 // meaningful unit-test surface. A shared `minBound` here would fail its `check` task.
+//
+// `verifyDeterministicCoreCoverage` is a stable, memorable alias for Kover's own `koverVerify`
+// task, shared by every module using this convention so a module with no `verify {}` rule (like
+// :core:ui-compose) still exposes the same task name, vacuously passing.
+val verifyDeterministicCoreCoverage =
+    tasks.register("verifyDeterministicCoreCoverage") {
+        group = "verification"
+        description = "Alias for koverVerify: enforces this module's deterministic (non-UI) Kover coverage rule, if any."
+        dependsOn("koverVerify")
+    }
+tasks.named("check") { dependsOn(verifyDeterministicCoreCoverage) }
 
 val verifyFrameworkIndependentSources =
     tasks.register<VerifySourceBoundaryTask>("verifyFrameworkIndependentSources") {

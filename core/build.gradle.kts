@@ -74,8 +74,24 @@ dependencies {
 kover {
     reports {
         filters {
+            // Positive selection of the deterministic (non-UI, non-Android-glue) surface, rather
+            // than a wildcard-plus-growing-exclusion-list: `core.ui.components`/`core.ui.window`
+            // (real View/Window glue) and `core.ui.base`'s Activity/Fragment hosts are simply never
+            // listed here at all, instead of being excluded from a catch-all `core.*` include.
             includes {
-                classes("com.thanhng224.androidcorebase.core.*")
+                classes(
+                    "com.thanhng224.androidcorebase.core.foundation.*",
+                    "com.thanhng224.androidcorebase.core.architecture.*",
+                    "com.thanhng224.androidcorebase.core.localization.*",
+                    "com.thanhng224.androidcorebase.core.network.*",
+                    "com.thanhng224.androidcorebase.core.network.auth.*",
+                    "com.thanhng224.androidcorebase.core.network.transfer.*",
+                    "com.thanhng224.androidcorebase.core.storage.settings.*",
+                    "com.thanhng224.androidcorebase.core.storage.secure.*",
+                    "com.thanhng224.androidcorebase.core.ui.theme.*",
+                    "com.thanhng224.androidcorebase.core.ui.text.*",
+                    "com.thanhng224.androidcorebase.core.navigation.*",
+                )
             }
             excludes {
                 classes(
@@ -83,21 +99,13 @@ kover {
                     "*.BuildConfig",
                     "*.R",
                     "*.R$*",
-                    "*.databinding.*",
-                    // Android UI & Components
-                    "*Activity",
-                    "*Activity$*",
-                    "*Fragment",
-                    "*Fragment$*",
-                    "*DialogFragment",
+                    // Property-delegate helpers over android.os.Bundle/Intent -- framework glue, not
+                    // business logic, even though the package above is otherwise deterministic.
                     "*.core.navigation.ArgumentDelegatesKt",
                     "*.core.navigation.IntentExtraDelegate",
                     "*.core.navigation.IntentExtraNullableDelegate",
                     "*.core.navigation.FragmentArgumentDelegate",
                     "*.core.navigation.FragmentArgumentNullableDelegate",
-                    "*.core.ui.base.DebouncerKt",
-                    "*.core.ui.components.*",
-                    "*.core.ui.window.*",
                     // Android System & Storage Services
                     "*.core.storage.secure.EncryptedFileSecureStore*",
                     "*.core.storage.secure.EncryptedFileCodec*",
