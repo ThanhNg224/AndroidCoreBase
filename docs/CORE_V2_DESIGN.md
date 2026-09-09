@@ -2,272 +2,388 @@
 
 ## Status
 
-Proposed design for the approved breaking `v2.0.0` direction. This document defines the
-architecture, public contracts, runtime behaviour, publication model, and verification gates that
-the implementation plan must preserve after design review.
+Revised proposal for the approved breaking `v2.0.0` direction. This version incorporates the first
+design review and deliberately reduces the published topology from five artifacts to two. It must
+be approved before the implementation plan is written.
+
+## Decision Summary
+
+The repository remains one monorepo with two user-facing products:
+
+1. `:app` is the cloneable XML-first starter and executable integration sample.
+2. `:core` plus optional `:core:ui-compose` are the published library product.
+
+Only two library artifacts are published in v2:
+
+```text
+:core                reusable non-Compose Android library
+:core:ui-compose     optional Compose interoperability
+```
+
+`foundation`, `data`, and `ui-xml` remain package boundaries inside `:core`, not Gradle modules.
+This is intentional for the current measured size of approximately 3,162 Kotlin lines and 79
+production files. Module boundaries will be reconsidered only when an observed consumer or build
+problem justifies their ongoing publication and verification cost.
 
 ## Goals
 
 - Keep the repository cloneable as a complete XML-first Android starter.
-- Publish reusable capabilities as independently selectable libraries.
-- Keep one umbrella `:core` artifact for consumers that prefer a single dependency.
-- Make module boundaries enforce ownership instead of relying only on package conventions.
-- Follow current Android guidance for UDF, lifecycle-aware state, opt-in library behaviour,
-  resilient persistence, release optimization, and measured performance.
+- Publish reusable capabilities without forcing Compose on XML-only consumers.
+- Make library behaviour opt-in and keep application policy in `:app`.
+- Correct the verified startup, persistence, authentication, transfer, and API design problems.
+- Follow unidirectional data flow without imposing generic screen marker interfaces.
+- Keep releases reproducible through local, CI, temporary-repository consumer, and explicit device
+  verification gates.
 - Prefer a smaller supported API over compatibility with the existing `v1` API.
-- Make every release claim reproducible through CI or an explicit device verification command.
 
 ## Non-goals
 
 - Preserving source or binary compatibility with `v1.x`.
-- Creating feature-specific abstractions in core.
+- Splitting packages into Gradle modules without measured need.
+- Publishing a standalone Kotlin/JVM foundation artifact in v2.
 - Shipping a database, analytics vendor, crash reporter, or concrete authentication endpoint.
-- Splitting every package into its own Gradle module.
-- Treating code coverage or APK size as proof of runtime performance.
+- Treating code coverage, dependency count, or APK size as proof of runtime performance.
 - Automatically installing or running work on a user's physical device.
 
-## Repository Products
+## Why Two Published Modules
 
-The repository produces two related products from one source tree:
+Compose currently represents 89 Kotlin lines in three files, but `:core` exports the Compose BOM,
+Compose UI, and Material 3 with `api`. Removing that transitive dependency from every XML-only
+consumer is an immediate, measurable dependency-hygiene improvement.
 
-1. `:app` is a cloneable starter and the executable integration sample.
-2. `:core` and its child modules are the published library product.
+Further separation is deferred because the proposed framework-independent surface is currently
+about 158 lines, while every published module adds build configuration, publication metadata, API
+tracking, quality gates, consumer verification, documentation, and release support. R8 already
+removes unused release code, so this decision does not claim a material APK-size win.
 
-The starter consumes the same project modules that are published. No production implementation is
-copied between `:app` and a library module. A separate Maven consumer smoke build verifies the
-published metadata and compiled public API rather than substituting project dependencies.
+Keeping packages stable makes a later split source-compatible through the umbrella artifact, but it
+does not make the work free: source roots, resources, tests, `internal` visibility, manifests, DI,
+POM dependencies, and publication checks would still move. A later split is justified when at least
+one of these is observed:
 
-## Module Topology
+- A real consumer needs only data or only XML UI and the unwanted dependency graph is material.
+- Measured incremental or clean build time identifies `:core` as a bottleneck.
+- `:core` grows beyond roughly 8,000-10,000 Kotlin lines and ownership becomes unclear.
+- Separate teams or release cadences require compile-time boundaries.
+- Android-free contracts need a real JVM or multiplatform consumer.
+
+Until then, package ownership plus automated architecture checks provide the cheaper boundary.
+
+## Repository Topology
 
 ```text
 :app
-  -> :core                           starter default; umbrella dependency
+  -> implementation(:core)
+  -> implementation(:core:ui-compose) only for the Compose showcase
 
-:core                               empty Android umbrella artifact
-  -> api(:core:foundation)
-  -> api(:core:data)
-  -> api(:core:ui-xml)
+:core
+  reusable non-Compose Android library
 
-:core:foundation                    Kotlin/JVM library
+:core:ui-compose
+  -> api(:core)
 
-:core:data                          Android library
-  -> api(:core:foundation)
+:baselineprofile
+  Android test module targeting :app
 
-:core:ui-xml                        Android library
-  -> api(:core:foundation)
+integration/consumer
+  independent Gradle build using temporary Maven coordinates
 
-:core:ui-compose                    optional Android library
-  -> api(:core:ui-xml)
-
-:baselineprofile                    Android test module targeting :app
-
-integration/consumer                independent Gradle build using Maven coordinates
+build-logic
+  included Gradle build containing shared convention plugins
 ```
 
-The umbrella deliberately excludes `:core:ui-compose`; XML consumers must not receive Compose by
-default. Consumers opt in to Compose interop explicitly.
-
-One version is used by every published artifact. The `v2.0.0` coordinates are:
+The published coordinates are:
 
 ```text
 com.github.ThanhNg224:AndroidCoreBase:v2.0.0
-com.github.ThanhNg224:AndroidCoreBase-foundation:v2.0.0
-com.github.ThanhNg224:AndroidCoreBase-data:v2.0.0
-com.github.ThanhNg224:AndroidCoreBase-ui-xml:v2.0.0
 com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0
 ```
 
+The starter consumes project dependencies. The independent consumer resolves both artifacts from a
+temporary Maven repository and must never substitute project dependencies or `mavenLocal()`.
+
+## Build Logic
+
+Before adding the second published module, shared build configuration moves to the included
+`build-logic` build. Convention plugins centralize:
+
+- Android and Kotlin compiler versions and strict compiler options.
+- KtLint, Detekt, Lint, and Kover defaults.
+- Release publication metadata and common version resolution.
+- Metalava `apiDump` and `apiCheck` wiring for each published Android library.
+- Sources JAR and deterministic temporary-repository publication.
+
+Module build files retain only their namespace, features, dependencies, resource prefix, and
+module-specific quality exceptions. The existing Metalava `JavaExec` block must not be copied into
+another module. Convention plugins are used instead of root `allprojects` or `subprojects`
+configuration.
+
 ## Module Responsibilities
 
-### `:core:foundation`
+### `:core`
 
-This module contains only framework-independent contracts and deterministic logic:
+`:core` owns only reusable, non-Compose Android capabilities:
 
-- `DomainResult<T>` and domain-safe `AppError` categories.
-- `AppDispatchers` and its default coroutine dispatcher implementation.
-- `MonotonicClock` contract. Android and JVM adapters live in the modules or tests that can provide
-  a platform-appropriate monotonic time source.
-- Typed `SettingsKey<T>` and the `SettingsStore` contract.
-- `SecureStoreKey` and the `SecureStore` contract.
+- Framework-independent result, dispatcher, clock, and storage contracts.
+- Preferences DataStore and Android Keystore-backed secure storage implementations.
+- Network call execution, authentication coordination, and file transfer.
+- XML/ViewBinding lifecycle hosts, design tokens, and reusable Material components.
+- Theme and locale adapters.
+- Typed Bundle/Intent access and click debouncing.
 
-It must not depend on Android, AndroidX, Retrofit, OkHttp, Hilt, Timber, Material, Compose, or
-resource IDs. The generic `UseCase` interface and the `UiState`, `UiEvent`, and `UiEffect` marker
-interfaces are removed. Use cases are ordinary focused classes only when they contain reused or
-non-trivial application logic.
+It does not own:
 
-### `:core:data`
-
-This module owns Android data and transport implementations:
-
-- Preferences DataStore adapter.
-- Android Keystore-backed secure storage.
-- Authentication session and token refresh coordination.
-- Retrofit call execution and transport-to-domain error mapping support.
-- OkHttp client factory and file transfer implementation.
-- Android connectivity observation for UI hints, not request preflight blocking.
-
-It exposes constructors or explicit factories. It does not install unqualified global Hilt
-bindings for `OkHttpClient`, `Retrofit`, logging, or authentication. A consuming app owns client
-qualifiers, endpoint selection, interceptor order, and its DI graph.
-
-### `:core:ui-xml`
-
-This module owns XML/ViewBinding presentation infrastructure:
-
-- Edge-to-edge Activity and ViewBinding host support.
-- Lifecycle-aware Flow collection.
-- Fragment, dialog, and bottom-sheet ViewBinding lifecycle support.
-- XML design tokens and reusable Material components.
-- App theme and locale adapters.
-- Typed Bundle/Intent argument access where it still reduces unsafe casts.
-- Monotonic click debouncing.
-
-It does not contain domain results, networking, storage implementations, WorkManager examples,
-automatic error dialogs, generic business-action Activities, or automatic process-wide logger
-installation.
+- Application startup policy or manifest initializers.
+- Hilt modules, Hilt qualifiers, or an unqualified global network graph.
+- Logging initialization or a release logging tree.
+- WorkManager examples.
+- Feature use cases, navigation destinations, automatic error dialogs, or business-action
+  Activities.
+- Compose dependencies or Compose source.
 
 ### `:core:ui-compose`
 
-This module contains only optional XML/Compose interoperability:
+This optional module owns only:
 
 - `ComposeView` lifecycle-safe content installation.
-- A Material 3 theme bridge based on the `ui-xml` design tokens.
-- Compose host helpers that are genuinely shared by starter screens.
+- A Material 3 theme bridge backed by `:core` XML design tokens.
+- A Compose Activity host only if the starter has a real reusable need for it after migration.
 
-No Compose dependency is exported by the umbrella artifact.
+It exports Compose because its public API contains Compose types. It exports `:core` so its resource
+and lifecycle contracts resolve for consumers. It contains no duplicate colors or dimensions.
 
 ### `:app`
 
-The starter owns all app policy and examples:
+The starter owns all policy and executable examples:
 
-- Application startup and Hilt composition root.
-- App-specific `ApiConfig`, Retrofit service, auth refresher, and logging policy.
+- `Application` startup and Hilt composition root.
+- Hilt provider/binding modules for core constructors and factories.
+- App-specific endpoint, Retrofit service, auth refresher, and logging policy.
 - WorkManager configuration and example Worker.
-- App shell and Navigation graph.
-- Settings and demo vertical slices.
-- Weather and design-system showcase code.
+- App shell, navigation graph, Settings, Demo, and design-system showcase.
 - Backup and data-extraction policy.
 
-## UI Architecture
+The starter demonstrates both direct construction and Hilt wiring so library consumers can choose
+their own DI framework.
 
-Feature ViewModels extend AndroidX `ViewModel` directly. Each screen exposes one immutable
-`StateFlow<ScreenUiState>` and accepts intent through named methods or a screen-owned sealed
-`ScreenAction`. Core does not force marker interfaces.
+## Dependency Injection Contract
 
-ViewModel-originated work is reduced to state. Core does not expose a Channel- or SharedFlow-based
-one-shot effect abstraction. Transient UI messages and navigation requirements are represented by
-state with stable IDs and explicit acknowledgement when replay is inappropriate.
+Both published modules are DI-framework agnostic:
 
-For language selection:
+- They do not apply the Hilt or KSP plugins.
+- They do not depend on `hilt-android` or Hilt qualifiers.
+- Public implementations use explicit constructors or factories without `@Inject` annotations.
+- They do not install anything into a consumer's component graph.
 
-1. UI sends `LanguageSelected`.
-2. ViewModel calls the language-setting use case immediately.
-3. The repository persists/applies the locale.
-4. ViewModel updates state to the committed language and, if needed, a transition request ID.
-5. UI renders/acknowledges that state.
+`:app` remains a Hilt application and explicitly provides the required core objects. This adds a
+small amount of consumer setup compared with v1, but prevents hidden global bindings, qualifier
+collisions, and mandatory annotation processing. README includes a minimal Hilt module and a direct
+construction example.
 
-The generic `TransitionActivity` is removed. Settings becomes a Fragment destination in the
-single-Activity navigation graph. Configuration change or process recreation must not repeat a
-business action.
+## Resource Contract
 
-Persistent error state renders persistent UI. A dialog or Snackbar is never launched directly by
-a generic `ResultState` renderer each time a lifecycle collector restarts. The existing generic
-`ResultState`, automatic full-screen overlay binding, and automatic prompt presentation are
-removed from the public core API. Screens model loading/content/error as part of their own state.
+`:core` keeps `resourcePrefix = "core_"`. Existing public tokens such as `core_space_16` retain
+their names in v2 unless a separate focused resource migration proves a name invalid. App layouts
+and `docs/DESIGN_SYSTEM.md` continue to reference those names.
 
-## Domain and Feature Boundaries
+`:core:ui-compose` defines no duplicate token resources. Its Kotlin theme bridge reads resources
+from `:core` through the module dependency.
 
-Compile-time dependencies for a classic repository-in-domain feature are:
+## Framework-independent Source Boundary
 
-```text
-presentation -> domain <- data
+Framework-independent types stay under designated `:core` packages. A build-logic verification task
+fails when those source roots import `android.*`, `androidx.*`, Retrofit, OkHttp, Hilt, Material,
+Compose, or Android resources. Metalava protects the public API shape but is not treated as an
+Android-dependency boundary check.
+
+The generic `UseCase<P, R>`, `UiState`, `UiEvent`, and `UiEffect` marker interfaces are removed.
+Use cases are ordinary focused classes only when they contain reused or non-trivial application
+logic. Feature ViewModels extend AndroidX `ViewModel` directly.
+
+## Typed Domain and Transport Errors
+
+Core does not define one universal `AppError`. HTTP codes, parser exceptions, and Java `Throwable`
+objects are transport details, not domain-safe application errors.
+
+The framework-independent result contract is typed on both success and failure:
+
+```kotlin
+sealed interface DomainResult<out T, out E> {
+    data class Success<T>(val value: T) : DomainResult<T, Nothing>
+    data class Failure<E>(val error: E) : DomainResult<Nothing, E>
+}
 ```
 
-Runtime request flow is:
+Each feature defines its own finite domain error type, for example:
 
-```text
-UI -> ViewModel -> optional UseCase -> Repository contract -> Repository implementation -> DataSource
+```kotlin
+sealed interface WeatherError {
+    data object Unavailable : WeatherError
+    data object InvalidResponse : WeatherError
+}
 ```
 
-The documents must never describe runtime flow as source-code dependency direction.
+The network layer has a separate technical contract:
 
-The domain layer is optional. A use case is created only when it contains business logic, is reused
-by multiple ViewModels, or materially simplifies a ViewModel. Pass-through getter/setter/observer
-use cases are removed. Domain models do not contain Android resource IDs or Android/AndroidX types.
-Display labels are mapped in presentation.
+```kotlin
+sealed interface ApiFailure {
+    data class Http(val code: Int, val serverMessage: String?) : ApiFailure
+    data class Network(val cause: IOException) : ApiFailure
+    data class Serialization(val cause: Throwable) : ApiFailure
+    data object EmptyBody : ApiFailure
+}
 
-The starter keeps features in `:app` while it remains small. A feature receives its own Gradle
-module only after a real second application, independent team boundary, or build-time measurement
-justifies it.
+sealed interface ApiResult<out T> {
+    data class Success<T>(val value: T) : ApiResult<T>
+    data class Failure(val error: ApiFailure) : ApiResult<Nothing>
+}
+```
+
+A feature data mapper converts `ApiFailure` into its domain error. Presentation never switches on
+HTTP codes or exceptions. Cancellation and programmer errors are rethrown, not converted into
+either result type.
+
+## UI State and Transient Request Protocol
+
+Each screen exposes one immutable `StateFlow<ScreenUiState>` and accepts intents through named
+methods or a screen-owned sealed action. Core does not publish a generic one-shot effect stream.
+
+Persistent work is always represented by ordinary state. For transient messages or navigation
+that originate in a ViewModel, the screen owns an explicit queued request protocol. The following
+is the required shape, not a new core marker hierarchy:
+
+```kotlin
+data class PendingMessage(
+    val id: Long,
+    val text: UiText,
+    val actionLabel: UiText? = null,
+    val action: MessageAction? = null,
+)
+
+sealed interface MessageAction {
+    data object ResetCounter : MessageAction
+}
+
+data class DemoUiState(
+    val count: Int = 0,
+    val pendingMessages: List<PendingMessage> = emptyList(),
+)
+```
+
+The protocol is deterministic:
+
+1. The ViewModel allocates an ID unique within that ViewModel instance and appends a request.
+2. The UI presents only `pendingMessages.firstOrNull()`.
+3. Snackbar dismissal calls `onMessageHandled(id)`; its action button calls
+   `onMessageAction(id)`.
+4. The ViewModel removes only a matching current head. A stale or duplicate acknowledgement is a
+   no-op.
+5. Action acknowledgement removes the message before executing the action, preventing replay.
+6. A second message waits in the list and cannot overwrite the first.
+7. If configuration changes before acknowledgement, the same request remains in ViewModel state
+   and the recreated UI may present it. A transient queue is not restored after process death; any
+   operation that must survive process death belongs in persisted domain state or WorkManager.
+
+Navigation uses the same ID and acknowledgement rules in a screen-owned nullable request. The UI
+acknowledges only after `NavController.navigate` succeeds and ignores the request when already at
+the target destination. Navigation that is a direct consequence of durable business state is
+derived from that state instead of queued as a transient request.
+
+The starter includes ViewModel tests for ordering, duplicate acknowledgement, action handling, and
+configuration-style re-collection. No reusable `ConsumableEvent` wrapper is introduced.
+
+## Settings and Locale Mutation
+
+Settings becomes a Fragment in the single-Activity navigation graph. `TransitionActivity`, its
+action multibinding, manifest entry, resources, and tests are removed.
+
+Language selection does not require a transient request:
+
+1. UI calls `selectLanguage(language)`.
+2. ViewModel persists the language through its repository.
+3. On successful persistence, the app-owned locale adapter calls
+   `AppCompatDelegate.setApplicationLocales`.
+4. Android performs the required configuration recreation.
+5. State is sourced again from persisted locale/settings data.
+
+A failed write leaves the previous selected language in state and queues a screen-owned error
+message. Tests prove that persistence happens before locale application and that re-collection does
+not repeat the mutation.
 
 ## DataStore and Startup Reliability
 
-`DataStoreSettingsStore.observe` catches `IOException` before mapping and emits empty preferences,
-allowing typed key defaults to take effect. Non-I/O failures are rethrown. Unit tests cover both
-branches.
+`DataStoreSettingsStore.observe` catches upstream `IOException` before mapping and emits empty
+preferences so typed defaults apply. Non-I/O failures are rethrown. Unit tests cover both paths.
 
-Theme and locale initialization are app-owned and explicit. Library manifests do not register
-process-wide startup initializers. The starter initializes theme from its Application composition
-root and uses a bounded splash condition:
+Theme and locale startup are app-owned and explicit. Library manifests register no process-wide
+initializers. The starter applies theme and locale from its Application composition root and uses a
+bounded splash condition:
 
-- Persisted theme success applies that theme.
-- I/O failure applies `SYSTEM` and records only non-sensitive diagnostic metadata.
-- The splash condition has a finite fallback and cannot remain true indefinitely.
+- Persisted state success applies that state.
+- I/O failure applies safe defaults and records only non-sensitive diagnostic metadata.
+- A finite fallback guarantees that splash readiness cannot remain false indefinitely.
 
-Core does not plant Timber trees. The starter may plant one tree after checking whether its chosen
-logging system has already been initialized.
+Core does not plant Timber trees. The starter owns logging initialization and never logs payloads,
+tokens, identifiers, images, or other sensitive content.
 
 ## Secure Storage
 
-Secure values are stored under `Context.noBackupFilesDir`, not normal SharedPreferences. A single
-small encrypted store file is updated through `AtomicFile` so writes either complete or preserve
-the previous value. The complete payload is encrypted with AES-256-GCM using a non-exportable
-Android Keystore key and a new random 96-bit IV for every write.
+Secure values live under `Context.noBackupFilesDir`, not SharedPreferences. A single small encrypted
+store file is updated through `AtomicFile`, so a failed write preserves the previous complete value.
+The whole payload is encrypted with AES-256-GCM using a non-exportable Android Keystore key and a
+new random 96-bit IV on every write.
 
 The implementation:
 
-- Serializes only string key/value pairs.
-- Rejects malformed or truncated payloads without crashing the process.
-- Distinguishes cancellation from expected storage failures.
+- Stores only string key/value pairs.
 - Serializes read-modify-write operations with a coroutine `Mutex`.
+- Rejects malformed or truncated payloads without crashing the process.
+- Rethrows cancellation and returns typed failures for expected storage errors.
 - Never logs keys, values, ciphertext, IVs, tokens, or passphrases.
-- Uses 32 random bytes from `SecureRandom` for database passphrases instead of UUID text.
+- Uses 32 bytes from `SecureRandom` for database passphrases instead of UUID text.
 
-Because the file is under `noBackupFilesDir`, consumers do not need a fragile app-specific backup
-exclusion for core secrets. The starter backup rules still exclude any app-owned sensitive files.
+Because core secrets use `noBackupFilesDir`, consumers do not need a fragile app-specific backup
+exclusion for them. The starter still excludes app-owned sensitive files.
 
 ## Network and Authentication
 
-Core exposes an explicit factory instead of installing a global Retrofit/OkHttp graph. The factory
-accepts timeouts and caller-supplied interceptors but never creates a body logger. Logging policy is
-owned by the app; the starter uses no body logging and redacts all authentication/session headers.
+Core exposes explicit factories instead of a global Retrofit/OkHttp graph. A factory accepts
+timeouts and caller-supplied interceptors but never creates a body logger. The starter logging
+policy uses no body logging and redacts authentication and session headers.
 
-The connectivity interceptor is removed. Connectivity state is inherently racy and is only exposed
-as advisory UI state; the actual request result classifies `IOException` as a network failure.
+The connectivity request-blocking interceptor is removed. Connectivity observation is advisory UI
+state only because preflight connectivity checks are racy; the actual request result classifies
+`IOException` as a network failure.
 
-Authentication uses a cached session:
+Authentication keeps the existing single-flight and bounded-retry behaviour and adds the missing
+session cache:
 
 - The first token request loads encrypted storage at most once per process.
-- Subsequent request interception reads an in-memory snapshot.
-- Token updates atomically persist and update the snapshot.
+- Subsequent interception reads an in-memory snapshot.
+- Token updates persist first and then atomically update the snapshot.
 - Concurrent 401 responses share one refresh through a `Mutex`.
-- Refresh uses a separate client supplied by the app and never recursively invokes the authenticated
+- Refresh uses an app-supplied separate client and cannot recursively invoke the authenticated
   client.
 - Cancellation is always rethrown.
-- Retry count is bounded to one retry after the original 401.
+- At most one retry follows the original 401.
 
-The Authorization scheme remains caller-owned: the stored/provider value is the complete header
-value, such as `Bearer <token>`.
+The stored/provider value is the complete Authorization header value, such as `Bearer <token>`.
 
 ## File Transfer Contract
 
-Expected operational failures are values; coroutine cancellation and programmer errors are not.
+All three operations use one explicit event algebra. `Payload` exists specifically so streaming
+can deliver chunks without confusing them with terminal success:
 
 ```kotlin
-sealed interface TransferEvent<out T> {
-    data class Progress(val bytesTransferred: Long, val totalBytes: Long?) : TransferEvent<Nothing>
-    data class Completed<T>(val value: T) : TransferEvent<T>
-    data class Failed(val error: TransferError) : TransferEvent<Nothing>
+sealed interface TransferEvent<out P, out R> {
+    data class Progress(
+        val bytesTransferred: Long,
+        val totalBytes: Long?,
+    ) : TransferEvent<Nothing, Nothing>
+
+    data class Payload<P>(val value: P) : TransferEvent<P, Nothing>
+    data class Completed<R>(val value: R) : TransferEvent<Nothing, R>
+    data class Failed(val error: TransferError) : TransferEvent<Nothing, Nothing>
 }
 
 sealed interface TransferError {
@@ -276,118 +392,140 @@ sealed interface TransferError {
     data class FileSystem(val cause: IOException) : TransferError
     data object EmptyBody : TransferError
 }
+
+typealias DownloadEvent = TransferEvent<Nothing, File>
+typealias UploadEvent = TransferEvent<Nothing, HttpTransferMetadata>
+typealias StreamEvent = TransferEvent<ByteArray, Unit>
 ```
 
-Every operation emits exactly one terminal `Completed` or `Failed` event and then completes
-normally. It never emits `Failed` and then throws the same expected exception. Cancellation is
-re-thrown after resources and partial output are cleaned up.
+Operation rules:
 
-- `stream` requires `chunkSizeBytes > 0` before returning a Flow.
+- Download emits progress and exactly one terminal `Completed(destination)` or `Failed`.
+- Upload emits progress and exactly one terminal `Completed(metadata)` or `Failed`.
+- Stream emits zero or more `Payload(chunk)` events followed by exactly one terminal
+  `Completed(Unit)` or `Failed`.
+- A terminal event completes the Flow normally; the same expected failure is never both emitted and
+  thrown.
+- Cancellation is rethrown after resources and partial output are cleaned up.
+- Programmer errors such as `chunkSizeBytes <= 0` fail synchronously before a Flow is returned.
+- Unknown content length is represented by `null`, never a negative total.
 - Download uses `AtomicFile`; an existing destination survives a failed replacement.
-- Upload returns HTTP status metadata only and never reads an unbounded response body into memory.
-- Progress delivery is conflated or sampled so slow collectors do not create unbounded memory or
-  stall network I/O.
-- Tests cover empty bodies, HTTP errors, disconnects, cancellation, invalid chunk size, destination
-  write failure, atomic replacement, and concurrent collection rules.
+- Upload exposes status metadata only and never buffers an unbounded response body.
+- Progress is conflated or sampled so a slow collector cannot create unbounded memory or stall
+  network I/O.
+- Each returned Flow is cold and starts an independent HTTP call per collection; this is documented
+  and tested.
+
+Tests cover empty bodies, HTTP errors, disconnects, cancellation, invalid chunk size, destination
+write failure, atomic replacement, stream payload ordering, terminal cardinality, and repeated
+collection.
 
 ## Performance
 
 R8 code optimization and optimized resource shrinking remain enabled for release. Keep rules are
-minimal and are validated against the starter's minified release build and the Maven consumer
-smoke build.
+minimal and verified against the starter's minified release build and temporary Maven consumer.
 
 The Baseline Profile generator covers cold startup and the starter's critical user journey. Its
-generated profile is committed under the app release source set. A Macrobenchmark compares:
+generated profile is committed under the app release source set. Macrobenchmark compares
+`CompilationMode.None()` with `CompilationMode.Partial` where the Baseline Profile is required, and
+records TTID plus frame timing on an authorized physical device or supported benchmark emulator.
 
-- `CompilationMode.None()` cold startup.
-- `CompilationMode.Partial` with the Baseline Profile required.
+No fixed percentage improvement is promised across hosts. Results are judged by median and trace
+evidence. Normal pull requests run deterministic checks; a manually triggered or scheduled device
+workflow owns benchmark execution.
 
-The benchmark records TTID and frame timing on a physical device or supported benchmark emulator.
-No fixed percentage improvement is required across all hosts; regressions are evaluated against
-the recorded median and trace evidence. CI has a manually triggered or scheduled device workflow;
-normal pull requests continue to run deterministic JVM/static/release checks.
+## Quality and Coverage Gates
 
-## Quality Gates
-
-The normal CI gate runs:
+The normal deterministic gate runs:
 
 ```text
 ./gradlew check
 ./gradlew :app:assembleRelease
 ./gradlew :core:assembleRelease
+./gradlew :core:ui-compose:assembleRelease
 ./scripts/verify-publication.sh
 ```
 
 Requirements:
 
-- App and library Lint run on release variants with `abortOnError = true` and
-  `checkReleaseBuilds = true`.
-- Existing Lint warnings are fixed or narrowly documented; broad disabling is prohibited.
-- KtLint and Detekt run for production and JVM-test sources.
-- Kover verifies at least 80% line coverage over an explicitly documented JVM-testable surface.
-  Documentation must not call that filtered number whole-module coverage.
-- Each published module uses explicit API mode where supported and has a committed Metalava API
-  signature checked by `check`.
-- JVM tests cover deterministic logic and failure contracts.
-- Instrumentation tests cover Keystore/AtomicFile secure storage, Activity/Fragment integration,
-  WorkManager wiring in the starter, and locale/theme configuration changes.
-- The Maven consumer build compiles against artifacts from a temporary repository, not
-  `mavenLocal()` and not project dependencies.
+- Release Lint uses `abortOnError = true` and `checkReleaseBuilds = true`.
+- Existing warnings are fixed or narrowly documented; broad disabling is prohibited.
+- KtLint and Detekt cover production and JVM-test sources.
+- Metalava API signatures are committed and checked for both published artifacts.
+- The framework-independent package import guard runs under `check`.
+- `:core` enforces at least 80% line coverage only for its explicitly listed deterministic,
+  JVM-testable classes. The task and documentation call this `deterministic-core coverage`, not
+  whole-module coverage.
+- `:core:ui-compose` has no line-coverage percentage gate because it is lifecycle/UI glue. It is
+  covered by Lint, API checks, compilation, host instrumentation, and the consumer build.
+- XML components and lifecycle hosts use focused instrumentation tests instead of a misleading
+  filtered unit-coverage percentage.
+- Keystore/AtomicFile storage, locale/theme configuration, WorkManager app wiring, and host
+  lifecycle integration have instrumentation coverage.
+- The independent consumer builds a minified release against both temporary-repository artifacts.
 
-## Publication and Consumer Experience
+## Delivery Checkpoints
 
-All artifacts publish sources and POM metadata from the same version. The umbrella POM exports only
-foundation, data, and XML UI. The Compose interop coordinate remains opt-in.
+Every checkpoint is buildable and reviewable; there is no long-running branch state in which all
+gates are knowingly broken.
 
-README presents two entry paths:
+1. **Build and dependency checkpoint**
+   - Introduce `build-logic` conventions.
+   - Extract `:core:ui-compose` and remove Compose from `:core`.
+   - Establish two publications, API checks, and temporary-repository consumer proof.
+2. **Library correctness checkpoint**
+   - Redesign typed results, DataStore recovery, secure storage, auth caching, networking, and file
+     transfer through test-first commits.
+   - Remove Hilt, startup, logging, and Worker policy from published modules.
+3. **Starter architecture checkpoint**
+   - Move composition policy and Worker example to `:app`.
+   - Replace `StateViewModel`/effects and migrate Settings to the single-Activity flow.
+   - Update app ViewModel and instrumentation tests.
+4. **Release proof checkpoint**
+   - Enable strict release gates, generate/measure the Baseline Profile, and reconcile all docs.
+   - Run the complete local/publication/consumer/device matrix.
 
-1. Clone starter: rename application ID/package and replace samples incrementally.
-2. Library consumer: select the umbrella or individual artifacts, configure app-owned DI/startup,
-   and follow the minimal examples.
-
-The `v2` migration guide explicitly lists removed `v1` APIs and their replacements. No deprecated
-compatibility shim is retained solely to preserve the old architecture because there are no real
-consumers.
+No intermediate `v1.x` tag is planned because there are no real consumers and the user explicitly
+authorized breaking changes. Each checkpoint is nevertheless kept green so a compatible subset
+could be released separately if that constraint changes.
 
 ## Removed v1 Concepts
 
-- Generic `UseCase<P, R>` interface.
-- `UiState`, `UiEvent`, and `UiEffect` marker interfaces.
-- Channel-backed `StateViewModel<S, E, F>` effect delivery.
-- Generic `ResultState` UI rendering and automatic error dialogs.
-- `TransitionActivity` and its action multibinding.
+- Generic `UseCase<P, R>` and UI marker interfaces.
+- Channel-backed generic `StateViewModel` effect delivery.
+- Universal `AppError` containing transport details.
+- Generic `ResultState` rendering and automatic error dialogs.
+- `TransitionActivity` and action multibinding.
 - Core-owned Timber startup initializer and release tree.
-- Core-owned global unqualified Hilt network graph.
+- Core-owned Hilt modules, qualifiers, and global unqualified network graph.
 - Connectivity request-blocking interceptor.
 - SharedPreferences-backed encrypted store.
 - Core `HeartbeatWorker` reference implementation.
-- Compose dependencies from the umbrella artifact.
-
-## Delivery Sequence
-
-1. Establish module skeleton, common versioning, publication, and Maven consumer smoke build.
-2. Move and simplify foundation contracts with API gates.
-3. Redesign data/storage/network/auth/transfer through test-first changes.
-4. Redesign XML UI and optional Compose interop; migrate Settings to single-Activity state flow.
-5. Move app-owned startup, logging, WorkManager, and sample wiring into `:app`.
-6. Enable strict release quality gates and device-test workflow.
-7. Generate and measure the Baseline Profile on an authorized device environment.
-8. Reconcile README, architecture documents, module catalogue, changelog, and migration guide.
-9. Run the complete build, publication, API, minified-consumer, and device verification matrix.
+- Compose dependencies and source in the main artifact.
 
 ## Acceptance Criteria
 
 - A clean clone builds the debug and minified release starter.
-- The starter depends on the umbrella project and exercises its principal APIs.
-- An independent build compiles using the temporary-repository umbrella coordinate.
-- An independent build can select `foundation`, `data`, or `ui-xml` without unrelated optional
-  dependencies; Compose appears only when explicitly selected.
-- No library manifest performs process-wide logging, theme, locale, network, or work initialization.
+- `:app` uses `:core` for DataStore settings, secure storage, network/auth, transfer, XML lifecycle
+  hosts, theme/locale adapters, and design tokens.
+- `:app` uses `:core:ui-compose` only for its explicit Compose showcase.
+- An independent minified consumer resolves and exercises both artifacts from a temporary Maven
+  repository.
+- The main `AndroidCoreBase` POM contains no Compose dependency.
+- No published manifest performs process-wide logging, theme, locale, network, or work
+  initialization.
+- Published artifacts contain no Hilt dependency, Hilt annotation, generated Hilt code, or Hilt
+  manifest metadata.
+- Framework-independent packages fail verification on an Android or transport import.
 - DataStore read I/O failure cannot hold the splash indefinitely.
-- Critical state mutations do not depend on one-shot event delivery.
-- File transfer has one deterministic terminal-result contract and preserves destination integrity.
-- Secure data is stored under no-backup storage and malformed ciphertext cannot crash the app.
-- Release Lint, API checks, formatting, static analysis, filtered coverage, R8 build, and Maven
-  consumer smoke checks pass.
-- The generated Baseline Profile contains starter/core rules and a benchmark report records its
+- Settings tests prove persistence precedes locale application and lifecycle re-collection cannot
+  repeat the mutation.
+- Message protocol tests prove FIFO ordering, action handling, and idempotent acknowledgement.
+- File transfer tests prove payload ordering, exactly one terminal event, cancellation propagation,
+  and destination integrity.
+- Secure-storage instrumentation proves no-backup location, atomic replacement, and malformed
+  payload recovery.
+- Release Lint, API checks, formatting, static analysis, deterministic-core coverage, R8 build, and
+  temporary Maven consumer checks pass.
+- The committed Baseline Profile contains starter/core rules and a benchmark report records its
   measured impact.
