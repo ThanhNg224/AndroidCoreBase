@@ -545,18 +545,19 @@ gates are knowingly broken.
 
 1. **Build and dependency checkpoint**
    - Introduce `build-logic` conventions.
-   - Remove core Hilt/KSP usage and manifest pollution, add the approved public factories, and move
-     application bindings/permissions/locale metadata to `:app`.
    - Extract `:core:ui-compose` and remove Compose from `:core`.
-   - Only after the Hilt-free artifacts compile, establish both publications, API checks, and the
-     quick temporary-repository consumer proof.
+   - Keep both project modules and the starter green; external consumer proof is intentionally
+     deferred until core is Hilt-free.
 2. **Library correctness checkpoint**
    - Redesign transport results, DataStore recovery, secure storage, auth caching, networking, and
      file transfer through test-first commits.
-   - Remove startup, logging, and Worker policy from published modules.
 3. **Starter architecture checkpoint**
-   - Move composition policy and Worker example to `:app`.
+   - Move startup, logging, composition policy, and the Worker example to `:app`.
    - Replace `StateViewModel`/effects and migrate Settings to the single-Activity flow.
+   - After all Hilt-dependent core components are gone, remove core Hilt/KSP usage, expose only the
+     approved factories, and make published manifests passive.
+   - Establish both publications, API checks, and quick temporary-repository consumer proof only
+     after the Hilt-free artifacts compile.
    - Update app ViewModel and instrumentation tests.
 4. **Release proof checkpoint**
    - Enable strict release gates, generate/measure the Baseline Profile, and reconcile all docs.
