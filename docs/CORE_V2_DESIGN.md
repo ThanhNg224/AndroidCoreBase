@@ -124,7 +124,7 @@ configuration.
 
 `:core` owns only reusable, non-Compose Android capabilities:
 
-- Framework-independent result, dispatcher, clock, and storage contracts.
+- Framework-independent dispatcher and storage contracts.
 - Preferences DataStore and Android Keystore-backed secure storage implementations.
 - Network call execution, authentication coordination, and file transfer.
 - XML/ViewBinding lifecycle hosts, design tokens, and reusable Material components.
@@ -180,6 +180,28 @@ small amount of consumer setup compared with v1, but prevents hidden global bind
 collisions, and mandatory annotation processing. README includes a minimal Hilt module and a direct
 construction example.
 
+Removing Hilt must not make implementation classes public by default. The v2 exposure policy is:
+
+| Capability | Public v2 surface | Hidden or removed implementation |
+|---|---|---|
+| Coroutine dispatchers | `AppDispatchers` and `AppDispatchers.default()` | `DefaultAppDispatchers` remains internal |
+| Preferences storage | `SettingsKey`, `SettingsStore`, and `SettingsStore.from(dataStore)` | `DataStoreSettingsStore` remains internal |
+| Secure storage | `SecureStore`, `SecureStoreKey`, and `SecureStore.encrypted(context, dispatchers)` | `EncryptedFileSecureStore` remains internal |
+| API execution | `ApiClient`, `ApiResult`, and `NetworkClientFactory.createApiClient()` | `RetrofitApiClient` remains internal |
+| File transfer | `FileTransferClient`, events/errors, and `NetworkClientFactory.createFileTransferClient(...)` | `OkHttpFileTransferClient` remains internal |
+| Authentication | Public constructor for `AuthSession`; `AuthTokenProvider`; `AuthTokenRefresher`; `NetworkClientFactory.createAuthenticator(...)` | Session provider and single-flight authenticator implementations remain internal |
+| Theme | `AppTheme`, `ThemeManager`, and `ThemeManager.create(settingsStore)` | `AndroidThemeManager` remains internal |
+| Locale | Public constructors for `LocaleManager` and `AppCompatLocaleApplier` | Startup context holder is removed |
+| Database passphrase | Public constructor for `DbPassphraseProvider` | Generation and memoization details remain private |
+| String resources | No provider abstraction in core | `StringProvider` and `AndroidStringProvider` are removed as unused |
+| Monotonic clock | No core API in v2 | `ElapsedRealtimeClock` and its unused implementation are removed |
+| Connectivity | No core API in v2 | Checker, blocking interceptor, exception, and `ACCESS_NETWORK_STATE` usage are removed |
+
+Focused companion factories are preferred for storage and UI contracts. `NetworkClientFactory` is
+the one public subsystem factory for OkHttp/Retrofit/auth/transfer construction; it must not become
+a general service locator. `ActivityNavigator` loses its `@Inject` annotation and is removed if no
+consumer remains after Settings becomes a Fragment. Metalava records only the public column.
+
 ## Resource Contract
 
 `:core` keeps `resourcePrefix = "core_"`. Existing public tokens such as `core_space_16` retain
@@ -189,39 +211,61 @@ and `docs/DESIGN_SYSTEM.md` continue to reference those names.
 `:core:ui-compose` defines no duplicate token resources. Its Kotlin theme bridge reads resources
 from `:core` through the module dependency.
 
+## Manifest Contract
+
+Published manifests are passive and contain no permissions, components, providers, services, or
+initialization metadata:
+
+- `INTERNET` moves to the starter manifest because only the application can decide to use network
+  capabilities.
+- `ACCESS_NETWORK_STATE` is removed with the unused connectivity API.
+- AndroidX Startup providers and all core initializers are removed.
+- `TransitionActivity` is removed.
+- AppCompat locale auto-storage metadata, if retained, is declared by `:app`, not the library.
+
+README lists `INTERNET` as a required consumer manifest entry only when the network APIs are used.
+The independent consumer asserts the merged manifests of both published artifacts contain none of
+the entries above.
+
 ## Framework-independent Source Boundary
 
-Framework-independent types stay under designated `:core` packages. A build-logic verification task
-fails when those source roots import `android.*`, `androidx.*`, Retrofit, OkHttp, Hilt, Material,
-Compose, or Android resources. Metalava protects the public API shape but is not treated as an
-Android-dependency boundary check.
+Framework-independent contracts live only under
+`com.thanhng224.androidcorebase.core.foundation`. A build-logic verification task fails when that
+source root imports `android.*`, `androidx.*`, Retrofit, OkHttp, Hilt, Material, Compose, or Android
+resources. Coroutines and the Kotlin/JDK standard libraries are allowed. Metalava protects the
+public API shape but is not treated as an Android-dependency boundary check.
+
+`com.thanhng224.androidcorebase.core.ui.text.UiText` is explicitly Android presentation code: it
+may hold `@StringRes` IDs and is outside the framework-independent import guard. It may be used by
+app presentation state such as `PendingMessage`, but it must never appear in feature domain models.
 
 The generic `UseCase<P, R>`, `UiState`, `UiEvent`, and `UiEffect` marker interfaces are removed.
 Use cases are ordinary focused classes only when they contain reused or non-trivial application
 logic. Feature ViewModels extend AndroidX `ViewModel` directly.
 
-## Typed Domain and Transport Errors
+## Feature-owned Domain Errors and Transport Errors
 
-Core does not define one universal `AppError`. HTTP codes, parser exceptions, and Java `Throwable`
-objects are transport details, not domain-safe application errors.
+Core defines neither a universal `AppError` nor a generic `DomainResult`. The current generic result
+has only one real consumer, the starter's weather sample. Publishing a two-parameter result would
+also require a permanent operator algebra (`map`, `mapError`, `flatMap`, `fold`, and error widening)
+for a domain layer that the architecture explicitly makes optional. That is unnecessary public API.
 
-The framework-independent result contract is typed on both success and failure:
-
-```kotlin
-sealed interface DomainResult<out T, out E> {
-    data class Success<T>(val value: T) : DomainResult<T, Nothing>
-    data class Failure<E>(val error: E) : DomainResult<Nothing, E>
-}
-```
-
-Each feature defines its own finite domain error type, for example:
+When a feature needs typed business failure, it defines a finite feature-owned result, for example:
 
 ```kotlin
 sealed interface WeatherError {
     data object Unavailable : WeatherError
     data object InvalidResponse : WeatherError
 }
+
+sealed interface WeatherResult {
+    data class Success(val weather: Weather) : WeatherResult
+    data class Failure(val error: WeatherError) : WeatherResult
+}
 ```
+
+Features that do not need a typed failure return their value directly. Unexpected programmer errors
+still throw and cancellation is always rethrown.
 
 The network layer has a separate technical contract:
 
@@ -239,9 +283,9 @@ sealed interface ApiResult<out T> {
 }
 ```
 
-A feature data mapper converts `ApiFailure` into its domain error. Presentation never switches on
-HTTP codes or exceptions. Cancellation and programmer errors are rethrown, not converted into
-either result type.
+A feature data mapper converts `ApiFailure` into its feature-owned result/error. Presentation never
+switches on HTTP codes or exceptions. Cancellation and programmer errors are rethrown, not
+converted into `ApiResult`.
 
 ## UI State and Transient Request Protocol
 
@@ -272,15 +316,19 @@ data class DemoUiState(
 
 The protocol is deterministic:
 
-1. The ViewModel allocates an ID unique within that ViewModel instance and appends a request.
-2. The UI presents only `pendingMessages.firstOrNull()`.
-3. Snackbar dismissal calls `onMessageHandled(id)`; its action button calls
+1. Each ViewModel owns an `AtomicLong(0)` request counter. `incrementAndGet()` allocates an ID; wall
+   clock and `nanoTime` are never used. IDs are unique across concurrent coroutines within that
+   ViewModel instance, and gaps have no meaning.
+2. The request is appended with `MutableStateFlow.update`; FIFO order is the order in which those
+   atomic state updates succeed, not numeric ID order.
+3. The UI presents only `pendingMessages.firstOrNull()`.
+4. Snackbar dismissal calls `onMessageHandled(id)`; its action button calls
    `onMessageAction(id)`.
-4. The ViewModel removes only a matching current head. A stale or duplicate acknowledgement is a
+5. The ViewModel removes only a matching current head. A stale or duplicate acknowledgement is a
    no-op.
-5. Action acknowledgement removes the message before executing the action, preventing replay.
-6. A second message waits in the list and cannot overwrite the first.
-7. If configuration changes before acknowledgement, the same request remains in ViewModel state
+6. Action acknowledgement removes the message before executing the action, preventing replay.
+7. A second message waits in the list and cannot overwrite the first.
+8. If configuration changes before acknowledgement, the same request remains in ViewModel state
    and the recreated UI may present it. A transient queue is not restored after process death; any
    operation that must survive process death belongs in persisted domain state or WorkManager.
 
@@ -434,6 +482,31 @@ No fixed percentage improvement is promised across hosts. Results are judged by 
 evidence. Normal pull requests run deterministic checks; a manually triggered or scheduled device
 workflow owns benchmark execution.
 
+## Published Consumer Verification
+
+`integration/consumer` is a standalone Android Gradle build with its own `settings.gradle.kts`; it
+is not included as a project in the root build. It has two dependency modes selected only by the
+verification script:
+
+- Main artifact only, which compiles an XML host and asserts Compose is absent.
+- Main artifact plus `AndroidCoreBase-ui-compose`, which compiles the Compose interoperability host.
+
+`scripts/verify-publication.sh` creates a temporary directory, publishes both release artifacts into
+a temporary Maven repository, runs the consumer with only that repository plus Google/Maven
+Central, inspects POMs and merged manifests, and removes the directory on exit. It rejects
+`mavenLocal()`, project substitution, unexpected Hilt/Compose dependencies, and library-provided
+permissions/components.
+
+The script has two explicit modes:
+
+- `--quick`: publish, inspect metadata/manifests, and compile both consumer debug variants. It runs
+  on every pull request.
+- `--release`: perform all quick checks plus minified consumer release builds and R8 verification.
+  It runs on `main`, release tags, manual pre-release CI, and the final local release gate.
+
+No CI job downloads a previously published v2 artifact for this proof; every run tests the artifacts
+produced by the checked-out commit.
+
 ## Quality and Coverage Gates
 
 The normal deterministic gate runs:
@@ -443,7 +516,7 @@ The normal deterministic gate runs:
 ./gradlew :app:assembleRelease
 ./gradlew :core:assembleRelease
 ./gradlew :core:ui-compose:assembleRelease
-./scripts/verify-publication.sh
+./scripts/verify-publication.sh --release
 ```
 
 Requirements:
@@ -462,7 +535,8 @@ Requirements:
   filtered unit-coverage percentage.
 - Keystore/AtomicFile storage, locale/theme configuration, WorkManager app wiring, and host
   lifecycle integration have instrumentation coverage.
-- The independent consumer builds a minified release against both temporary-repository artifacts.
+- Pull requests run `verify-publication.sh --quick`; `main`, pre-release, and release gates run
+  `verify-publication.sh --release`.
 
 ## Delivery Checkpoints
 
@@ -471,12 +545,15 @@ gates are knowingly broken.
 
 1. **Build and dependency checkpoint**
    - Introduce `build-logic` conventions.
+   - Remove core Hilt/KSP usage and manifest pollution, add the approved public factories, and move
+     application bindings/permissions/locale metadata to `:app`.
    - Extract `:core:ui-compose` and remove Compose from `:core`.
-   - Establish two publications, API checks, and temporary-repository consumer proof.
+   - Only after the Hilt-free artifacts compile, establish both publications, API checks, and the
+     quick temporary-repository consumer proof.
 2. **Library correctness checkpoint**
-   - Redesign typed results, DataStore recovery, secure storage, auth caching, networking, and file
-     transfer through test-first commits.
-   - Remove Hilt, startup, logging, and Worker policy from published modules.
+   - Redesign transport results, DataStore recovery, secure storage, auth caching, networking, and
+     file transfer through test-first commits.
+   - Remove startup, logging, and Worker policy from published modules.
 3. **Starter architecture checkpoint**
    - Move composition policy and Worker example to `:app`.
    - Replace `StateViewModel`/effects and migrate Settings to the single-Activity flow.
@@ -493,12 +570,13 @@ could be released separately if that constraint changes.
 
 - Generic `UseCase<P, R>` and UI marker interfaces.
 - Channel-backed generic `StateViewModel` effect delivery.
-- Universal `AppError` containing transport details.
+- Universal `AppError` and generic `DomainResult` contracts.
 - Generic `ResultState` rendering and automatic error dialogs.
 - `TransitionActivity` and action multibinding.
 - Core-owned Timber startup initializer and release tree.
 - Core-owned Hilt modules, qualifiers, and global unqualified network graph.
 - Connectivity request-blocking interceptor.
+- Connectivity checker/exception, `StringProvider`, and unused elapsed-realtime clock abstractions.
 - SharedPreferences-backed encrypted store.
 - Core `HeartbeatWorker` reference implementation.
 - Compose dependencies and source in the main artifact.
@@ -509,14 +587,18 @@ could be released separately if that constraint changes.
 - `:app` uses `:core` for DataStore settings, secure storage, network/auth, transfer, XML lifecycle
   hosts, theme/locale adapters, and design tokens.
 - `:app` uses `:core:ui-compose` only for its explicit Compose showcase.
-- An independent minified consumer resolves and exercises both artifacts from a temporary Maven
-  repository.
+- Pull requests compile both temporary-repository consumer modes; main/pre-release/release gates
+  additionally build both minified consumer releases.
 - The main `AndroidCoreBase` POM contains no Compose dependency.
 - No published manifest performs process-wide logging, theme, locale, network, or work
   initialization.
+- Published manifests contain no permissions or application components; the starter explicitly
+  owns its `INTERNET` and locale metadata.
 - Published artifacts contain no Hilt dependency, Hilt annotation, generated Hilt code, or Hilt
   manifest metadata.
 - Framework-independent packages fail verification on an Android or transport import.
+- The Metalava API contains only the approved contracts, factories, and public constructors from
+  the DI exposure table; concrete implementations remain absent.
 - DataStore read I/O failure cannot hold the splash indefinitely.
 - Settings tests prove persistence precedes locale application and lifecycle re-collection cannot
   repeat the mutation.
