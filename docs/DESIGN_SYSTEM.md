@@ -92,7 +92,7 @@ A thin `MaterialSwitch` subclass (`com.google.android.material.materialswitch.Ma
 
 ### Single-choice controls
 
-Use a Material single-choice dialog for a short, mutually exclusive settings value such as app language or appearance. `SettingsActivity` is the live example: the settings screen remains a scannable list, while the dialog owns the finite choice interaction.
+Use a Material single-choice dialog for a short, mutually exclusive settings value such as app language or appearance. `SettingsFragment` is the live example: the settings screen remains a scannable list, while the dialog owns the finite choice interaction.
 
 ### Bottom navigation
 
@@ -148,4 +148,4 @@ screen should add one to `values-sw600dp/dimens.xml`, not rely on scaling.
 
 ## Live reference
 
-`sample/designsystem`'s `DesignSystemFragment` / `app/src/main/res/layout/fragment_design_system.xml` inflates every component and token described above in one screen: all 6 text styles (headline/body/caption/body-emphasis/body-medium/micro), a filled `FrameButton`, an outlined `FrameButton`, a `ShadowLayout` card, a `ThemedSwitch`, a `FrameButton` that triggers `StyledSnackbar`, and a 3-button `ResultState` (loading/success/error) demo driven by `DesignSystemViewModel`. When adding a new component or token, add it to this screen too so it stays the working reference.
+`sample/designsystem`'s `DesignSystemFragment` / `app/src/main/res/layout/fragment_design_system.xml` inflates every component and token described above in one screen: all 6 text styles (headline/body/caption/body-emphasis/body-medium/micro), a filled `FrameButton`, an outlined `FrameButton`, a `ShadowLayout` card, a `ThemedSwitch`, a `FrameButton` that triggers `StyledSnackbar`, and a 3-button screen-owned loading/success/error demo (`DesignSystemDemoState`) driven by `DesignSystemViewModel`. When adding a new component or token, add it to this screen too so it stays the working reference.

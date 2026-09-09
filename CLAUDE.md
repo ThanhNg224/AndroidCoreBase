@@ -40,13 +40,18 @@ Once feature development on top of this base starts, the strict "proven need" ru
 ./gradlew :app:testDebugUnitTest --tests "com.example.androidcorebase.SomeTest.someMethod"  # run a single test method
 ```
 
-Quality gates are part of the base: Android lint, ktlint, detekt, and Kover coverage are wired into `check`. Kover enforces 80%+ line coverage on the explicitly unit-testable core/domain/data/viewmodel surface, excluding Android UI glue, Hilt generated code, and generated databinding/R classes.
+Quality gates are part of the base: Android lint (`abortOnError` on every module, including `:app`), ktlint, detekt, and Kover coverage are wired into `check`. `verifyDeterministicCoreCoverage` (an alias for `koverVerify`) enforces 80%+ line coverage on `:core`'s explicitly, positively-selected deterministic (non-UI) surface — see `core/build.gradle.kts`'s Kover `includes` block, not a wildcard-plus-exclusion-list.
 
 ## Architecture
 
-Two Gradle modules: `:app` (application, feature/sample code, package `com.example.androidcorebase`) and `:core` (the reusable foundation — architecture, DI, network, storage, UI toolkit — package `com.thanhng224.androidcorebase.core`, published to JitPack; see `README.md` for consumption instructions and `docs/CORE_MODULES.md` for its internal layout). `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
+Three Gradle modules: `:app` (application, feature/sample code, package `com.example.androidcorebase`, owns the only Hilt graph in the repo), `:core` (the reusable foundation — network, storage, localization, theme, UI toolkit — package `com.thanhng224.androidcorebase.core`, published to JitPack, no DI framework of its own), and `:core:ui-compose` (optional published Compose interop, depends on `:core`). See `README.md` for consumption instructions and `docs/CORE_MODULES.md` for `:core`'s internal layout. `:app` depends on `:core` via `implementation(project(":core"))`; `:core` must never depend on `:app` or on feature/sample code. Do not introduce further Gradle module splits (e.g. `:core:network`, `:core:ui`) unless asked and a real module boundary is justified.
 
-Dependency direction:
+Compile dependency direction (both point inward, neither sideways):
+```
+Presentation -> Domain <- Data
+```
+
+Runtime call flow (a separate concept from the compile dependency above):
 ```
 UI -> ViewModel -> UseCase -> Repository interface -> RepositoryImpl -> DataSource/API/DB/Storage
 ```
@@ -55,7 +60,7 @@ Layer rules (from `docs/ARCHITECTURE.md`, `docs/STANDARD.md`, `AGENTS.md`):
 - **Presentation**: renders UI, observes state, handles input/navigation. No API/DB access, no business rules.
 - **Domain**: business rules, UseCases, entities, repository *interfaces*. No Android framework dependency.
 - **Data**: repository *implementations*, remote/local data sources, mappers. No UI logic; never leak API/DB models to Presentation.
-- Dependencies point inward only (Presentation → Domain → Data is the call direction; Data may depend on Domain only for repository interfaces). Feature modules must not depend on each other directly; shared/core code must not depend on feature code, and only moves into `core`/`shared` after proven reuse (2+ cases).
+- Presentation depends on Domain only; Data depends on Domain only (to implement its repository interfaces). Presentation and Data never depend on each other directly. Feature modules must not depend on each other directly; shared/core code must not depend on feature code, and only moves into `core`/`shared` after proven reuse (2+ cases).
 
 Per-feature folder structure (see `docs/FEATURE_TEMPLATE.md` for the worked example):
 ```
@@ -67,9 +72,9 @@ feature/<name>/
 
 Current core folders are documented in `docs/CORE_MODULES.md`. Do not assume aspirational folders such as `core/analytics`, `core/navigation`, or `core/logging` exist until the source tree actually has them.
 
-UI state convention: explicit `UiState` / `UiEvent` / `UiEffect`, one-way data flow, one-time effects (navigation, toasts) delivered via `UiEffect` and never as sticky state.
+UI state convention: a plain `androidx.lifecycle.ViewModel` per screen exposing one `StateFlow` of a screen-owned state data class, one-way data flow, and named intent functions (`onEvent`, or direct methods). A transient one-shot request (snackbar action, navigation) is a small `pendingMessages: List<PendingMessage>` field on that same state — acknowledged via `onMessageHandled(id)` once shown — never a `Channel`-backed generic effect type, since a `Channel` can silently drop or re-fire an emission across a configuration change.
 
-Dependency injection convention: Hilt is the app-wide DI framework. Use constructor injection by default, `@HiltViewModel` for ViewModels, `@AndroidEntryPoint` on concrete Activities/Fragments, and small Hilt modules only for interface bindings or Android/framework object creation.
+Dependency injection convention: Hilt is `:app`'s DI framework; `:core` and `:core:ui-compose` apply no DI framework at all (see `docs/CORE_V2_DESIGN.md`'s "Dependency Injection Contract") and expose only public constructors/factories. Use constructor injection by default, `@HiltViewModel` for ViewModels, `@AndroidEntryPoint` on concrete Activities/Fragments, and `:app`'s own Hilt modules (`app/src/main/java/com/example/androidcorebase/di/`) to call `:core`'s public factories.
 
 ### Do not port into this base
 

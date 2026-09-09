@@ -62,7 +62,7 @@ Put a reusable resource in `core` only after it has two real consumers, except f
 
 - Package segments are lowercase and describe an ownership boundary, not a technical dumping ground: `feature/settings`, `sample/demo`, `appshell/home`, `core/ui/components`. Use the established layer names only where they fit: `presentation`, `domain`, `data`, `di`, then `state`, `viewmodel`, `ui`, `repository`, `datasource`, `dto`, `mapper`, or `model`.
 - A feature name is a concise capability noun (`settings`, `profile`, `checkout`); a screen package is a concise destination noun (`login`, `otp`). Do not add a screen package until the feature has a real second screen, as defined in the architecture guide.
-- Kotlin files use PascalCase and reveal their role through a suffix: `<Screen>Activity`, `<Screen>Fragment`, `<Name>DialogFragment`, `<Name>ViewModel`, `<Screen>UiState`, `<Screen>UiEvent`, `<Screen>UiEffect`, `<Verb><Subject>UseCase`, `<Subject>Repository`, `<Subject>RepositoryImpl`, `<Subject>DataSource`, `<Subject>Dto`, and `<Subject>Mapper`. A custom view ends in its concrete widget role (`Button`, `Switch`, `Layout`, or `View`); a Worker, initializer, navigator, or provider uses that exact role suffix.
+- Kotlin files use PascalCase and reveal their role through a suffix: `<Screen>Activity`, `<Screen>Fragment`, `<Name>DialogFragment`, `<Name>ViewModel`, `<Screen>UiState`, `<Screen>UiEvent`, `<Verb><Subject>UseCase`, `<Subject>Repository`, `<Subject>RepositoryImpl`, `<Subject>DataSource`, `<Subject>Dto`, and `<Subject>Mapper`. A custom view ends in its concrete widget role (`Button`, `Switch`, `Layout`, or `View`); a Worker, initializer, navigator, or provider uses that exact role suffix.
 - XML view IDs use lowerCamelCase and a stable view-type prefix followed by their purpose: `btnRefreshWeather`, `ivSettingsLanguage`, `tvWeatherTitle`, `rowLanguage`, `cardWeather`, `progressDemoResult`, `topAppBar`, and `navHostFragment`. Use a semantic prefix such as `btn`, `iv`, `tv`, `et`, `rv`, `sw`, `progress`, `row`, `card`, `toolbar`, or `container`; never name an ID only by position or appearance (`view1`, `leftIcon`, `blueButton`).
 
 ### Android resource taxonomy
@@ -242,9 +242,11 @@ Keep mapping deterministic and side-effect free.
 Represent UI with explicit state objects.
 
 Recommended pattern:
-- UiState for persistent screen state.
+- UiState for persistent screen state, including any `pendingMessages` queue for one-shot requests.
 - UiEvent for user interactions.
-- UiEffect for one-time events such as navigation or toast messages.
+- A one-time event (navigation, toast, snackbar) is a field on `UiState` itself, acknowledged
+  once shown — never a `Channel`-backed `UiEffect` type, which can silently drop or re-fire an
+  emission across a configuration change.
 
 Avoid exposing mutable state outside the ViewModel.
 

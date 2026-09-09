@@ -76,7 +76,7 @@ Dependencies always flow from Presentation → Domain → Data. Reverse dependen
 
 A **feature** is a vertical slice that owns one user-facing capability or bounded business context, such as authentication, profile, or checkout. It owns the presentation, domain, and data code required for that capability. A feature is not a synonym for one Activity, Fragment, or layout.
 
-A **screen** is one concrete presentation destination within a feature: an Activity, Fragment, dialog destination, or equivalent navigable UI state. A screen owns its ViewModel and its `UiState`/`UiEvent`/`UiEffect`, because those types describe that screen's presentation contract.
+A **screen** is one concrete presentation destination within a feature: an Activity, Fragment, dialog destination, or equivalent navigable UI state. A screen owns its ViewModel and its `UiState`/`UiEvent` (plus any `pendingMessages` queue for transient one-shot requests), because those types describe that screen's presentation contract.
 
 A **flow** is a user journey through one or more screens, for example Login → OTP verification → password reset. A flow does not introduce another package layer. Its screens remain owned by their feature; when a journey crosses feature boundaries, communicate through navigation and stable public contracts rather than direct feature dependencies.
 
@@ -120,13 +120,11 @@ feature/auth/
             LoginViewModel.kt
             LoginUiState.kt
             LoginUiEvent.kt
-            LoginUiEffect.kt
         otp/
             OtpFragment.kt
             OtpViewModel.kt
             OtpUiState.kt
             OtpUiEvent.kt
-            OtpUiEffect.kt
         components/                 # only when shared by two or more auth screens
     domain/
         repository/
@@ -179,9 +177,12 @@ The response flows back in reverse order after appropriate mapping at each layer
 
 ## UI State  
 Use a clear separation of:  
-- UiState (screen state)  
+- UiState (screen state, including any `pendingMessages` queue for transient one-shot requests)
 - UiEvent (user or system events)  
-- UiEffect (one-time effects like navigation or messages)  
+
+A transient one-shot request (snackbar action, navigation) is a field on `UiState` itself —
+acknowledged once shown — not a separate `Channel`-backed effect type. A `Channel` can silently
+drop or re-fire an emission across a configuration change; a `StateFlow` field cannot.
 
 ## Dependency Injection  
 - Use constructor injection  
@@ -243,7 +244,7 @@ Improve architecture incrementally by making small, safe refactors that preserve
 - [ ] Is feature communication handled via public contracts without tight coupling?  
 - [ ] Is error handling consistent and user-friendly across layers?  
 - [ ] Are ViewModels free from Android framework dependencies and business logic?  
-- [ ] Is UI state management separated into UiState, UiEvent, and UiEffect?  
+- [ ] Is UI state management separated into UiState and UiEvent, with transient requests modeled as acknowledged state rather than a `Channel`-backed effect?  
 - [ ] Are data sources properly encapsulated and orchestrated by repositories?  
 - [ ] Are modules designed for low coupling and high cohesion?  
 - [ ] Are there no circular dependencies between modules or layers?  
@@ -259,7 +260,10 @@ The base was later split into its own `:core` Gradle module (package `com.thanhn
 `feature/settings` is the first product vertical slice. It owns app-preference presentation and adapts the app-wide theme and locale services through its own repository contract. `sample/` remains reference code only.
 
 app/src/main/java/com/example/androidcorebase/
-  MainActivity.kt                            # app shell: app bar + NavHostFragment + bottom navigation
+  MainActivity.kt                            # single-Activity shell: app bar + NavHostFragment + bottom navigation
+  di/                                        # app-owned Hilt modules calling :core's public factories (AppCoreModule, AppNetworkModule)
+  startup/AppStartupCoordinator.kt           # bounded (2s) theme-apply-at-startup; replaces the deleted core initializers
+  logging/AppReleaseTree.kt                  # release Timber tree; :core plants no tree of its own
   appshell/
     home/HomeFragment.kt                     # shell-owned landing destination; no business layer
   feature/
@@ -268,11 +272,11 @@ app/src/main/java/com/example/androidcorebase/
         repository/SettingsRepository.kt
         usecase/ObserveThemeUseCase.kt, SetThemeUseCase.kt, GetCurrentLanguageUseCase.kt, SetLanguageUseCase.kt
       data/
-        repository/SettingsRepositoryImpl.kt # adapts ThemeManager and LocaleManager
+        repository/SettingsRepositoryImpl.kt # persists language via SettingsStore, then applies via LocaleManager; adapts ThemeManager
       presentation/
-        state/                               # SettingsUiState, SettingsUiEvent, SettingsUiEffect
+        state/                               # SettingsUiState (+ PendingSettingsMessage), SettingsUiEvent
         viewmodel/                           # SettingsViewModel
-        ui/                                  # SettingsActivity + LanguageTransitionAction
+        ui/                                  # SettingsFragment (a NavController destination, no TransitionActivity)
       di/SettingsModule.kt
   sample/
     demo/
@@ -282,22 +286,22 @@ app/src/main/java/com/example/androidcorebase/
           FetchDemoWeatherUseCase.kt
       data/
         repository/DemoRepositoryImpl.kt     # SettingsStore- and remote-data-source-backed
-        dto/DemoMessageDto.kt
+        dto/DemoWeatherResponseDto.kt
         datasource/DemoApiService.kt, DemoRemoteDataSource.kt (+ DemoRemoteDataSourceImpl)
-        mapper/DemoMessageMapper.kt          # ApiResult<DemoMessageDto> -> DomainResult<String>
+        mapper/DemoWeatherMapper.kt          # WeatherResult (feature-owned) mapping, not a core DomainResult
       presentation/
-        state/DemoUiState.kt, DemoUiEvent.kt, DemoUiEffect.kt, DemoWeatherState.kt
+        state/DemoUiState.kt, DemoUiEvent.kt, PendingDemoMessage.kt, DemoWeatherState.kt
         viewmodel/DemoViewModel.kt
         ui/DemoFragment.kt
       di/DemoModule.kt
     designsystem/
       presentation/
-        state/DesignSystemUiState.kt, DesignSystemUiEvent.kt
-        viewmodel/DesignSystemViewModel.kt   # StateViewModel<DesignSystemUiState, DesignSystemUiEvent, UiEffect>, synchronous setState, no data/domain layers
-        ui/DesignSystemFragment.kt           # showcases FrameButton, ShadowLayout, ThemedSwitch, StyledSnackbar, and the ResultState demo
+        state/DesignSystemUiState.kt, DesignSystemUiEvent.kt, DesignSystemDemoState.kt
+        viewmodel/DesignSystemViewModel.kt   # plain ViewModel, synchronous state updates, no data/domain layers
+        ui/DesignSystemFragment.kt           # showcases FrameButton, ShadowLayout, ThemedSwitch, StyledSnackbar, and the screen-owned loading/success/error demo
 
-`feature/settings` is the canonical single-screen product feature. `SettingsActivity` renders theme and language as settings-list rows and uses single-choice dialogs for their finite values; those selections do not become separate screens merely to demonstrate package nesting. Its feature-owned `LanguageTransitionAction` runs inside the opaque core `TransitionActivity`, so the core owns only the reusable transition host. `SettingsRepository` is a feature-domain contract; its implementation adapts the reusable `ThemeManager` and `LocaleManager`, so UI never calls either core service directly. Hilt wires the feature binding in `feature/settings/di/SettingsModule`.
+`feature/settings` is the canonical single-screen product feature. `SettingsFragment` renders theme and language as settings-list rows and uses single-choice dialogs for their finite values; those selections do not become separate screens merely to demonstrate package nesting. Selecting a language persists through `SettingsRepository` first, then the app-owned `LocaleManager` applies it via `AppCompatDelegate` — a failed persist leaves the previous language in state and queues a `PendingSettingsMessage`, never launching a transition Activity (see `docs/CORE_V2_DESIGN.md`'s "Settings and Locale Mutation"). `SettingsRepository` is a feature-domain contract; its implementation adapts the reusable `ThemeManager` and `LocaleManager`, so UI never calls either core service directly. Hilt wires the feature binding in `feature/settings/di/SettingsModule`.
 
-`sample/demo` remains the data/network reference: its counter persists through `DemoRepositoryImpl`, backed by the real `DataStoreSettingsStore`, and it fetches live weather for Ho Chi Minh City through `DemoRemoteDataSourceImpl` -> `DemoRepositoryImpl.fetchWeather()` -> `FetchDemoWeatherUseCase`. `DemoWeatherResponseDto` is mapped to the pure `DemoWeather` domain model before presentation sees it. Sample-specific Retrofit service providers stay in the sample package, while `core/di` only provides reusable Retrofit/OkHttp infrastructure. Product feature providers follow the same ownership rule under their own `feature/<name>/di` package. `SecureStore` handles auth/refresh tokens separately from normal settings, and backup/data-extraction rules exclude the secure store shared-preferences file.
+`sample/demo` remains the data/network reference: its counter persists through `DemoRepositoryImpl`, backed by the real `DataStoreSettingsStore` (via `:core`'s `SettingsStoreFactory`), and it fetches live weather for Ho Chi Minh City through `DemoRemoteDataSourceImpl` -> `DemoRepositoryImpl.fetchWeather()` -> `FetchDemoWeatherUseCase`. `DemoWeatherResponseDto` is mapped to the pure `DemoWeather` domain model before presentation sees it; a feature-owned `WeatherResult`/`WeatherError` sealed hierarchy (not a core `DomainResult`/`AppError`) carries the outcome. Sample-specific Retrofit service providers stay in the sample package, while `app/di/AppNetworkModule` only provides reusable Retrofit/OkHttp infrastructure built from `:core`'s `NetworkClientFactory`. Product feature providers follow the same ownership rule under their own `feature/<name>/di` package. `SecureStore` handles auth/refresh tokens separately from normal settings, and backup/data-extraction rules exclude the secure store's file.
 
-`MainActivity` and `SettingsActivity` extend `core/ui/base/BaseActivity`; `HomeFragment`, `DemoFragment`, and `DesignSystemFragment` extend `BaseFragment`. Both base hosts own ViewBinding inflation and expose lifecycle-safe `collectOnStarted`. `MainActivity` is the composition root for global navigation and delegates destination content to Fragments. `DesignSystemFragment.render()` consumes `ResultState<T>.toRenderState()`, while `DemoFragment` maps `DemoWeatherState` to localized strings. Its increment and refresh controls use `View.setOnDebouncedClickListener` to avoid accidental duplicate actions.
+`MainActivity` extends `core/ui/base/BaseBindingActivity`; `HomeFragment`, `SettingsFragment`, `DemoFragment`, and `DesignSystemFragment` extend `BaseFragment`. Both base hosts own ViewBinding inflation and expose lifecycle-safe `collectOnStarted`. `MainActivity` is the single-Activity composition root: it owns the `NavController` and `AppBarConfiguration`, and delegates all destination content — including Settings — to Fragments. `DesignSystemFragment.render()` consumes its own screen-owned `DesignSystemDemoState` (loading/success/error), while `DemoFragment` maps `DemoWeatherState` to localized strings. Its increment and refresh controls use `View.setOnDebouncedClickListener` to avoid accidental duplicate actions.

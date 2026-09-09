@@ -7,6 +7,41 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ## [Unreleased]
 
+## [v2.0.0] - 2026-09-09
+
+Breaking release. `:core` and the new `:core:ui-compose` module are now dependency-injection-agnostic:
+neither applies a Hilt/KSP plugin or ships DI annotations. See `docs/MIGRATION_V1_TO_V2.md` for the
+complete removed-API-to-replacement table and `docs/CORE_V2_DESIGN.md` for the full decision record.
+
+### Added
+- **New published module `AndroidCoreBase-ui-compose`**: `AndroidCoreBaseTheme`, `ComposeView.setThemedContent`, and `BaseComposeActivity` moved out of the main artifact into this optional, Compose-only module.
+- **Public factories replacing every Hilt binding `:core` used to provide**: `AppDispatchers.default()`, `SettingsStoreFactory.create(dataStore)`, `SecureStoreFactory.encrypted(context, dispatchers)`, `ThemeManager.create(settingsStore)`, `NetworkClientFactory.createApiClient()`/`createFileTransferClient(...)`/`createAuthTokenProvider(...)`/`createAuthenticator(...)`/`createOkHttpClient(...)`/`createRetrofit(...)`, plus public constructors for `AuthSession`, `DbPassphraseProvider`, `LocaleManager`, and `AppCompatLocaleApplier`.
+- **Metalava API tracking for `:core:ui-compose`** (`core/ui-compose/api/ui-compose.api`), alongside `:core`'s existing gate.
+- **`verifyDeterministicCoreCoverage`** Gradle task: a stable alias for `koverVerify`, enforcing `:core`'s Kover coverage rule over an explicit, positively-selected deterministic (non-UI) package list instead of a wildcard-plus-growing-exclusion-list.
+- **Isolated publication proof** (`scripts/verify-publication.sh`, `integration/consumer/`): publishes both artifacts to a throwaway Maven repository and builds a standalone consumer project against them in both main-only and Compose modes, asserting the main POM/manifest carry no Compose, Hilt, or test-only dependency.
+- **Strict release Lint on every module**, including `:app` (previously `abortOnError = false`).
+
+### Changed
+- **Settings moved into the single-Activity navigation graph** as `SettingsFragment`, reached via `NavController` from the shared top app bar. Selecting a language now persists through the repository first, then applies via `LocaleManager` directly — no activity-recreating transition.
+- **Every screen's transient one-shot request is now acknowledged state**, not a `Channel`-backed effect: `StateViewModel<S, E, F>`/`UiEffect` gave way to a plain `ViewModel` + `StateFlow<S>` with a `pendingMessages: List<PendingMessage>` field on `S`.
+- **`ApiResult`'s failure cases renamed and restructured** into `ApiFailure` (`Http`, `Network`, `Serialization`, `EmptyBody`); empty-body detection now uses HTTP 204/205 status instead of a null-body check (OkHttp 5's `Response.body` is non-nullable).
+- **`TokenAuthenticator` allows at most one retry** (was two).
+- **`EncryptedSecureStore` renamed to `EncryptedFileSecureStore`**, now writing through `AtomicFile` so a failed write can never corrupt the previously committed value.
+- **`testFixturesApi(junit)`/`testFixturesApi(kotlinx-coroutines-test)` downgraded to `testFixturesImplementation`**, so they no longer leak into the main published POM.
+- Published manifests (`:core`, `:core:ui-compose`) are now fully passive (`<manifest />`): no permissions, components, providers, or services. `INTERNET` and AppCompat's locale auto-storage metadata are declared by the consuming app.
+
+### Removed
+- **Core Hilt modules** (`core/di/AppCoreModule`, `core/di/NetworkModule`, `core/di/CoroutineScopeModule`, `core/ui/theme/ThemeModule`) — replaced by app-owned modules calling the public factories above.
+- **`DomainResult`/`AppError`** — replaced by feature-owned result/error types.
+- **`ResultState`/`ResultRenderState`/`renderResultState`/`bindResultState`/`FullScreenLoaderView`/`PromptDialogFragment`** — a screen renders its own explicit sealed state instead.
+- **`TransitionActivity`/`TransitionAction`** and the action multibinding — see "Settings moved" above.
+- **`core/network/connectivity`** (`ConnectivityChecker`, `ConnectivityInterceptor`) and **`core/time/ElapsedRealtimeClock`** — unused in every real consumer.
+- **`core/ui/text/StringProvider`/`AndroidStringProvider`** — unused; `UiText.resolve(context)` already covers it.
+- **All `androidx.startup` initializers** (`TimberInitializer`, `ThemeApplyInitializer`, `LocaleContextInitializer`, `AppStartupEntryPoint`) — replaced by explicit `Application.onCreate()` orchestration (`AppStartupCoordinator`).
+- **`core/logging/ReleaseTree`** and **`core/work/HeartbeatWorker`** — moved to the app as reference shapes, not shipped by `:core`.
+- **`core/navigation/ActivityNavigator`/`ActivityDestination`/`NavigationOptions`/`TransitionType`** — their only consumer was the removed `SettingsActivity`.
+- **`core.architecture.UseCase<in P, R>`** — a use case is now a plain class with `operator fun invoke`.
+
 ## [v1.0.0] - 2026-07-29
 
 First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v1.0.0`). Consolidated and hardened base library after full baseline modernization effort.
@@ -39,5 +74,6 @@ First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v
 - Redacted `Authorization` header in OkHttp logging interceptor to avoid leaking bearer tokens.
 - `TimberInitializer` respects consumer application's `FLAG_DEBUGGABLE` status instead of AAR build flag.
 
-[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.0...HEAD
+[v2.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.0
 [v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0
