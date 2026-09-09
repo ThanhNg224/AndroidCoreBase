@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -11,15 +12,20 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.thanhng224.androidcorebase.core.foundation.SettingsKey
 import com.thanhng224.androidcorebase.core.foundation.SettingsStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 internal class DataStoreSettingsStore(
     private val dataStore: DataStore<Preferences>,
 ) : SettingsStore {
     override fun <T> observe(key: SettingsKey<T>): Flow<T> {
         val prefsKey = key.toPreferencesKey()
-        return dataStore.data.map { it[prefsKey] ?: key.defaultValue }
+        return dataStore.data
+            .catch { failure ->
+                if (failure is IOException) emit(emptyPreferences()) else throw failure
+            }.map { it[prefsKey] ?: key.defaultValue }
     }
 
     override suspend fun <T> get(key: SettingsKey<T>): T = observe(key).first()

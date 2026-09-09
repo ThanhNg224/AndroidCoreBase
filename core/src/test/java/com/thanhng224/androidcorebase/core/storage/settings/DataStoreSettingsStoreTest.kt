@@ -8,10 +8,14 @@ import com.thanhng224.androidcorebase.core.foundation.SettingsKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
+import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DataStoreSettingsStoreTest {
@@ -30,11 +34,49 @@ class DataStoreSettingsStoreTest {
         }
     }
 
+    private class FailingPreferencesDataStore(
+        private val failure: Throwable,
+    ) : DataStore<Preferences> {
+        override val data: Flow<Preferences> = flow { throw failure }
+
+        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
+            throw UnsupportedOperationException("not exercised by these tests")
+    }
+
+    private fun failingDataStore(failure: Throwable): DataStore<Preferences> = FailingPreferencesDataStore(failure)
+
     @Before
     fun setUp() {
         dataStore = InMemoryPreferencesDataStore()
         store = DataStoreSettingsStore(dataStore)
     }
+
+    @Test
+    fun `observe emits key default when DataStore read throws IOException`() =
+        runTest {
+            val key = SettingsKey.StringKey(name = "theme_mode", defaultValue = "system")
+            val failingStore = DataStoreSettingsStore(failingDataStore(IOException("disk")))
+
+            assertEquals(key.defaultValue, failingStore.observe(key).first())
+        }
+
+    @Test
+    fun `observe rethrows non IO DataStore failure`() =
+        runTest {
+            val failure = IllegalStateException("corrupt mapping")
+            val key = SettingsKey.StringKey(name = "theme_mode", defaultValue = "system")
+            val failingStore = DataStoreSettingsStore(failingDataStore(failure))
+
+            val thrown =
+                try {
+                    failingStore.observe(key).first()
+                    null
+                } catch (e: IllegalStateException) {
+                    e
+                }
+
+            assertSame(failure, thrown)
+        }
 
     @Test
     fun `string value round-trips through set and get`() =
