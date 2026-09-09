@@ -2,15 +2,15 @@ package com.example.androidcorebase.baselineprofile
 
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+private const val APP_PACKAGE_NAME = "com.example.androidcorebase"
+
 /**
- * Exercises the app's critical startup path (cold launch → Demo tab → increment → Home tab) so the
- * generated `baseline-prof.txt` covers real code paths, not just process init.
+ * Exercises [CriticalJourney] -- the same journey [StartupBenchmark] measures -- so the generated
+ * `baseline-prof.txt` covers real code paths, not just process init.
  */
 @RunWith(AndroidJUnit4::class)
 class BaselineProfileGenerator {
@@ -19,14 +19,9 @@ class BaselineProfileGenerator {
 
     @Test
     fun generateStartupProfile() =
-        baselineProfileRule.collect(packageName = "com.example.androidcorebase") {
+        baselineProfileRule.collect(packageName = APP_PACKAGE_NAME) {
             pressHome()
             startActivityAndWait()
-
-            device.wait(Until.hasObject(By.res(packageName, "demoFragment")), 5_000)
-            device.findObject(By.res(packageName, "demoFragment"))?.click()
-            device.wait(Until.hasObject(By.res(packageName, "btnIncrement")), 5_000)
-            device.findObject(By.res(packageName, "btnIncrement"))?.click()
-            device.findObject(By.res(packageName, "homeFragment"))?.click()
+            CriticalJourney.execute(device, APP_PACKAGE_NAME)
         }
 }
