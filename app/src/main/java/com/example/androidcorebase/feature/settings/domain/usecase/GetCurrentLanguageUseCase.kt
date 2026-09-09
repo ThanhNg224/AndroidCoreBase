@@ -9,5 +9,5 @@ class GetCurrentLanguageUseCase
     constructor(
         private val repository: SettingsRepository,
     ) {
-        operator fun invoke(): AppLanguage? = repository.getCurrentLanguage()
+        suspend operator fun invoke(): AppLanguage? = repository.getCurrentLanguage()
     }

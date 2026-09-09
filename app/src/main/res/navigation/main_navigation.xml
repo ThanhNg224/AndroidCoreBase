@@ -19,4 +19,9 @@
         android:name="com.example.androidcorebase.sample.designsystem.presentation.ui.DesignSystemFragment"
         android:label="@string/design_system_title" />
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.androidcorebase.feature.settings.presentation.ui.SettingsFragment"
+        android:label="@string/settings_title" />
+
 </navigation>

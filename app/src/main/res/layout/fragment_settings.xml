@@ -5,19 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".feature.settings.presentation.ui.SettingsActivity">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        style="@style/Widget.AndroidCoreBase.Toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/core_color_background"
-        app:navigationContentDescription="@string/action_back"
-        app:navigationIcon="@drawable/ic_settings_back"
-        app:navigationIconTint="@color/core_color_on_surface"
-        app:title="@string/settings_title"
-        app:titleTextColor="@color/core_color_on_surface" />
+    tools:context=".feature.settings.presentation.ui.SettingsFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

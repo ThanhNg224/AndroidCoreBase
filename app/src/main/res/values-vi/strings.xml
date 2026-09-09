@@ -18,7 +18,7 @@
     <string name="settings_language_section_title">Ngôn ngữ ứng dụng</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ ứng dụng</string>
     <string name="settings_language_system">Theo hệ thống</string>
-    <string name="action_back">Quay lại</string>
+    <string name="settings_language_update_failed">Không thể lưu ngôn ngữ đã chọn. Vui lòng thử lại.</string>
     <string name="action_cancel">Huỷ</string>
     <string name="demo_title">Demo</string>
     <string name="demo_increment">Tăng</string>

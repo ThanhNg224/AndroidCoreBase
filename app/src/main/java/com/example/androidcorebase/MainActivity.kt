@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.example.androidcorebase.databinding.ActivityAppshellMainBinding
-import com.example.androidcorebase.feature.settings.presentation.ui.SettingsActivity
-import com.thanhng224.androidcorebase.core.navigation.ActivityDestination
-import com.thanhng224.androidcorebase.core.navigation.ActivityNavigator
 import com.thanhng224.androidcorebase.core.ui.base.BaseBindingActivity
 import com.thanhng224.androidcorebase.core.ui.theme.ThemeManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,10 +19,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : BaseBindingActivity<ActivityAppshellMainBinding>() {
     @Inject
-    lateinit var activityNavigator: ActivityNavigator
-
-    @Inject
     lateinit var themeManager: ThemeManager
+
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -41,18 +41,17 @@ class MainActivity : BaseBindingActivity<ActivityAppshellMainBinding>() {
             WindowInsetsCompat.CONSUMED
         }
 
-        val navController =
+        navController =
             (supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment)
                 .navController
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.homeFragment, R.id.demoFragment, R.id.designSystemFragment))
         binding.bottomNavigation.setupWithNavController(navController)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.topAppBar.title = destination.label
-        }
+        binding.topAppBar.setupWithNavController(navController, appBarConfiguration)
 
         binding.topAppBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.actionSettings -> {
-                    activityNavigator.navigate(this, ActivityDestination(SettingsActivity::class))
+                    navController.navigate(R.id.settingsFragment)
                     true
                 }
 
@@ -60,4 +59,6 @@ class MainActivity : BaseBindingActivity<ActivityAppshellMainBinding>() {
             }
         }
     }
+
+    override fun onSupportNavigateUp(): Boolean = navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 }

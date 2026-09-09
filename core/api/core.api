@@ -455,10 +455,12 @@ package com.thanhng224.androidcorebase.core.storage.settings {
   public final class AppSettingsKeys {
     method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.BooleanKey getDEBUG_LOGGING_ENABLED();
     method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.LongKey getFIRST_OPEN_AT();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey getLANGUAGE_TAG();
     method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.IntKey getOPEN_COUNT();
     method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey getTHEME_MODE();
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.BooleanKey DEBUG_LOGGING_ENABLED;
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.LongKey FIRST_OPEN_AT;
+    property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey LANGUAGE_TAG;
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.IntKey OPEN_COUNT;
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey THEME_MODE;
     field public static final com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys INSTANCE;
@@ -580,21 +582,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
 
   public final class ResultStateOverlayKt {
     method public static <T> void renderResultState(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T> result, android.view.ViewGroup contentRoot, FragmentManager dialogHost, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
-  }
-
-  public final class TransitionActivity {
-    ctor public TransitionActivity();
-    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> getActions();
-    method public void onCreate(android.os.Bundle? savedInstanceState);
-    method public void onSaveInstanceState(android.os.Bundle outState);
-    method @InaccessibleFromKotlin public void setActions(java.util.Map<java.lang.String,? extends com.thanhng224.androidcorebase.core.ui.transition.TransitionAction>);
-    property public java.util.Map<java.lang.String,com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> actions;
-    field public static final com.thanhng224.androidcorebase.core.ui.base.TransitionActivity.Companion Companion;
-    field public java.util.Map<java.lang.String,? extends com.thanhng224.androidcorebase.core.ui.transition.TransitionAction> actions;
-  }
-
-  public static final class TransitionActivity.Companion {
-    method public android.content.Intent createIntent(android.content.Context context, String actionKey, optional android.os.Bundle extras);
   }
 
 }
@@ -749,14 +736,6 @@ package com.thanhng224.androidcorebase.core.ui.theme {
     method public suspend Object? setTheme(com.thanhng224.androidcorebase.core.ui.theme.AppTheme theme, error.NonExistentClass);
     property public abstract ErrorType currentTheme;
     property public abstract ErrorType isThemeApplied;
-  }
-
-}
-
-package com.thanhng224.androidcorebase.core.ui.transition {
-
-  public fun interface TransitionAction {
-    method public suspend Object? perform(android.os.Bundle extras, error.NonExistentClass);
   }
 
 }

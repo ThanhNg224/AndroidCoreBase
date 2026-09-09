@@ -43,11 +43,6 @@
         <item name="postSplashScreenTheme">@style/Theme.AndroidCoreBase</item>
     </style>
 
-    <style name="Theme.AndroidCoreBase.Transition" parent="Theme.AndroidCoreBase">
-        <item name="android:windowAnimationStyle">@style/Animation_AndroidCoreBase_Transition</item>
-        <item name="android:windowIsTranslucent">false</item>
-    </style>
-
     <!-- Custom base button style enabling text auto-wrap to prevent truncation -->
     <style name="Widget.AndroidCoreBase.Button" parent="Widget.Material3.Button">
         <item name="android:singleLine">false</item>
@@ -100,10 +95,4 @@
         <item name="android:windowExitAnimation">@anim/core_transition_fade_out</item>
     </style>
 
-    <style name="Animation_AndroidCoreBase_Transition">
-        <item name="android:activityOpenEnterAnimation">@anim/core_transition_fade_in</item>
-        <item name="android:activityOpenExitAnimation">@anim/core_transition_no_animation</item>
-        <item name="android:activityCloseEnterAnimation">@anim/core_transition_no_animation</item>
-        <item name="android:activityCloseExitAnimation">@anim/core_transition_fade_out</item>
-    </style>
 </resources>

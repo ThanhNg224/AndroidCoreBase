@@ -64,7 +64,10 @@ class DemoViewModel
         }
 
         fun onMessageAction(id: Long) {
-            val action = mutableState.value.pendingMessages.firstOrNull { it.id == id }?.action
+            val action =
+                mutableState.value.pendingMessages
+                    .firstOrNull { it.id == id }
+                    ?.action
             if (!removeHeadIfMatching(id)) return
             when (action) {
                 DemoMessageAction.ResetCounter -> resetCounter()

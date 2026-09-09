@@ -5,11 +5,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application>
-        <activity
-            android:name=".ui.base.TransitionActivity"
-            android:configChanges="locale|layoutDirection"
-            android:exported="false"
-            android:theme="@style/Theme.AndroidCoreBase.Transition" />
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"

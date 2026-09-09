@@ -1,12 +1,9 @@
 package com.example.androidcorebase.localization
 
-import android.content.ComponentName
-import android.content.pm.ActivityInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.androidcorebase.R
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
-import com.thanhng224.androidcorebase.core.ui.base.TransitionActivity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,19 +25,6 @@ class LocaleConfigurationContractTest {
         }
 
         assertEquals(AppLanguage.BUILT_IN.map(AppLanguage::languageTag), localeTags)
-    }
-
-    @Test
-    fun transitionActivity_keepsItsOpaqueWindowAcrossLocaleRecreation() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val activityInfo =
-            context.packageManager.getActivityInfo(
-                ComponentName(context, TransitionActivity::class.java),
-                0,
-            )
-        val requiredConfigChanges = ActivityInfo.CONFIG_LOCALE or ActivityInfo.CONFIG_LAYOUT_DIRECTION
-
-        assertEquals(requiredConfigChanges, activityInfo.configChanges and requiredConfigChanges)
     }
 
     private companion object {

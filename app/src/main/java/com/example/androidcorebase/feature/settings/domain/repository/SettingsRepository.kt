@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     fun observeTheme(): Flow<AppTheme>
 
-    fun getCurrentLanguage(): AppLanguage?
+    suspend fun getCurrentLanguage(): AppLanguage?
 
     fun getSupportedLanguages(): List<AppLanguage>
 

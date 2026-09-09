@@ -2,27 +2,37 @@ package com.example.androidcorebase.feature.settings.presentation.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.activity.viewModels
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.example.androidcorebase.R
-import com.example.androidcorebase.databinding.ActivitySettingsBinding
+import com.example.androidcorebase.databinding.FragmentSettingsBinding
+import com.example.androidcorebase.feature.settings.presentation.state.PendingSettingsMessage
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEvent
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiState
 import com.example.androidcorebase.feature.settings.presentation.viewmodel.SettingsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
-import com.thanhng224.androidcorebase.core.ui.base.BaseBindingActivity
-import com.thanhng224.androidcorebase.core.ui.base.TransitionActivity
+import com.thanhng224.androidcorebase.core.ui.base.BaseFragment
+import com.thanhng224.androidcorebase.core.ui.text.resolve
 import com.thanhng224.androidcorebase.core.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SettingsActivity : BaseBindingActivity<ActivitySettingsBinding>() {
+class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
     private val viewModel: SettingsViewModel by viewModels()
+    private var lastShownMessageId: Long? = null
 
-    override fun inflateBinding(inflater: LayoutInflater): ActivitySettingsBinding = ActivitySettingsBinding.inflate(inflater)
+    override fun inflateBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+    ): FragmentSettingsBinding = FragmentSettingsBinding.inflate(inflater, container, false)
 
-    override fun onBindingReady(savedInstanceState: Bundle?) {
-        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+    override fun onBindingReady(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         binding.rowAppearance.setOnClickListener { showThemeDialog(viewModel.state.value.theme) }
         binding.rowLanguage.setOnClickListener {
             showLanguageDialog(viewModel.state.value.language, viewModel.state.value.supportedLanguages)
@@ -35,11 +45,26 @@ class SettingsActivity : BaseBindingActivity<ActivitySettingsBinding>() {
         binding.tvAppearanceSummary.setText(state.theme.labelResId)
         binding.tvLanguageSummary.setText(state.language?.displayNameResId ?: R.string.settings_language_system)
 
-        val pending = state.pendingLanguageTransition
-        if (pending != null) {
-            startLanguageTransition(pending.language)
-            viewModel.onLanguageTransitionHandled()
+        val pending = state.pendingMessages.firstOrNull()
+        if (pending != null && pending.id != lastShownMessageId) {
+            lastShownMessageId = pending.id
+            showPendingMessage(pending)
         }
+    }
+
+    private fun showPendingMessage(message: PendingSettingsMessage) {
+        Snackbar
+            .make(binding.root, message.text.resolve(requireContext()), Snackbar.LENGTH_LONG)
+            .addCallback(
+                object : Snackbar.Callback() {
+                    override fun onDismissed(
+                        transientBottomBar: Snackbar?,
+                        event: Int,
+                    ) {
+                        viewModel.onMessageHandled(message.id)
+                    }
+                },
+            ).show()
     }
 
     private fun showThemeDialog(selectedTheme: AppTheme) {
@@ -73,26 +98,13 @@ class SettingsActivity : BaseBindingActivity<ActivitySettingsBinding>() {
         checkedItem: Int,
         onSelected: (Int) -> Unit,
     ) {
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(titleResId)
             .setSingleChoiceItems(labels, checkedItem) { dialog, selectedIndex ->
                 onSelected(selectedIndex)
                 dialog.dismiss()
             }.setNegativeButton(R.string.action_cancel, null)
             .show()
-    }
-
-    private fun startLanguageTransition(language: AppLanguage?) {
-        startActivity(
-            TransitionActivity.createIntent(
-                context = this,
-                actionKey = LanguageTransitionAction.KEY,
-                extras =
-                    Bundle().apply {
-                        putString(LanguageTransitionAction.EXTRA_LANGUAGE_TAG, language?.languageTag.orEmpty())
-                    },
-            ),
-        )
     }
 
     private val AppTheme.labelResId: Int

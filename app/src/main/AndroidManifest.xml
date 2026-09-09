@@ -24,11 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".feature.settings.presentation.ui.SettingsActivity"
-            android:exported="false"
-            android:label="@string/settings_title"
-            android:theme="@style/Theme.AndroidCoreBase" />
         <!-- This app supplies its own WorkManager Configuration via Configuration.Provider, so
              the default initializer must not also run. Consuming apps that don't do that should
              leave WorkManager's own initializer in place. -->

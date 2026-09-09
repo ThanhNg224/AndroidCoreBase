@@ -130,7 +130,9 @@ class DemoViewModelTest {
 
             repeat(10) { viewModel.onEvent(DemoUiEvent.IncrementClicked) }
 
-            val message = viewModel.state.value.pendingMessages.single()
+            val message =
+                viewModel.state.value.pendingMessages
+                    .single()
             assertEquals(DemoMessageAction.ResetCounter, message.action)
         }
 
@@ -140,13 +142,20 @@ class DemoViewModelTest {
             val viewModel = createViewModel(FakeDemoRepository())
             viewModel.enqueueForTest(DemoMessageAction.ResetCounter)
             viewModel.enqueueForTest(null)
-            val first = viewModel.state.value.pendingMessages.first()
+            val first =
+                viewModel.state.value.pendingMessages
+                    .first()
 
             viewModel.onMessageHandled(first.id)
             viewModel.onMessageHandled(first.id)
 
             assertEquals(1, viewModel.state.value.pendingMessages.size)
-            assertNotEquals(first.id, viewModel.state.value.pendingMessages.single().id)
+            assertNotEquals(
+                first.id,
+                viewModel.state.value.pendingMessages
+                    .single()
+                    .id,
+            )
         }
 
     @Test
@@ -155,7 +164,9 @@ class DemoViewModelTest {
             val repository = FakeDemoRepository(initialCount = 5)
             val viewModel = createViewModel(repository)
             viewModel.enqueueForTest(DemoMessageAction.ResetCounter)
-            val message = viewModel.state.value.pendingMessages.first()
+            val message =
+                viewModel.state.value.pendingMessages
+                    .first()
 
             viewModel.onMessageAction(message.id)
 
@@ -168,7 +179,10 @@ class DemoViewModelTest {
         runTest {
             val viewModel = createViewModel(FakeDemoRepository())
             viewModel.enqueueForTest(null)
-            val staleId = viewModel.state.value.pendingMessages.first().id
+            val staleId =
+                viewModel.state.value.pendingMessages
+                    .first()
+                    .id
             viewModel.onMessageHandled(staleId)
             viewModel.enqueueForTest(null)
 
