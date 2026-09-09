@@ -5,12 +5,14 @@ import com.example.androidcorebase.sample.demo.data.dto.DemoWeatherResponseDto
 import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
 import com.example.androidcorebase.sample.demo.domain.model.WeatherError
 import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
+import com.thanhng224.androidcorebase.core.network.ApiFailure
 import com.thanhng224.androidcorebase.core.network.ApiResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.IOException
 
 class DemoWeatherMapperTest {
-    private val networkCause = Throwable("network down")
+    private val networkCause = IOException("network down")
     private val parseCause = Throwable("malformed json")
 
     private data class Case(
@@ -46,23 +48,23 @@ class DemoWeatherMapperTest {
                     ),
             ),
             Case(
-                name = "http error maps to Server weather error",
-                input = ApiResult.HttpError(code = 404, message = "Not Found"),
+                name = "http failure maps to Server weather error",
+                input = ApiResult.Failure(ApiFailure.Http(code = 404, serverMessage = "Not Found")),
                 expected = WeatherResult.Failure(WeatherError.Server(code = 404, message = "Not Found")),
             ),
             Case(
-                name = "network error maps to Network weather error carrying the cause",
-                input = ApiResult.NetworkError(networkCause),
+                name = "network failure maps to Network weather error carrying the cause",
+                input = ApiResult.Failure(ApiFailure.Network(networkCause)),
                 expected = WeatherResult.Failure(WeatherError.Network(networkCause)),
             ),
             Case(
-                name = "parse error maps to Parse weather error carrying the cause",
-                input = ApiResult.ParseError(parseCause),
+                name = "serialization failure maps to Parse weather error carrying the cause",
+                input = ApiResult.Failure(ApiFailure.Serialization(parseCause)),
                 expected = WeatherResult.Failure(WeatherError.Parse(parseCause)),
             ),
             Case(
                 name = "empty body maps to EmptyBody weather error",
-                input = ApiResult.EmptyBody,
+                input = ApiResult.Failure(ApiFailure.EmptyBody),
                 expected = WeatherResult.Failure(WeatherError.EmptyBody),
             ),
         )

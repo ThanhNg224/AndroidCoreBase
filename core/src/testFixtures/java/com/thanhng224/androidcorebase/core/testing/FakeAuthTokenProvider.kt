@@ -7,6 +7,8 @@ import com.thanhng224.androidcorebase.core.network.auth.AuthTokenRefresher
 public class FakeAuthTokenProvider(
     public var token: String? = null,
 ) : AuthTokenProvider {
+    override fun peekToken(): String? = token
+
     override suspend fun getToken(): String? = token
 }
 

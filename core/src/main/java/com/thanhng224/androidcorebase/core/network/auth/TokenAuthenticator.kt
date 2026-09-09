@@ -25,7 +25,10 @@ internal class TokenAuthenticator
             route: Route?,
             response: Response,
         ): Request? {
-            if (responseCount(response) > MAX_RETRIES) return null
+            // A non-null priorResponse means this failure is itself the result of a retry that
+            // this authenticator already attempted, so at most one retry ever follows the
+            // original 401.
+            if (response.priorResponse != null) return null
 
             val failedAuthHeader = response.request.header("Authorization")
 
@@ -56,17 +59,4 @@ internal class TokenAuthenticator
             return newToken
         }
 
-        private fun responseCount(response: Response): Int {
-            var count = 1
-            var prior = response.priorResponse
-            while (prior != null) {
-                count++
-                prior = prior.priorResponse
-            }
-            return count
-        }
-
-        private companion object {
-            const val MAX_RETRIES = 2
-        }
     }

@@ -293,46 +293,57 @@ package com.thanhng224.androidcorebase.core.network {
     property public static long DEFAULT_TIMEOUT_SECONDS;
   }
 
+  public sealed exhaustive interface ApiFailure {
+  }
+
+  public static final class ApiFailure.EmptyBody implements com.thanhng224.androidcorebase.core.network.ApiFailure {
+    field public static final com.thanhng224.androidcorebase.core.network.ApiFailure.EmptyBody INSTANCE;
+  }
+
+  public static final class ApiFailure.Http implements com.thanhng224.androidcorebase.core.network.ApiFailure {
+    ctor public ApiFailure.Http(int code, String? serverMessage);
+    method public int component1();
+    method public String? component2();
+    method public com.thanhng224.androidcorebase.core.network.ApiFailure.Http copy(optional int code, optional String? serverMessage);
+    method @InaccessibleFromKotlin public int getCode();
+    method @InaccessibleFromKotlin public String? getServerMessage();
+    property public int code;
+    property public String? serverMessage;
+  }
+
+  public static final class ApiFailure.Network implements com.thanhng224.androidcorebase.core.network.ApiFailure {
+    ctor public ApiFailure.Network(java.io.IOException cause);
+    method public java.io.IOException component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiFailure.Network copy(optional java.io.IOException cause);
+    method @InaccessibleFromKotlin public java.io.IOException getCause();
+    property public java.io.IOException cause;
+  }
+
+  public static final class ApiFailure.Serialization implements com.thanhng224.androidcorebase.core.network.ApiFailure {
+    ctor public ApiFailure.Serialization(Throwable cause);
+    method public Throwable component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiFailure.Serialization copy(optional Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
   public sealed exhaustive interface ApiResult<T> {
   }
 
-  public static final class ApiResult.EmptyBody implements com.thanhng224.androidcorebase.core.network.ApiResult {
-    field public static final com.thanhng224.androidcorebase.core.network.ApiResult.EmptyBody INSTANCE;
-  }
-
-  public static final class ApiResult.HttpError implements com.thanhng224.androidcorebase.core.network.ApiResult {
-    ctor public ApiResult.HttpError(int code, String message);
-    method public int component1();
-    method public String component2();
-    method public com.thanhng224.androidcorebase.core.network.ApiResult.HttpError copy(optional int code, optional String message);
-    method @InaccessibleFromKotlin public int getCode();
-    method @InaccessibleFromKotlin public String getMessage();
-    property public int code;
-    property public String message;
-  }
-
-  public static final class ApiResult.NetworkError implements com.thanhng224.androidcorebase.core.network.ApiResult {
-    ctor public ApiResult.NetworkError(Throwable cause);
-    method public Throwable component1();
-    method public com.thanhng224.androidcorebase.core.network.ApiResult.NetworkError copy(optional Throwable cause);
-    method @InaccessibleFromKotlin public Throwable getCause();
-    property public Throwable cause;
-  }
-
-  public static final class ApiResult.ParseError implements com.thanhng224.androidcorebase.core.network.ApiResult {
-    ctor public ApiResult.ParseError(Throwable cause);
-    method public Throwable component1();
-    method public com.thanhng224.androidcorebase.core.network.ApiResult.ParseError copy(optional Throwable cause);
-    method @InaccessibleFromKotlin public Throwable getCause();
-    property public Throwable cause;
+  public static final class ApiResult.Failure implements com.thanhng224.androidcorebase.core.network.ApiResult {
+    ctor public ApiResult.Failure(com.thanhng224.androidcorebase.core.network.ApiFailure error);
+    method public com.thanhng224.androidcorebase.core.network.ApiFailure component1();
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.Failure copy(optional com.thanhng224.androidcorebase.core.network.ApiFailure error);
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.network.ApiFailure getError();
+    property public com.thanhng224.androidcorebase.core.network.ApiFailure error;
   }
 
   public static final class ApiResult.Success<T> implements com.thanhng224.androidcorebase.core.network.ApiResult<T> {
-    ctor public ApiResult.Success(T data);
+    ctor public ApiResult.Success(T value);
     method public T component1();
-    method public com.thanhng224.androidcorebase.core.network.ApiResult.Success<T> copy(optional T data);
-    method @InaccessibleFromKotlin public T getData();
-    property public T data;
+    method public com.thanhng224.androidcorebase.core.network.ApiResult.Success<T> copy(optional T value);
+    method @InaccessibleFromKotlin public T getValue();
+    property public T value;
   }
 
 }
@@ -343,11 +354,13 @@ package com.thanhng224.androidcorebase.core.network.auth {
     method public suspend Object? clear(error.NonExistentClass);
     method public suspend Object? getAccessToken(error.NonExistentClass);
     method public suspend Object? getRefreshToken(error.NonExistentClass);
+    method public String? peekAccessToken();
     method public suspend Object? setTokens(String accessToken, optional String? refreshToken, error.NonExistentClass);
   }
 
   public interface AuthTokenProvider {
     method public suspend Object? getToken(error.NonExistentClass);
+    method public String? peekToken();
   }
 
   public interface AuthTokenRefresher {
@@ -357,18 +370,7 @@ package com.thanhng224.androidcorebase.core.network.auth {
   public final class NoOpAuthTokenProvider implements com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider {
     ctor public NoOpAuthTokenProvider();
     method public suspend Object? getToken(error.NonExistentClass);
-  }
-
-}
-
-package com.thanhng224.androidcorebase.core.network.connectivity {
-
-  public interface ConnectivityChecker {
-    method public boolean isConnected();
-  }
-
-  public final class NoConnectivityException extends java.io.IOException {
-    ctor public NoConnectivityException();
+    method public String? peekToken();
   }
 
 }

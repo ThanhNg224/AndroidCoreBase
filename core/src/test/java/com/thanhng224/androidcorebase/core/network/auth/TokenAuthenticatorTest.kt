@@ -128,4 +128,21 @@ class TokenAuthenticatorTest {
             assertNull(result)
             assertEquals(0, refresher.callCount)
         }
+
+    @Test
+    fun `authenticate allows at most one retry, giving up immediately after it also fails`() =
+        runBlocking {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "expired-token")
+            val refresher = FakeAuthTokenRefresher("fresh-token")
+            val sut = authenticator(store, refresher)
+
+            val originalFailure = response(authorizationHeader = "expired-token")
+            val retryFailure = response(authorizationHeader = "expired-token", priorResponse = originalFailure)
+
+            val result = sut.authenticate(null, retryFailure)
+
+            assertNull(result)
+            assertEquals(0, refresher.callCount)
+        }
 }

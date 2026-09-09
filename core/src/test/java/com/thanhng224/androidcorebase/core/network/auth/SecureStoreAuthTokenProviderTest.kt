@@ -26,4 +26,18 @@ class SecureStoreAuthTokenProviderTest {
 
             assertNull(provider.getToken())
         }
+
+    @Test
+    fun `peekToken is null until getToken has loaded the session`() =
+        runTest {
+            val store = FakeSecureStore()
+            store.putString(SecureStoreKeys.AUTH_TOKEN, "secret-token")
+            val provider = SecureStoreAuthTokenProvider(AuthSession(store))
+
+            assertNull(provider.peekToken())
+
+            provider.getToken()
+
+            assertEquals("secret-token", provider.peekToken())
+        }
 }

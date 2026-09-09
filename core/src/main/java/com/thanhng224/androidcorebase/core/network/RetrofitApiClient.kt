@@ -12,15 +12,16 @@ internal class RetrofitApiClient
             try {
                 val response = call()
                 if (response.isSuccessful) {
-                    response.body()?.let { ApiResult.Success(it) } ?: ApiResult.EmptyBody
+                    response.body()?.let { ApiResult.Success(it) }
+                        ?: ApiResult.Failure(ApiFailure.EmptyBody)
                 } else {
-                    ApiResult.HttpError(response.code(), response.message())
+                    ApiResult.Failure(ApiFailure.Http(response.code(), response.message()))
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: IOException) {
-                ApiResult.NetworkError(e)
+                ApiResult.Failure(ApiFailure.Network(e))
             } catch (e: Exception) {
-                ApiResult.ParseError(e)
+                ApiResult.Failure(ApiFailure.Serialization(e))
             }
     }
