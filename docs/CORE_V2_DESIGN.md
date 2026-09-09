@@ -185,8 +185,8 @@ Removing Hilt must not make implementation classes public by default. The v2 exp
 | Capability | Public v2 surface | Hidden or removed implementation |
 |---|---|---|
 | Coroutine dispatchers | `AppDispatchers` and `AppDispatchers.default()` | `DefaultAppDispatchers` remains internal |
-| Preferences storage | `SettingsKey`, `SettingsStore`, and `SettingsStore.from(dataStore)` | `DataStoreSettingsStore` remains internal |
-| Secure storage | `SecureStore`, `SecureStoreKey`, and `SecureStore.encrypted(context, dispatchers)` | `EncryptedFileSecureStore` remains internal |
+| Preferences storage | `SettingsKey`, `SettingsStore`, and `SettingsStoreFactory.create(dataStore)` | `DataStoreSettingsStore` remains internal |
+| Secure storage | `SecureStore`, `SecureStoreKey`, and `SecureStoreFactory.encrypted(context, dispatchers)` | `EncryptedFileSecureStore` remains internal |
 | API execution | `ApiClient`, `ApiResult`, and `NetworkClientFactory.createApiClient()` | `RetrofitApiClient` remains internal |
 | File transfer | `FileTransferClient`, events/errors, and `NetworkClientFactory.createFileTransferClient(...)` | `OkHttpFileTransferClient` remains internal |
 | Authentication | Public constructor for `AuthSession`; `AuthTokenProvider`; `AuthTokenRefresher`; `NetworkClientFactory.createAuthenticator(...)` | Session provider and single-flight authenticator implementations remain internal |
@@ -197,10 +197,24 @@ Removing Hilt must not make implementation classes public by default. The v2 exp
 | Monotonic clock | No core API in v2 | `ElapsedRealtimeClock` and its unused implementation are removed |
 | Connectivity | No core API in v2 | Checker, blocking interceptor, exception, and `ACCESS_NETWORK_STATE` usage are removed |
 
-Focused companion factories are preferred for storage and UI contracts. `NetworkClientFactory` is
-the one public subsystem factory for OkHttp/Retrofit/auth/transfer construction; it must not become
-a general service locator. `ActivityNavigator` loses its `@Inject` annotation and is removed if no
+Focused factories are preferred for storage and UI contracts, but a factory whose parameters are
+Android types cannot sit on a framework-independent contract's companion, because a companion lives
+in the contract's own file and would drag `androidx.datastore.core.DataStore` or
+`android.content.Context` into `core.foundation` and fail the import guard. The pure contracts
+(`AppDispatchers`, `SettingsKey`, `SettingsStore`, `SecureStoreKey`, `SecureStore`) stay in
+`core.foundation` with no Android-typed members; their Android factories live beside the
+implementations they build, as `core.storage.settings.SettingsStoreFactory` and
+`core.storage.secure.SecureStoreFactory`, matching the existing `NetworkClientFactory` convention.
+`AppDispatchers.default()` may stay a companion because it needs only coroutines.
+`NetworkClientFactory` is the one public subsystem factory for OkHttp/Retrofit/auth/transfer
+construction; it must not become a general service locator. `ActivityNavigator` loses its `@Inject` annotation and is removed if no
 consumer remains after Settings becomes a Fragment. Metalava records only the public column.
+
+Every type in a public factory signature must be reachable from an `api` dependency. A parameter
+type carried by an `implementation` dependency is absent from the consumer's compile classpath, so
+the factory is uncallable even though Metalava accepts it.
+`SettingsStoreFactory.create(DataStore<Preferences>)` therefore requires `api(libs.androidx.datastore.preferences)`. The independent consumer build is the
+gate that proves this for the whole table.
 
 ## Resource Contract
 
@@ -414,6 +428,11 @@ session cache:
   client.
 - Cancellation is always rethrown.
 - At most one retry follows the original 401.
+
+`Interceptor.intercept` is synchronous, so `AuthTokenProvider` exposes a non-blocking
+`peekToken(): String?` snapshot read alongside the suspending `getToken()`. The request interceptor
+reads the snapshot and bridges with `runBlocking` only when it is cold, which is the one permitted
+per-process load above. Per-request blocking in an interceptor is prohibited.
 
 The stored/provider value is the complete Authorization header value, such as `Bearer <token>`.
 
