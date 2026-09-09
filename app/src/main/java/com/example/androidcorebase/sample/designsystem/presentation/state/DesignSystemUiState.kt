@@ -1,7 +1,5 @@
 package com.example.androidcorebase.sample.designsystem.presentation.state
 
-import com.thanhng224.androidcorebase.core.architecture.result.ResultState
-
 data class DesignSystemUiState(
-    val demoResult: ResultState<Unit> = ResultState.Loading,
+    val demoResult: DesignSystemDemoState = DesignSystemDemoState.Loading,
 )

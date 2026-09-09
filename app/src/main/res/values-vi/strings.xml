@@ -60,10 +60,11 @@
     <string name="design_system_compose_interop_body">Thẻ này là một ComposeView được nhúng trong layout XML này, lấy giao diện từ AndroidCoreBaseTheme dùng chung tài nguyên core_color_* với màn hình xung quanh.</string>
     <string name="design_system_show_snackbar">Hiện thông báo</string>
     <string name="design_system_snackbar_message">Xin chào từ StyledSnackbar!</string>
-    <string name="design_system_result_demo_title">Demo ResultState</string>
+    <string name="design_system_result_demo_title">Demo trạng thái màn hình</string>
     <string name="design_system_loading_button">Đang tải</string>
     <string name="design_system_success_button">Thành công</string>
     <string name="design_system_error_button">Lỗi</string>
+    <string name="design_system_result_loading">Đang tải…</string>
     <string name="design_system_result_success">Thành công!</string>
     <string name="design_system_error_sample">Đã có lỗi xảy ra. Vui lòng thử lại.</string>
     <string name="error_network">Không có kết nối mạng</string>

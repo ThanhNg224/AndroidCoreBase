@@ -60,10 +60,11 @@
     <string name="design_system_compose_interop_body">This card is a ComposeView embedded in this XML layout, themed by AndroidCoreBaseTheme from the same core_color_* resources as the screen around it.</string>
     <string name="design_system_show_snackbar">Show message</string>
     <string name="design_system_snackbar_message">Hello from StyledSnackbar!</string>
-    <string name="design_system_result_demo_title">ResultState demo</string>
+    <string name="design_system_result_demo_title">Screen state demo</string>
     <string name="design_system_loading_button">Loading</string>
     <string name="design_system_success_button">Success</string>
     <string name="design_system_error_button">Error</string>
+    <string name="design_system_result_loading">Loading…</string>
     <string name="design_system_result_success">Success!</string>
     <string name="design_system_error_sample">Something went wrong. Please try again.</string>
     <string name="error_network">No internet connection</string>

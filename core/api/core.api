@@ -1,38 +1,4 @@
 // Signature format: 4.0
-package com.thanhng224.androidcorebase.core.architecture.result {
-
-  public sealed exhaustive interface ResultState<T> {
-  }
-
-  public static final class ResultState.Error implements com.thanhng224.androidcorebase.core.architecture.result.ResultState {
-    ctor public ResultState.Error(com.thanhng224.androidcorebase.core.ui.text.UiText message, optional Throwable? cause);
-    method public com.thanhng224.androidcorebase.core.ui.text.UiText component1();
-    method public Throwable? component2();
-    method public com.thanhng224.androidcorebase.core.architecture.result.ResultState.Error copy(optional com.thanhng224.androidcorebase.core.ui.text.UiText message, optional Throwable? cause);
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.ui.text.UiText getMessage();
-    property public Throwable? cause;
-    property public com.thanhng224.androidcorebase.core.ui.text.UiText message;
-  }
-
-  public static final class ResultState.Loading implements com.thanhng224.androidcorebase.core.architecture.result.ResultState {
-    field public static final com.thanhng224.androidcorebase.core.architecture.result.ResultState.Loading INSTANCE;
-  }
-
-  public static final class ResultState.Success<T> implements com.thanhng224.androidcorebase.core.architecture.result.ResultState<T> {
-    ctor public ResultState.Success(T data);
-    method public T component1();
-    method public com.thanhng224.androidcorebase.core.architecture.result.ResultState.Success<T> copy(optional T data);
-    method @InaccessibleFromKotlin public T getData();
-    property public T data;
-  }
-
-  public final class ResultStateKt {
-    method public static inline <T, R> R fold(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T>, kotlin.jvm.functions.Function0<? extends R> onLoading, kotlin.jvm.functions.Function1<? super T,? extends R> onSuccess, kotlin.jvm.functions.Function2<? super com.thanhng224.androidcorebase.core.ui.text.UiText,? super java.lang.Throwable?,? extends R> onError);
-  }
-
-}
-
 package com.thanhng224.androidcorebase.core.di {
 
   @kotlin.annotation.Retention(AnnotationRetention.BINARY) public @interface ApplicationScope {
@@ -472,7 +438,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
 
   public abstract class BaseActivity {
     ctor public BaseActivity();
-    method protected final <T> void bindResultState(Flow<com.thanhng224.androidcorebase.core.architecture.result.ResultState<T>!> flow, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
     method protected final <T> void collectOnStarted(Flow<T>, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
     method @InaccessibleFromKotlin protected boolean getApplyInsetsToRoot();
     method @InaccessibleFromKotlin protected boolean getUseImmersiveMode();
@@ -520,7 +485,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
 
   public abstract class BaseFragment<VB> {
     ctor public BaseFragment();
-    method protected final <T> void bindResultState(Flow<com.thanhng224.androidcorebase.core.architecture.result.ResultState<T>!> flow, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
     method protected final <T> void collectOnStarted(Flow<T>, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
     method @InaccessibleFromKotlin protected final VB getBinding();
     method protected abstract VB inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
@@ -558,32 +522,6 @@ package com.thanhng224.androidcorebase.core.ui.base {
     method public static <T> void collectOnStartedBy(Flow<T>, LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function2<? super T,? super error.NonExistentClass<kotlin.Unit!>!,? extends java.lang.Object?> action);
   }
 
-  public final class ResultRenderState {
-    ctor public ResultRenderState(boolean isLoadingVisible, boolean isContentVisible, boolean isErrorVisible, com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage);
-    method public boolean component1();
-    method public boolean component2();
-    method public boolean component3();
-    method public com.thanhng224.androidcorebase.core.ui.text.UiText? component4();
-    method public com.thanhng224.androidcorebase.core.ui.base.ResultRenderState copy(optional boolean isLoadingVisible, optional boolean isContentVisible, optional boolean isErrorVisible, optional com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage);
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.ui.text.UiText? getErrorMessage();
-    method @InaccessibleFromKotlin public boolean isContentVisible();
-    method @InaccessibleFromKotlin public boolean isErrorVisible();
-    method @InaccessibleFromKotlin public boolean isLoadingVisible();
-    property public com.thanhng224.androidcorebase.core.ui.text.UiText? errorMessage;
-    property public boolean isContentVisible;
-    property public boolean isErrorVisible;
-    property public boolean isLoadingVisible;
-  }
-
-  public final class ResultRenderStateKt {
-    method public static void applyVisibilityTo(com.thanhng224.androidcorebase.core.ui.base.ResultRenderState, android.view.View loadingView, android.view.View contentView, android.view.View errorView);
-    method public static <T> com.thanhng224.androidcorebase.core.ui.base.ResultRenderState toRenderState(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T>);
-  }
-
-  public final class ResultStateOverlayKt {
-    method public static <T> void renderResultState(com.thanhng224.androidcorebase.core.architecture.result.ResultState<? extends T> result, android.view.ViewGroup contentRoot, FragmentManager dialogHost, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onSuccess);
-  }
-
 }
 
 package com.thanhng224.androidcorebase.core.ui.components {
@@ -598,60 +536,6 @@ package com.thanhng224.androidcorebase.core.ui.components {
     ctor public FrameButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
     field public static final int MIN_TOUCH_TARGET_DP = 48; // 0x30
     field public static final int SHAPE_OVAL_ORDINAL = 1; // 0x1
-  }
-
-  public final class FullScreenLoaderView extends android.widget.FrameLayout {
-    ctor public FullScreenLoaderView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
-    method public void hide();
-    method public void show();
-    method public void show(int statusResId);
-    method public void show(String statusText);
-    field public static final com.thanhng224.androidcorebase.core.ui.components.FullScreenLoaderView.Companion Companion;
-  }
-
-  public static final class FullScreenLoaderView.Companion {
-  }
-
-  public final class PromptDialogFragment extends com.thanhng224.androidcorebase.core.ui.base.BaseDialogFragment<CoreDialogPromptBinding!> {
-    ctor public PromptDialogFragment();
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnClose();
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnPrimary();
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRetry();
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnSecondary();
-    method protected CoreDialogPromptBinding inflateBinding(android.view.LayoutInflater inflater, android.view.ViewGroup? container);
-    method protected void onBindingReady(android.os.Bundle? savedInstanceState);
-    method @InaccessibleFromKotlin public void setOnClose(kotlin.jvm.functions.Function0<kotlin.Unit>?);
-    method @InaccessibleFromKotlin public void setOnPrimary(kotlin.jvm.functions.Function0<kotlin.Unit>?);
-    method @InaccessibleFromKotlin public void setOnRetry(kotlin.jvm.functions.Function0<kotlin.Unit>?);
-    method @InaccessibleFromKotlin public void setOnSecondary(kotlin.jvm.functions.Function0<kotlin.Unit>?);
-    property protected com.thanhng224.androidcorebase.core.ui.base.DialogAnimation dialogAnimation;
-    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onClose;
-    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onPrimary;
-    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onRetry;
-    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onSecondary;
-    field public static final com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment.Companion Companion;
-    field public static final String EVENT_CLOSE = "secondary";
-    field public static final String EVENT_KEY = "event";
-    field public static final String EVENT_PRIMARY = "primary";
-    field public static final String EVENT_RETRY = "primary";
-    field public static final String EVENT_SECONDARY = "secondary";
-    field public static final String RESULT_KEY = "com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment.result";
-  }
-
-  public static final class PromptDialogFragment.Companion {
-    method public com.thanhng224.androidcorebase.core.ui.components.PromptDialogFragment newInstance(String message, optional String? technicalCode, optional com.thanhng224.androidcorebase.core.ui.components.PromptType type, optional int primaryButtonTextResId, optional Integer? secondaryButtonTextResId);
-    property public static String EVENT_CLOSE;
-    property public static String EVENT_KEY;
-    property public static String EVENT_PRIMARY;
-    property public static String EVENT_RETRY;
-    property public static String EVENT_SECONDARY;
-    property public static String RESULT_KEY;
-  }
-
-  public enum PromptType {
-    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType ERROR;
-    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType INFO;
-    enum_constant public static final com.thanhng224.androidcorebase.core.ui.components.PromptType SUCCESS;
   }
 
   public final class ShadowLayout extends android.widget.FrameLayout {

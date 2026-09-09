@@ -15,13 +15,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.viewModels
 import com.example.androidcorebase.R
 import com.example.androidcorebase.databinding.FragmentDesignSystemBinding
+import com.example.androidcorebase.sample.designsystem.presentation.state.DesignSystemDemoState
 import com.example.androidcorebase.sample.designsystem.presentation.state.DesignSystemUiEvent
 import com.example.androidcorebase.sample.designsystem.presentation.viewmodel.DesignSystemViewModel
-import com.thanhng224.androidcorebase.core.architecture.result.ResultState
-import com.thanhng224.androidcorebase.core.architecture.result.fold
 import com.thanhng224.androidcorebase.core.ui.base.BaseFragment
 import com.thanhng224.androidcorebase.core.ui.base.setThemedContent
-import com.thanhng224.androidcorebase.core.ui.base.toRenderState
 import com.thanhng224.androidcorebase.core.ui.components.StyledSnackbar
 import com.thanhng224.androidcorebase.core.ui.text.resolve
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,15 +61,14 @@ class DesignSystemFragment : BaseFragment<FragmentDesignSystemBinding>() {
         viewModel.state.collectOnStarted { state -> render(state.demoResult) }
     }
 
-    private fun render(result: ResultState<Unit>) {
-        val renderState = result.toRenderState()
-        binding.progressDemoResult.visibility = if (renderState.isLoadingVisible) View.VISIBLE else View.GONE
+    private fun render(result: DesignSystemDemoState) {
+        binding.progressDemoResult.visibility = if (result is DesignSystemDemoState.Loading) View.VISIBLE else View.GONE
         binding.tvDemoResult.text =
-            result.fold(
-                onLoading = { getString(CoreR.string.core_design_system_result_loading) },
-                onSuccess = { getString(R.string.design_system_result_success) },
-                onError = { message, _ -> message.resolve(requireContext()) },
-            )
+            when (result) {
+                DesignSystemDemoState.Loading -> getString(R.string.design_system_result_loading)
+                DesignSystemDemoState.Success -> getString(R.string.design_system_result_success)
+                is DesignSystemDemoState.Error -> result.message.resolve(requireContext())
+            }
     }
 }
 

@@ -1,7 +1,7 @@
 package com.example.androidcorebase.sample.designsystem.presentation.viewmodel
 
+import com.example.androidcorebase.sample.designsystem.presentation.state.DesignSystemDemoState
 import com.example.androidcorebase.sample.designsystem.presentation.state.DesignSystemUiEvent
-import com.thanhng224.androidcorebase.core.architecture.result.ResultState
 import com.thanhng224.androidcorebase.core.ui.text.UiText
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,7 +16,7 @@ class DesignSystemViewModelTest {
     fun `initial state starts as Loading`() {
         val viewModel = DesignSystemViewModel()
 
-        assertEquals(ResultState.Loading, viewModel.state.value.demoResult)
+        assertEquals(DesignSystemDemoState.Loading, viewModel.state.value.demoResult)
     }
 
     @Test
@@ -26,7 +26,7 @@ class DesignSystemViewModelTest {
 
         viewModel.onEvent(DesignSystemUiEvent.ShowLoadingClicked)
 
-        assertEquals(ResultState.Loading, viewModel.state.value.demoResult)
+        assertEquals(DesignSystemDemoState.Loading, viewModel.state.value.demoResult)
     }
 
     @Test
@@ -35,7 +35,7 @@ class DesignSystemViewModelTest {
 
         viewModel.onEvent(DesignSystemUiEvent.ShowSuccessClicked)
 
-        assertEquals(ResultState.Success(Unit), viewModel.state.value.demoResult)
+        assertEquals(DesignSystemDemoState.Success, viewModel.state.value.demoResult)
     }
 
     @Test
@@ -45,7 +45,7 @@ class DesignSystemViewModelTest {
         viewModel.onEvent(DesignSystemUiEvent.ShowErrorClicked)
 
         assertEquals(
-            ResultState.Error(UiText.StringResource(com.example.androidcorebase.R.string.design_system_error_sample)),
+            DesignSystemDemoState.Error(UiText.StringResource(com.example.androidcorebase.R.string.design_system_error_sample)),
             viewModel.state.value.demoResult,
         )
     }
