@@ -1,22 +1,31 @@
 package com.example.androidcorebase.sample.demo.presentation.viewmodel
 
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androidcorebase.R
 import com.example.androidcorebase.sample.demo.domain.model.WeatherError
 import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
 import com.example.androidcorebase.sample.demo.domain.usecase.FetchDemoWeatherUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.IncrementCounterUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.ObserveDemoCountUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.SaveDemoCountUseCase
-import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEffect
+import com.example.androidcorebase.sample.demo.presentation.state.DemoMessageAction
 import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEvent
 import com.example.androidcorebase.sample.demo.presentation.state.DemoUiState
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherState
-import com.thanhng224.androidcorebase.core.architecture.StateViewModel
+import com.example.androidcorebase.sample.demo.presentation.state.PendingDemoMessage
+import com.thanhng224.androidcorebase.core.ui.text.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,41 +36,101 @@ class DemoViewModel
         private val observeDemoCount: ObserveDemoCountUseCase,
         private val saveDemoCount: SaveDemoCountUseCase,
         private val fetchDemoWeather: FetchDemoWeatherUseCase,
-    ) : StateViewModel<DemoUiState, DemoUiEvent, DemoUiEffect>(DemoUiState()) {
+    ) : ViewModel() {
         private var isInitialCountLoaded = false
+        private val nextMessageId = AtomicLong(0)
+        private val mutableState = MutableStateFlow(DemoUiState())
+        val state: StateFlow<DemoUiState> = mutableState.asStateFlow()
 
         init {
             viewModelScope.launch {
                 val initialCount = observeDemoCount().first()
-                setState { copy(count = initialCount) }
+                mutableState.update { it.copy(count = initialCount) }
                 isInitialCountLoaded = true
-                observeDemoCount().drop(1).collect { count -> setState { copy(count = count) } }
+                observeDemoCount().drop(1).collect { count -> mutableState.update { it.copy(count = count) } }
             }
             refreshWeather()
         }
 
-        override fun onEvent(event: DemoUiEvent) {
+        fun onEvent(event: DemoUiEvent) {
             when (event) {
                 is DemoUiEvent.IncrementClicked -> onIncrementClicked()
                 DemoUiEvent.RefreshWeatherClicked -> refreshWeather()
             }
         }
 
+        fun onMessageHandled(id: Long) {
+            removeHeadIfMatching(id)
+        }
+
+        fun onMessageAction(id: Long) {
+            val action = mutableState.value.pendingMessages.firstOrNull { it.id == id }?.action
+            if (!removeHeadIfMatching(id)) return
+            when (action) {
+                DemoMessageAction.ResetCounter -> resetCounter()
+                null -> Unit
+            }
+        }
+
+        /** Returns whether [id] matched the current head and was removed. */
+        private fun removeHeadIfMatching(id: Long): Boolean {
+            var removed = false
+            mutableState.update { current ->
+                val head = current.pendingMessages.firstOrNull()
+                if (head?.id != id) {
+                    current
+                } else {
+                    removed = true
+                    current.copy(pendingMessages = current.pendingMessages.drop(1))
+                }
+            }
+            return removed
+        }
+
+        private fun resetCounter() {
+            mutableState.update { it.copy(count = 0) }
+            viewModelScope.launch { saveDemoCount(0) }
+        }
+
         private fun onIncrementClicked() {
             if (!isInitialCountLoaded) return
-            val result = incrementCounter(currentState.count)
-            setState { copy(count = result.count) }
+            val result = incrementCounter(mutableState.value.count)
+            mutableState.update { it.copy(count = result.count) }
             viewModelScope.launch { saveDemoCount(result.count) }
             if (result.capped) {
-                sendEffect(DemoUiEffect.ShowMaxCountReached)
+                enqueueMessage(
+                    text = UiText.StringResource(R.string.demo_max_count_reached),
+                    actionLabel = UiText.StringResource(R.string.demo_reset_action),
+                    action = DemoMessageAction.ResetCounter,
+                )
             }
+        }
+
+        private fun enqueueMessage(
+            text: UiText,
+            actionLabel: UiText? = null,
+            action: DemoMessageAction? = null,
+        ) {
+            val message =
+                PendingDemoMessage(
+                    id = nextMessageId.incrementAndGet(),
+                    text = text,
+                    actionLabel = actionLabel,
+                    action = action,
+                )
+            mutableState.update { it.copy(pendingMessages = it.pendingMessages + message) }
+        }
+
+        @VisibleForTesting
+        fun enqueueForTest(action: DemoMessageAction?) {
+            enqueueMessage(text = UiText.DynamicString("test"), action = action)
         }
 
         private fun refreshWeather() {
             viewModelScope.launch {
-                setState { copy(weather = DemoWeatherState.Loading) }
+                mutableState.update { it.copy(weather = DemoWeatherState.Loading) }
                 val result = fetchDemoWeather()
-                setState { copy(weather = result.toWeatherState()) }
+                mutableState.update { it.copy(weather = result.toWeatherState()) }
             }
         }
 

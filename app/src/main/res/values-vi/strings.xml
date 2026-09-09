@@ -43,6 +43,7 @@
     <string name="demo_weather_error_unexpected_response">Không thể đọc dữ liệu thời tiết</string>
     <string name="demo_weather_error_empty_response">Dịch vụ thời tiết không trả dữ liệu</string>
     <string name="demo_max_count_reached">Đã đạt số tối đa</string>
+    <string name="demo_reset_action">Đặt lại</string>
     <string name="design_system_title">UI Kit</string>
     <string name="design_system_headline_sample">Mẫu tiêu đề</string>
     <string name="design_system_body_sample">Mẫu nội dung, hiển thị kiểu chữ Body của base.</string>

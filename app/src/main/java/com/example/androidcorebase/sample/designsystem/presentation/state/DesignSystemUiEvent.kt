@@ -1,8 +1,6 @@
 package com.example.androidcorebase.sample.designsystem.presentation.state
 
-import com.thanhng224.androidcorebase.core.architecture.UiEvent
-
-sealed interface DesignSystemUiEvent : UiEvent {
+sealed interface DesignSystemUiEvent {
     data object ShowLoadingClicked : DesignSystemUiEvent
 
     data object ShowSuccessClicked : DesignSystemUiEvent

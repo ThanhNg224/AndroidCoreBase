@@ -43,6 +43,7 @@
     <string name="demo_weather_error_unexpected_response">Could not read weather data</string>
     <string name="demo_weather_error_empty_response">Weather service returned no data</string>
     <string name="demo_max_count_reached">Max count reached</string>
+    <string name="demo_reset_action">Reset</string>
     <string name="design_system_title">UI Kit</string>
     <string name="design_system_headline_sample">Headline sample</string>
     <string name="design_system_body_sample">Body text sample, showing the base Body text appearance.</string>

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import androidx.activity.viewModels
 import com.example.androidcorebase.R
 import com.example.androidcorebase.databinding.ActivitySettingsBinding
-import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEffect
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEvent
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiState
 import com.example.androidcorebase.feature.settings.presentation.viewmodel.SettingsViewModel
@@ -30,12 +29,17 @@ class SettingsActivity : BaseBindingActivity<ActivitySettingsBinding>() {
         }
 
         viewModel.state.collectOnStarted(::render)
-        viewModel.effect.collectOnStarted(::handleEffect)
     }
 
     private fun render(state: SettingsUiState) {
         binding.tvAppearanceSummary.setText(state.theme.labelResId)
         binding.tvLanguageSummary.setText(state.language?.displayNameResId ?: R.string.settings_language_system)
+
+        val pending = state.pendingLanguageTransition
+        if (pending != null) {
+            startLanguageTransition(pending.language)
+            viewModel.onLanguageTransitionHandled()
+        }
     }
 
     private fun showThemeDialog(selectedTheme: AppTheme) {
@@ -76,12 +80,6 @@ class SettingsActivity : BaseBindingActivity<ActivitySettingsBinding>() {
                 dialog.dismiss()
             }.setNegativeButton(R.string.action_cancel, null)
             .show()
-    }
-
-    private fun handleEffect(effect: SettingsUiEffect) {
-        when (effect) {
-            is SettingsUiEffect.ApplyLanguage -> startLanguageTransition(effect.language)
-        }
     }
 
     private fun startLanguageTransition(language: AppLanguage?) {

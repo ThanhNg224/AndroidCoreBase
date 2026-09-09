@@ -1,12 +1,11 @@
 package com.example.androidcorebase.feature.settings.presentation.viewmodel
 
-import app.cash.turbine.test
 import com.example.androidcorebase.feature.settings.domain.repository.SettingsRepository
 import com.example.androidcorebase.feature.settings.domain.usecase.GetCurrentLanguageUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.GetSupportedLanguagesUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.ObserveThemeUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.SetThemeUseCase
-import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEffect
+import com.example.androidcorebase.feature.settings.presentation.state.PendingLanguageTransition
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEvent
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
 import com.thanhng224.androidcorebase.core.testing.MainDispatcherRule
@@ -91,12 +90,24 @@ class SettingsViewModelTest {
         runTest {
             val viewModel = createViewModel(FakeSettingsRepository(language = AppLanguage.ENGLISH))
 
-            viewModel.effect.test {
-                viewModel.onEvent(SettingsUiEvent.LanguageSelected(AppLanguage.VIETNAMESE))
+            viewModel.onEvent(SettingsUiEvent.LanguageSelected(AppLanguage.VIETNAMESE))
 
-                assertEquals(AppLanguage.VIETNAMESE, viewModel.state.value.language)
-                assertEquals(SettingsUiEffect.ApplyLanguage(AppLanguage.VIETNAMESE), awaitItem())
-            }
+            assertEquals(AppLanguage.VIETNAMESE, viewModel.state.value.language)
+            assertEquals(
+                PendingLanguageTransition(AppLanguage.VIETNAMESE),
+                viewModel.state.value.pendingLanguageTransition,
+            )
+        }
+
+    @Test
+    fun `acknowledging the language transition clears the pending request`() =
+        runTest {
+            val viewModel = createViewModel(FakeSettingsRepository(language = AppLanguage.ENGLISH))
+            viewModel.onEvent(SettingsUiEvent.LanguageSelected(AppLanguage.VIETNAMESE))
+
+            viewModel.onLanguageTransitionHandled()
+
+            assertEquals(null, viewModel.state.value.pendingLanguageTransition)
         }
 
     private fun createViewModel(repository: SettingsRepository): SettingsViewModel =

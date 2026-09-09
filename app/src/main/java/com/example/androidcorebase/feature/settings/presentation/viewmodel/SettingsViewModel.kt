@@ -1,15 +1,19 @@
 package com.example.androidcorebase.feature.settings.presentation.viewmodel
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidcorebase.feature.settings.domain.usecase.GetCurrentLanguageUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.GetSupportedLanguagesUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.ObserveThemeUseCase
 import com.example.androidcorebase.feature.settings.domain.usecase.SetThemeUseCase
-import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEffect
+import com.example.androidcorebase.feature.settings.presentation.state.PendingLanguageTransition
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiEvent
 import com.example.androidcorebase.feature.settings.presentation.state.SettingsUiState
-import com.thanhng224.androidcorebase.core.architecture.StateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,33 +25,45 @@ class SettingsViewModel
         getCurrentLanguage: GetCurrentLanguageUseCase,
         getSupportedLanguages: GetSupportedLanguagesUseCase,
         private val setTheme: SetThemeUseCase,
-    ) : StateViewModel<SettingsUiState, SettingsUiEvent, SettingsUiEffect>(
-            SettingsUiState(
-                language = getCurrentLanguage(),
-                supportedLanguages = getSupportedLanguages(),
-            ),
-        ) {
+    ) : ViewModel() {
+        private val mutableState =
+            MutableStateFlow(
+                SettingsUiState(
+                    language = getCurrentLanguage(),
+                    supportedLanguages = getSupportedLanguages(),
+                ),
+            )
+        val state: StateFlow<SettingsUiState> = mutableState.asStateFlow()
+
         init {
             viewModelScope.launch {
-                observeTheme().collect { theme -> setState { copy(theme = theme) } }
+                observeTheme().collect { theme -> mutableState.update { it.copy(theme = theme) } }
             }
         }
 
-        override fun onEvent(event: SettingsUiEvent) {
+        fun onEvent(event: SettingsUiEvent) {
             when (event) {
                 is SettingsUiEvent.ThemeSelected -> selectTheme(event)
                 is SettingsUiEvent.LanguageSelected -> selectLanguage(event)
             }
         }
 
+        fun onLanguageTransitionHandled() {
+            mutableState.update { it.copy(pendingLanguageTransition = null) }
+        }
+
         private fun selectTheme(event: SettingsUiEvent.ThemeSelected) {
-            if (event.theme == currentState.theme) return
+            if (event.theme == mutableState.value.theme) return
             viewModelScope.launch { setTheme(event.theme) }
         }
 
         private fun selectLanguage(event: SettingsUiEvent.LanguageSelected) {
-            if (event.language == currentState.language) return
-            setState { copy(language = event.language) }
-            sendEffect(SettingsUiEffect.ApplyLanguage(event.language))
+            if (event.language == mutableState.value.language) return
+            mutableState.update {
+                it.copy(
+                    language = event.language,
+                    pendingLanguageTransition = PendingLanguageTransition(event.language),
+                )
+            }
         }
     }

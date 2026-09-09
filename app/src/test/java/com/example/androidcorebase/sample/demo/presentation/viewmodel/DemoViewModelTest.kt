@@ -9,7 +9,7 @@ import com.example.androidcorebase.sample.demo.domain.usecase.FetchDemoWeatherUs
 import com.example.androidcorebase.sample.demo.domain.usecase.IncrementCounterUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.ObserveDemoCountUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.SaveDemoCountUseCase
-import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEffect
+import com.example.androidcorebase.sample.demo.presentation.state.DemoMessageAction
 import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEvent
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherState
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -123,13 +124,67 @@ class DemoViewModelTest {
         }
 
     @Test
-    fun `reaching the max count emits a show-toast effect`() =
+    fun `reaching the max count enqueues a pending message with a reset action`() =
         runTest {
             val viewModel = createViewModel(FakeDemoRepository())
 
-            viewModel.effect.test {
-                repeat(10) { viewModel.onEvent(DemoUiEvent.IncrementClicked) }
-                assertEquals(DemoUiEffect.ShowMaxCountReached, awaitItem())
+            repeat(10) { viewModel.onEvent(DemoUiEvent.IncrementClicked) }
+
+            val message = viewModel.state.value.pendingMessages.single()
+            assertEquals(DemoMessageAction.ResetCounter, message.action)
+        }
+
+    @Test
+    fun `messages remain FIFO and duplicate acknowledgement is ignored`() =
+        runTest {
+            val viewModel = createViewModel(FakeDemoRepository())
+            viewModel.enqueueForTest(DemoMessageAction.ResetCounter)
+            viewModel.enqueueForTest(null)
+            val first = viewModel.state.value.pendingMessages.first()
+
+            viewModel.onMessageHandled(first.id)
+            viewModel.onMessageHandled(first.id)
+
+            assertEquals(1, viewModel.state.value.pendingMessages.size)
+            assertNotEquals(first.id, viewModel.state.value.pendingMessages.single().id)
+        }
+
+    @Test
+    fun `onMessageAction removes the head before executing the reset action`() =
+        runTest {
+            val repository = FakeDemoRepository(initialCount = 5)
+            val viewModel = createViewModel(repository)
+            viewModel.enqueueForTest(DemoMessageAction.ResetCounter)
+            val message = viewModel.state.value.pendingMessages.first()
+
+            viewModel.onMessageAction(message.id)
+
+            assertEquals(0, viewModel.state.value.pendingMessages.size)
+            assertEquals(0, viewModel.state.value.count)
+        }
+
+    @Test
+    fun `a stale message acknowledgement is a no-op`() =
+        runTest {
+            val viewModel = createViewModel(FakeDemoRepository())
+            viewModel.enqueueForTest(null)
+            val staleId = viewModel.state.value.pendingMessages.first().id
+            viewModel.onMessageHandled(staleId)
+            viewModel.enqueueForTest(null)
+
+            viewModel.onMessageAction(staleId)
+
+            assertEquals(1, viewModel.state.value.pendingMessages.size)
+        }
+
+    @Test
+    fun `pending messages survive a new collector attaching later, config-change style`() =
+        runTest {
+            val viewModel = createViewModel(FakeDemoRepository())
+            viewModel.enqueueForTest(null)
+
+            viewModel.state.test {
+                assertEquals(1, awaitItem().pendingMessages.size)
             }
         }
 

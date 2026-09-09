@@ -4,23 +4,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.example.androidcorebase.R
 import com.example.androidcorebase.databinding.FragmentDemoBinding
 import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
-import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEffect
 import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEvent
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherState
+import com.example.androidcorebase.sample.demo.presentation.state.PendingDemoMessage
 import com.example.androidcorebase.sample.demo.presentation.viewmodel.DemoViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.thanhng224.androidcorebase.core.ui.base.BaseFragment
 import com.thanhng224.androidcorebase.core.ui.base.setOnDebouncedClickListener
+import com.thanhng224.androidcorebase.core.ui.text.resolve
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class DemoFragment : BaseFragment<FragmentDemoBinding>() {
     private val viewModel: DemoViewModel by viewModels()
+    private var lastShownMessageId: Long? = null
 
     override fun inflateBinding(
         inflater: LayoutInflater,
@@ -40,14 +42,42 @@ class DemoFragment : BaseFragment<FragmentDemoBinding>() {
         }
 
         observeState()
-        observeEffects()
     }
 
     private fun observeState() {
         viewModel.state.collectOnStarted { state ->
             binding.tvCount.text = getString(R.string.demo_count_format, state.count)
             binding.tvWeather.text = state.weather.toDisplayText()
+
+            val pending = state.pendingMessages.firstOrNull()
+            if (pending != null && pending.id != lastShownMessageId) {
+                lastShownMessageId = pending.id
+                showPendingMessage(pending)
+            }
         }
+    }
+
+    private fun showPendingMessage(message: PendingDemoMessage) {
+        val snackbar = Snackbar.make(binding.root, message.text.resolve(requireContext()), Snackbar.LENGTH_LONG)
+        val actionLabel = message.actionLabel
+        if (actionLabel != null && message.action != null) {
+            snackbar.setAction(actionLabel.resolve(requireContext())) {
+                viewModel.onMessageAction(message.id)
+            }
+        }
+        snackbar.addCallback(
+            object : Snackbar.Callback() {
+                override fun onDismissed(
+                    transientBottomBar: Snackbar?,
+                    event: Int,
+                ) {
+                    if (event != DISMISS_EVENT_ACTION) {
+                        viewModel.onMessageHandled(message.id)
+                    }
+                }
+            },
+        )
+        snackbar.show()
     }
 
     private fun DemoWeatherState.toDisplayText(): String =
@@ -111,18 +141,4 @@ class DemoFragment : BaseFragment<FragmentDemoBinding>() {
             DemoWeatherError.UNEXPECTED_RESPONSE -> getString(R.string.demo_weather_error_unexpected_response)
             DemoWeatherError.EMPTY_RESPONSE -> getString(R.string.demo_weather_error_empty_response)
         }
-
-    private fun observeEffects() {
-        viewModel.effect.collectOnStarted { effect ->
-            when (effect) {
-                DemoUiEffect.ShowMaxCountReached ->
-                    Toast
-                        .makeText(
-                            requireContext(),
-                            getString(R.string.demo_max_count_reached),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-            }
-        }
-    }
 }

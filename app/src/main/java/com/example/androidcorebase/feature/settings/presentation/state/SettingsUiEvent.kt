@@ -1,10 +1,9 @@
 package com.example.androidcorebase.feature.settings.presentation.state
 
-import com.thanhng224.androidcorebase.core.architecture.UiEvent
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
 import com.thanhng224.androidcorebase.core.ui.theme.AppTheme
 
-sealed interface SettingsUiEvent : UiEvent {
+sealed interface SettingsUiEvent {
     data class ThemeSelected(
         val theme: AppTheme,
     ) : SettingsUiEvent

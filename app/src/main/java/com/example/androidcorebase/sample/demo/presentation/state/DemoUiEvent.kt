@@ -1,8 +1,6 @@
 package com.example.androidcorebase.sample.demo.presentation.state
 
-import com.thanhng224.androidcorebase.core.architecture.UiEvent
-
-sealed interface DemoUiEvent : UiEvent {
+sealed interface DemoUiEvent {
     data object IncrementClicked : DemoUiEvent
 
     data object RefreshWeatherClicked : DemoUiEvent
