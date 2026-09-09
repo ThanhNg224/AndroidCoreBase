@@ -1,5 +1,7 @@
 package com.thanhng224.androidcorebase.core.storage.settings
 
+import com.thanhng224.androidcorebase.core.foundation.SettingsKey
+
 public object AppSettingsKeys {
     public val THEME_MODE: SettingsKey.StringKey = SettingsKey.StringKey(name = "theme_mode", defaultValue = "system")
     public val FIRST_OPEN_AT: SettingsKey.LongKey = SettingsKey.LongKey(name = "first_open_at", defaultValue = 0L)

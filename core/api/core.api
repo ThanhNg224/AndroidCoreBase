@@ -1,15 +1,6 @@
 // Signature format: 4.0
 package com.thanhng224.androidcorebase.core.architecture {
 
-  public interface AppDispatchers {
-    method @InaccessibleFromKotlin public CoroutineDispatcher getDefault();
-    method @InaccessibleFromKotlin public CoroutineDispatcher getIo();
-    method @InaccessibleFromKotlin public CoroutineDispatcher getMain();
-    property public abstract ErrorType default;
-    property public abstract ErrorType io;
-    property public abstract ErrorType main;
-  }
-
   public abstract class StateViewModel<S extends com.thanhng224.androidcorebase.core.architecture.UiState, E extends com.thanhng224.androidcorebase.core.architecture.UiEvent, F extends com.thanhng224.androidcorebase.core.architecture.UiEffect> {
     ctor public StateViewModel(S initialState);
     method @InaccessibleFromKotlin protected final S getCurrentState();
@@ -32,89 +23,9 @@ package com.thanhng224.androidcorebase.core.architecture {
   public interface UiState {
   }
 
-  public interface UseCase<P, R> {
-    method public suspend operator Object? invoke(P params, error.NonExistentClass);
-  }
-
 }
 
 package com.thanhng224.androidcorebase.core.architecture.result {
-
-  public sealed exhaustive interface AppError {
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    property public abstract Throwable? cause;
-  }
-
-  public static final class AppError.Business implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
-    ctor public AppError.Business(int code, String message);
-    method public int component1();
-    method public String component2();
-    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Business copy(optional int code, optional String message);
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    method @InaccessibleFromKotlin public int getCode();
-    method @InaccessibleFromKotlin public String getMessage();
-    property public Throwable? cause;
-    property public int code;
-    property public String message;
-  }
-
-  public static final class AppError.EmptyBody implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    property public Throwable? cause;
-    field public static final com.thanhng224.androidcorebase.core.architecture.result.AppError.EmptyBody INSTANCE;
-  }
-
-  public static final class AppError.Http implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
-    ctor public AppError.Http(int code, String serverMessage);
-    method public int component1();
-    method public String component2();
-    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Http copy(optional int code, optional String serverMessage);
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    method @InaccessibleFromKotlin public int getCode();
-    method @InaccessibleFromKotlin public String getServerMessage();
-    property public Throwable? cause;
-    property public int code;
-    property public String serverMessage;
-  }
-
-  public static final class AppError.Network implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
-    ctor public AppError.Network(Throwable cause);
-    method public Throwable component1();
-    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Network copy(optional Throwable cause);
-    method @InaccessibleFromKotlin public Throwable getCause();
-    property public Throwable cause;
-  }
-
-  public static final class AppError.Parse implements com.thanhng224.androidcorebase.core.architecture.result.AppError {
-    ctor public AppError.Parse(Throwable cause);
-    method public Throwable component1();
-    method public com.thanhng224.androidcorebase.core.architecture.result.AppError.Parse copy(optional Throwable cause);
-    method @InaccessibleFromKotlin public Throwable getCause();
-    property public Throwable cause;
-  }
-
-  public sealed exhaustive interface DomainResult<T> {
-  }
-
-  public static final class DomainResult.Error implements com.thanhng224.androidcorebase.core.architecture.result.DomainResult {
-    ctor public DomainResult.Error(com.thanhng224.androidcorebase.core.architecture.result.AppError error);
-    method public com.thanhng224.androidcorebase.core.architecture.result.AppError component1();
-    method public com.thanhng224.androidcorebase.core.architecture.result.DomainResult.Error copy(optional com.thanhng224.androidcorebase.core.architecture.result.AppError error);
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.architecture.result.AppError getError();
-    property public com.thanhng224.androidcorebase.core.architecture.result.AppError error;
-  }
-
-  public static final class DomainResult.Success<T> implements com.thanhng224.androidcorebase.core.architecture.result.DomainResult<T> {
-    ctor public DomainResult.Success(T data);
-    method public T component1();
-    method public com.thanhng224.androidcorebase.core.architecture.result.DomainResult.Success<T> copy(optional T data);
-    method @InaccessibleFromKotlin public T getData();
-    property public T data;
-  }
-
-  public final class DomainResultKt {
-    method public static inline <T, R> com.thanhng224.androidcorebase.core.architecture.result.DomainResult<R> map(com.thanhng224.androidcorebase.core.architecture.result.DomainResult<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
-  }
 
   public sealed exhaustive interface ResultState<T> {
   }
@@ -151,6 +62,72 @@ package com.thanhng224.androidcorebase.core.architecture.result {
 package com.thanhng224.androidcorebase.core.di {
 
   @kotlin.annotation.Retention(AnnotationRetention.BINARY) public @interface ApplicationScope {
+  }
+
+}
+
+package com.thanhng224.androidcorebase.core.foundation {
+
+  public interface AppDispatchers {
+    method @InaccessibleFromKotlin public CoroutineDispatcher getDefault();
+    method @InaccessibleFromKotlin public CoroutineDispatcher getIo();
+    method @InaccessibleFromKotlin public CoroutineDispatcher getMain();
+    property public abstract ErrorType default;
+    property public abstract ErrorType io;
+    property public abstract ErrorType main;
+  }
+
+  public interface SecureStore {
+    method public suspend Object? clear(error.NonExistentClass);
+    method @KotlinOnly public suspend Object? getString(com.thanhng224.androidcorebase.core.foundation.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.String?>);
+    method @KotlinOnly public suspend Object? putString(com.thanhng224.androidcorebase.core.foundation.SecureStoreKey key, String value, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @KotlinOnly public suspend Object? remove(com.thanhng224.androidcorebase.core.foundation.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.Void>);
+  }
+
+  public final value class SecureStoreKey {
+    ctor @KotlinOnly public SecureStoreKey(String name);
+    method @InaccessibleFromKotlin public String getName();
+    property public String name;
+  }
+
+  public final class SecureStoreKeys {
+    property public com.thanhng224.androidcorebase.core.foundation.SecureStoreKey AUTH_TOKEN;
+    property public com.thanhng224.androidcorebase.core.foundation.SecureStoreKey REFRESH_TOKEN;
+    field public static final com.thanhng224.androidcorebase.core.foundation.SecureStoreKeys INSTANCE;
+  }
+
+  public abstract sealed exhaustive class SettingsKey<T> {
+    method @InaccessibleFromKotlin public final T getDefaultValue();
+    method @InaccessibleFromKotlin public final String getName();
+    property public final T defaultValue;
+    property public final String name;
+  }
+
+  public static final class SettingsKey.BooleanKey extends com.thanhng224.androidcorebase.core.foundation.SettingsKey<java.lang.Boolean> {
+    ctor public SettingsKey.BooleanKey(String name, optional boolean defaultValue);
+  }
+
+  public static final class SettingsKey.FloatKey extends com.thanhng224.androidcorebase.core.foundation.SettingsKey<java.lang.Float> {
+    ctor public SettingsKey.FloatKey(String name, optional float defaultValue);
+  }
+
+  public static final class SettingsKey.IntKey extends com.thanhng224.androidcorebase.core.foundation.SettingsKey<java.lang.Integer> {
+    ctor public SettingsKey.IntKey(String name, optional int defaultValue);
+  }
+
+  public static final class SettingsKey.LongKey extends com.thanhng224.androidcorebase.core.foundation.SettingsKey<java.lang.Long> {
+    ctor public SettingsKey.LongKey(String name, optional long defaultValue);
+  }
+
+  public static final class SettingsKey.StringKey extends com.thanhng224.androidcorebase.core.foundation.SettingsKey<java.lang.String> {
+    ctor public SettingsKey.StringKey(String name, optional String defaultValue);
+  }
+
+  public interface SettingsStore {
+    method public suspend <T> Object? get(com.thanhng224.androidcorebase.core.foundation.SettingsKey<T> key, error.NonExistentClass);
+    method public <T> Flow<T> observe(com.thanhng224.androidcorebase.core.foundation.SettingsKey<T> key);
+    method public suspend <T> Object? remove(com.thanhng224.androidcorebase.core.foundation.SettingsKey<T> key, error.NonExistentClass);
+    method public suspend <T> Object? set(com.thanhng224.androidcorebase.core.foundation.SettingsKey<T> key, T value, error.NonExistentClass);
   }
 
 }
@@ -479,27 +456,8 @@ package com.thanhng224.androidcorebase.core.network.transfer {
 package com.thanhng224.androidcorebase.core.storage.secure {
 
   public final class DbPassphraseProvider {
-    ctor public DbPassphraseProvider(com.thanhng224.androidcorebase.core.storage.secure.SecureStore secureStore);
+    ctor public DbPassphraseProvider(com.thanhng224.androidcorebase.core.foundation.SecureStore secureStore);
     method public suspend Object? getOrCreate(error.NonExistentClass);
-  }
-
-  public interface SecureStore {
-    method public suspend Object? clear(error.NonExistentClass);
-    method @KotlinOnly public suspend Object? getString(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.String?>);
-    method @KotlinOnly public suspend Object? putString(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, String value, kotlin.coroutines.Continuation<? super java.lang.Void>);
-    method @KotlinOnly public suspend Object? remove(com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey key, kotlin.coroutines.Continuation<? super java.lang.Void>);
-  }
-
-  public final value class SecureStoreKey {
-    ctor @KotlinOnly public SecureStoreKey(String name);
-    method @InaccessibleFromKotlin public String getName();
-    property public String name;
-  }
-
-  public final class SecureStoreKeys {
-    property public com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey AUTH_TOKEN;
-    property public com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey REFRESH_TOKEN;
-    field public static final com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKeys INSTANCE;
   }
 
 }
@@ -507,57 +465,15 @@ package com.thanhng224.androidcorebase.core.storage.secure {
 package com.thanhng224.androidcorebase.core.storage.settings {
 
   public final class AppSettingsKeys {
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.BooleanKey getDEBUG_LOGGING_ENABLED();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.LongKey getFIRST_OPEN_AT();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.IntKey getOPEN_COUNT();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.StringKey getTHEME_MODE();
-    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.BooleanKey DEBUG_LOGGING_ENABLED;
-    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.LongKey FIRST_OPEN_AT;
-    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.IntKey OPEN_COUNT;
-    property public com.thanhng224.androidcorebase.core.storage.settings.SettingsKey.StringKey THEME_MODE;
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.BooleanKey getDEBUG_LOGGING_ENABLED();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.LongKey getFIRST_OPEN_AT();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.IntKey getOPEN_COUNT();
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey getTHEME_MODE();
+    property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.BooleanKey DEBUG_LOGGING_ENABLED;
+    property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.LongKey FIRST_OPEN_AT;
+    property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.IntKey OPEN_COUNT;
+    property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey THEME_MODE;
     field public static final com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys INSTANCE;
-  }
-
-  public abstract sealed exhaustive class SettingsKey<T> {
-    method @InaccessibleFromKotlin public final T getDefaultValue();
-    method @InaccessibleFromKotlin public final String getName();
-    property public final T defaultValue;
-    property public final String name;
-  }
-
-  public static final class SettingsKey.BooleanKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Boolean> {
-    ctor public SettingsKey.BooleanKey(String name, optional boolean defaultValue);
-  }
-
-  public static final class SettingsKey.FloatKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Float> {
-    ctor public SettingsKey.FloatKey(String name, optional float defaultValue);
-  }
-
-  public static final class SettingsKey.IntKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Integer> {
-    ctor public SettingsKey.IntKey(String name, optional int defaultValue);
-  }
-
-  public static final class SettingsKey.LongKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.Long> {
-    ctor public SettingsKey.LongKey(String name, optional long defaultValue);
-  }
-
-  public static final class SettingsKey.StringKey extends com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<java.lang.String> {
-    ctor public SettingsKey.StringKey(String name, optional String defaultValue);
-  }
-
-  public interface SettingsStore {
-    method public suspend <T> Object? get(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, error.NonExistentClass);
-    method public <T> Flow<T> observe(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key);
-    method public suspend <T> Object? remove(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, error.NonExistentClass);
-    method public suspend <T> Object? set(com.thanhng224.androidcorebase.core.storage.settings.SettingsKey<T> key, T value, error.NonExistentClass);
-  }
-
-}
-
-package com.thanhng224.androidcorebase.core.time {
-
-  public fun interface ElapsedRealtimeClock {
-    method public long nowMillis();
   }
 
 }
@@ -793,10 +709,6 @@ package com.thanhng224.androidcorebase.core.ui.drawable {
 }
 
 package com.thanhng224.androidcorebase.core.ui.text {
-
-  public interface StringProvider {
-    method public String getString(int resId);
-  }
 
   public sealed exhaustive interface UiText {
   }

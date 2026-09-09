@@ -1,6 +1,6 @@
 package com.thanhng224.androidcorebase.core.network.transfer
 
-import com.thanhng224.androidcorebase.core.architecture.AppDispatchers
+import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

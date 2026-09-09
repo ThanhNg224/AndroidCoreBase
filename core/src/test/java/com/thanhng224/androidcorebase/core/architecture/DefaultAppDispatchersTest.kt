@@ -1,5 +1,6 @@
 package com.thanhng224.androidcorebase.core.architecture
 
+import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Test

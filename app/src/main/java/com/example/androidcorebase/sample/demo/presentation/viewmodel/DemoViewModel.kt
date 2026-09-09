@@ -1,7 +1,8 @@
 package com.example.androidcorebase.sample.demo.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
+import com.example.androidcorebase.sample.demo.domain.model.WeatherError
+import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
 import com.example.androidcorebase.sample.demo.domain.usecase.FetchDemoWeatherUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.IncrementCounterUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.ObserveDemoCountUseCase
@@ -12,8 +13,6 @@ import com.example.androidcorebase.sample.demo.presentation.state.DemoUiState
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherState
 import com.thanhng224.androidcorebase.core.architecture.StateViewModel
-import com.thanhng224.androidcorebase.core.architecture.result.AppError
-import com.thanhng224.androidcorebase.core.architecture.result.DomainResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -61,23 +60,22 @@ class DemoViewModel
         private fun refreshWeather() {
             viewModelScope.launch {
                 setState { copy(weather = DemoWeatherState.Loading) }
-                val result = fetchDemoWeather(Unit)
+                val result = fetchDemoWeather()
                 setState { copy(weather = result.toWeatherState()) }
             }
         }
 
-        private fun DomainResult<DemoWeather>.toWeatherState(): DemoWeatherState =
+        private fun WeatherResult.toWeatherState(): DemoWeatherState =
             when (this) {
-                is DomainResult.Success -> DemoWeatherState.Success(data)
-                is DomainResult.Error -> DemoWeatherState.Error(error.toWeatherError())
+                is WeatherResult.Success -> DemoWeatherState.Success(weather)
+                is WeatherResult.Failure -> DemoWeatherState.Error(error.toWeatherError())
             }
 
-        private fun AppError.toWeatherError(): DemoWeatherError =
+        private fun WeatherError.toWeatherError(): DemoWeatherError =
             when (this) {
-                is AppError.Http -> DemoWeatherError.SERVER
-                is AppError.Business -> DemoWeatherError.SERVER
-                is AppError.Network -> DemoWeatherError.NO_CONNECTION
-                is AppError.Parse -> DemoWeatherError.UNEXPECTED_RESPONSE
-                AppError.EmptyBody -> DemoWeatherError.EMPTY_RESPONSE
+                is WeatherError.Server -> DemoWeatherError.SERVER
+                is WeatherError.Network -> DemoWeatherError.NO_CONNECTION
+                is WeatherError.Parse -> DemoWeatherError.UNEXPECTED_RESPONSE
+                WeatherError.EmptyBody -> DemoWeatherError.EMPTY_RESPONSE
             }
     }

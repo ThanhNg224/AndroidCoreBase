@@ -1,22 +1,18 @@
 package com.thanhng224.androidcorebase.core.di
 
 import android.content.Context
-import com.thanhng224.androidcorebase.core.architecture.AppDispatchers
 import com.thanhng224.androidcorebase.core.architecture.DefaultAppDispatchers
+import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
+import com.thanhng224.androidcorebase.core.foundation.SecureStore
+import com.thanhng224.androidcorebase.core.foundation.SettingsStore
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
 import com.thanhng224.androidcorebase.core.localization.LocaleManager
 import com.thanhng224.androidcorebase.core.localization.SupportedLanguages
 import com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider
 import com.thanhng224.androidcorebase.core.network.auth.SecureStoreAuthTokenProvider
 import com.thanhng224.androidcorebase.core.storage.secure.EncryptedSecureStore
-import com.thanhng224.androidcorebase.core.storage.secure.SecureStore
 import com.thanhng224.androidcorebase.core.storage.settings.DataStoreSettingsStore
-import com.thanhng224.androidcorebase.core.storage.settings.SettingsStore
 import com.thanhng224.androidcorebase.core.storage.settings.appSettingsDataStore
-import com.thanhng224.androidcorebase.core.time.AndroidElapsedRealtimeClock
-import com.thanhng224.androidcorebase.core.time.ElapsedRealtimeClock
-import com.thanhng224.androidcorebase.core.ui.text.AndroidStringProvider
-import com.thanhng224.androidcorebase.core.ui.text.StringProvider
 import dagger.Binds
 import dagger.BindsOptionalOf
 import dagger.Module
@@ -41,14 +37,6 @@ internal abstract class AppCoreBindingsModule {
     @Binds
     @Singleton
     abstract fun bindAuthTokenProvider(implementation: SecureStoreAuthTokenProvider): AuthTokenProvider
-
-    @Binds
-    @Singleton
-    abstract fun bindElapsedRealtimeClock(implementation: AndroidElapsedRealtimeClock): ElapsedRealtimeClock
-
-    @Binds
-    @Singleton
-    abstract fun bindStringProvider(implementation: AndroidStringProvider): StringProvider
 
     @BindsOptionalOf
     abstract fun bindSupportedLanguages(): SupportedLanguages

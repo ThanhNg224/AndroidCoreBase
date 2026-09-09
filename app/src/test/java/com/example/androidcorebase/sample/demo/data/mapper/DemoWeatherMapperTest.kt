@@ -3,8 +3,8 @@ package com.example.androidcorebase.sample.demo.data.mapper
 import com.example.androidcorebase.sample.demo.data.dto.DemoCurrentWeatherDto
 import com.example.androidcorebase.sample.demo.data.dto.DemoWeatherResponseDto
 import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
-import com.thanhng224.androidcorebase.core.architecture.result.AppError
-import com.thanhng224.androidcorebase.core.architecture.result.DomainResult
+import com.example.androidcorebase.sample.demo.domain.model.WeatherError
+import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
 import com.thanhng224.androidcorebase.core.network.ApiResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,7 +16,7 @@ class DemoWeatherMapperTest {
     private data class Case(
         val name: String,
         val input: ApiResult<DemoWeatherResponseDto>,
-        val expected: DomainResult<DemoWeather>,
+        val expected: WeatherResult,
     )
 
     private val cases =
@@ -36,7 +36,7 @@ class DemoWeatherMapperTest {
                         ),
                     ),
                 expected =
-                    DomainResult.Success(
+                    WeatherResult.Success(
                         DemoWeather(
                             temperatureCelsius = 31.8,
                             apparentTemperatureCelsius = 37.0,
@@ -46,31 +46,31 @@ class DemoWeatherMapperTest {
                     ),
             ),
             Case(
-                name = "http error maps to Http app error",
+                name = "http error maps to Server weather error",
                 input = ApiResult.HttpError(code = 404, message = "Not Found"),
-                expected = DomainResult.Error(AppError.Http(code = 404, serverMessage = "Not Found")),
+                expected = WeatherResult.Failure(WeatherError.Server(code = 404, message = "Not Found")),
             ),
             Case(
-                name = "network error maps to Network app error carrying the cause",
+                name = "network error maps to Network weather error carrying the cause",
                 input = ApiResult.NetworkError(networkCause),
-                expected = DomainResult.Error(AppError.Network(networkCause)),
+                expected = WeatherResult.Failure(WeatherError.Network(networkCause)),
             ),
             Case(
-                name = "parse error maps to Parse app error carrying the cause",
+                name = "parse error maps to Parse weather error carrying the cause",
                 input = ApiResult.ParseError(parseCause),
-                expected = DomainResult.Error(AppError.Parse(parseCause)),
+                expected = WeatherResult.Failure(WeatherError.Parse(parseCause)),
             ),
             Case(
-                name = "empty body maps to EmptyBody app error",
+                name = "empty body maps to EmptyBody weather error",
                 input = ApiResult.EmptyBody,
-                expected = DomainResult.Error(AppError.EmptyBody),
+                expected = WeatherResult.Failure(WeatherError.EmptyBody),
             ),
         )
 
     @Test
-    fun `toDomainResult maps every ApiResult branch to the expected DomainResult`() {
+    fun `toWeatherResult maps every ApiResult branch to the expected WeatherResult`() {
         cases.forEach { case ->
-            assertEquals(case.name, case.expected, case.input.toDomainResult())
+            assertEquals(case.name, case.expected, case.input.toWeatherResult())
         }
     }
 }

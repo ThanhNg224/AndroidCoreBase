@@ -1,7 +1,7 @@
 package com.thanhng224.androidcorebase.core.testing
 
-import com.thanhng224.androidcorebase.core.storage.settings.SettingsKey
-import com.thanhng224.androidcorebase.core.storage.settings.SettingsStore
+import com.thanhng224.androidcorebase.core.foundation.SettingsKey
+import com.thanhng224.androidcorebase.core.foundation.SettingsStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map

@@ -1,7 +1,7 @@
 package com.thanhng224.androidcorebase.core.network.auth
 
-import com.thanhng224.androidcorebase.core.storage.secure.SecureStore
-import com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKeys
+import com.thanhng224.androidcorebase.core.foundation.SecureStore
+import com.thanhng224.androidcorebase.core.foundation.SecureStoreKeys
 import com.thanhng224.androidcorebase.core.testing.FakeSecureStore
 import kotlinx.coroutines.runBlocking
 import okhttp3.Protocol

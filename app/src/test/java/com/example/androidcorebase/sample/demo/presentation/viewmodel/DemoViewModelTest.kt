@@ -2,6 +2,8 @@ package com.example.androidcorebase.sample.demo.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
+import com.example.androidcorebase.sample.demo.domain.model.WeatherError
+import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
 import com.example.androidcorebase.sample.demo.domain.repository.DemoRepository
 import com.example.androidcorebase.sample.demo.domain.usecase.FetchDemoWeatherUseCase
 import com.example.androidcorebase.sample.demo.domain.usecase.IncrementCounterUseCase
@@ -11,8 +13,6 @@ import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEffect
 import com.example.androidcorebase.sample.demo.presentation.state.DemoUiEvent
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherError
 import com.example.androidcorebase.sample.demo.presentation.state.DemoWeatherState
-import com.thanhng224.androidcorebase.core.architecture.result.AppError
-import com.thanhng224.androidcorebase.core.architecture.result.DomainResult
 import com.thanhng224.androidcorebase.core.testing.MainDispatcherRule
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +30,7 @@ class DemoViewModelTest {
 
     private class FakeDemoRepository(
         initialCount: Int = 0,
-        private val weatherResult: DomainResult<DemoWeather> = DomainResult.Success(DEMO_WEATHER),
+        private val weatherResult: WeatherResult = WeatherResult.Success(DEMO_WEATHER),
     ) : DemoRepository {
         private val countFlow = MutableStateFlow(initialCount)
         val savedCounts = mutableListOf<Int>()
@@ -42,7 +42,7 @@ class DemoViewModelTest {
             countFlow.value = count
         }
 
-        override suspend fun fetchWeather(): DomainResult<DemoWeather> = weatherResult
+        override suspend fun fetchWeather(): WeatherResult = weatherResult
     }
 
     /**
@@ -51,7 +51,7 @@ class DemoViewModelTest {
      */
     private class DeferredWeatherFakeDemoRepository(
         initialCount: Int = 0,
-        private val weatherResult: DomainResult<DemoWeather>,
+        private val weatherResult: WeatherResult,
     ) : DemoRepository {
         private val messageGate = CompletableDeferred<Unit>()
         private val countFlow = MutableStateFlow(initialCount)
@@ -66,7 +66,7 @@ class DemoViewModelTest {
             countFlow.value = count
         }
 
-        override suspend fun fetchWeather(): DomainResult<DemoWeather> {
+        override suspend fun fetchWeather(): WeatherResult {
             messageGate.await()
             return weatherResult
         }
@@ -99,7 +99,7 @@ class DemoViewModelTest {
             countFlow.value = count
         }
 
-        override suspend fun fetchWeather(): DomainResult<DemoWeather> = DomainResult.Success(DEMO_WEATHER)
+        override suspend fun fetchWeather(): WeatherResult = WeatherResult.Success(DEMO_WEATHER)
     }
 
     private fun createViewModel(repository: DemoRepository): DemoViewModel =
@@ -202,7 +202,7 @@ class DemoViewModelTest {
     @Test
     fun `weather state starts Loading then becomes the fetch result once it resolves`() =
         runTest {
-            val repository = DeferredWeatherFakeDemoRepository(weatherResult = DomainResult.Success(DEMO_WEATHER))
+            val repository = DeferredWeatherFakeDemoRepository(weatherResult = WeatherResult.Success(DEMO_WEATHER))
             val viewModel = createViewModel(repository)
 
             viewModel.state.test {
@@ -216,7 +216,7 @@ class DemoViewModelTest {
     @Test
     fun `weather state reflects a failed fetch`() =
         runTest {
-            val error: DomainResult<DemoWeather> = DomainResult.Error(AppError.Network(Throwable("network down")))
+            val error: WeatherResult = WeatherResult.Failure(WeatherError.Network(Throwable("network down")))
             val repository = DeferredWeatherFakeDemoRepository(weatherResult = error)
             val viewModel = createViewModel(repository)
 

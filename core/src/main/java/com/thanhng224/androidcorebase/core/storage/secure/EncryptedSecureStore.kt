@@ -6,7 +6,9 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import androidx.core.content.edit
-import com.thanhng224.androidcorebase.core.architecture.AppDispatchers
+import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
+import com.thanhng224.androidcorebase.core.foundation.SecureStore
+import com.thanhng224.androidcorebase.core.foundation.SecureStoreKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import timber.log.Timber

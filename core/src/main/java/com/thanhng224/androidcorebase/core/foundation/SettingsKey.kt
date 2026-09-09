@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.storage.settings
+package com.thanhng224.androidcorebase.core.foundation
 
 public sealed class SettingsKey<T>(
     public val name: String,

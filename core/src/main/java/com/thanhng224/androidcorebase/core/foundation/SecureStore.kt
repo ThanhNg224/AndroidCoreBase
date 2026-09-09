@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.storage.secure
+package com.thanhng224.androidcorebase.core.foundation
 
 @JvmInline
 public value class SecureStoreKey(

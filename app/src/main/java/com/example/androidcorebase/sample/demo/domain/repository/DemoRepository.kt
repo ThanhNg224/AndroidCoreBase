@@ -1,7 +1,6 @@
 package com.example.androidcorebase.sample.demo.domain.repository
 
-import com.example.androidcorebase.sample.demo.domain.model.DemoWeather
-import com.thanhng224.androidcorebase.core.architecture.result.DomainResult
+import com.example.androidcorebase.sample.demo.domain.model.WeatherResult
 import kotlinx.coroutines.flow.Flow
 
 interface DemoRepository {
@@ -9,5 +8,5 @@ interface DemoRepository {
 
     suspend fun saveCount(count: Int)
 
-    suspend fun fetchWeather(): DomainResult<DemoWeather>
+    suspend fun fetchWeather(): WeatherResult
 }

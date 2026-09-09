@@ -1,8 +1,8 @@
 package com.thanhng224.androidcorebase.core.ui.theme
 
 import androidx.appcompat.app.AppCompatDelegate
+import com.thanhng224.androidcorebase.core.foundation.SettingsStore
 import com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys
-import com.thanhng224.androidcorebase.core.storage.settings.SettingsStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

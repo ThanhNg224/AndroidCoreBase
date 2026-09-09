@@ -1,7 +1,7 @@
 package com.thanhng224.androidcorebase.core.testing
 
-import com.thanhng224.androidcorebase.core.storage.secure.SecureStore
-import com.thanhng224.androidcorebase.core.storage.secure.SecureStoreKey
+import com.thanhng224.androidcorebase.core.foundation.SecureStore
+import com.thanhng224.androidcorebase.core.foundation.SecureStoreKey
 
 /** In-memory [SecureStore] with no Keystore or disk involvement. */
 public class FakeSecureStore(

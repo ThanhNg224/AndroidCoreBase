@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.storage.settings
+package com.thanhng224.androidcorebase.core.foundation
 
 import kotlinx.coroutines.flow.Flow
 
