@@ -14,7 +14,6 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 
 /** HTTP statuses that per RFC 9110 must never carry a body, regardless of what the transport reports. */
 private val NO_BODY_STATUS_CODES = setOf(204, 205)
@@ -22,7 +21,6 @@ private val NO_BODY_STATUS_CODES = setOf(204, 205)
 private fun Long.toNullableTotalBytes(): Long? = takeIf { it >= 0 }
 
 internal class OkHttpFileTransferClient
-    @Inject
     internal constructor(
         private val okHttpClient: OkHttpClient,
         private val dispatchers: AppDispatchers,

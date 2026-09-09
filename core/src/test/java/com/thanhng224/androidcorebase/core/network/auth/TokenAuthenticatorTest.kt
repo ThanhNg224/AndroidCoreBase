@@ -10,8 +10,6 @@ import okhttp3.Response
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.util.Optional
-import javax.inject.Provider
 
 class TokenAuthenticatorTest {
     private class FakeAuthTokenRefresher(
@@ -48,11 +46,7 @@ class TokenAuthenticatorTest {
     private fun authenticator(
         secureStore: SecureStore,
         refresher: AuthTokenRefresher? = null,
-    ): TokenAuthenticator {
-        val optionalRefresher =
-            if (refresher != null) Optional.of(Provider { refresher }) else Optional.empty()
-        return TokenAuthenticator(AuthSession(secureStore), optionalRefresher)
-    }
+    ): TokenAuthenticator = TokenAuthenticator(AuthSession(secureStore), refresher?.let { { it } })
 
     @Test
     fun `authenticate returns cached token when it differs from the token that just failed`() =

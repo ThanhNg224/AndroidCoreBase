@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 public interface ThemeManager {
     public val currentTheme: Flow<AppTheme>
@@ -22,11 +20,13 @@ public interface ThemeManager {
     public suspend fun setTheme(theme: AppTheme)
 
     public fun applyTheme(theme: AppTheme)
+
+    public companion object {
+        public fun create(settingsStore: SettingsStore): ThemeManager = AndroidThemeManager(settingsStore)
+    }
 }
 
-@Singleton
 internal class AndroidThemeManager
-    @Inject
     internal constructor(
         private val settingsStore: SettingsStore,
     ) : ThemeManager {

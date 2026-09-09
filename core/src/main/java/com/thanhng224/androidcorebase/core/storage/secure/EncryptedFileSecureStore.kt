@@ -5,13 +5,11 @@ import androidx.core.util.AtomicFile
 import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
 import com.thanhng224.androidcorebase.core.foundation.SecureStore
 import com.thanhng224.androidcorebase.core.foundation.SecureStoreKey
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
-import javax.inject.Inject
 
 /**
  * [SecureStore] implementation whose single small file lives under [Context.noBackupFilesDir] (so
@@ -20,9 +18,8 @@ import javax.inject.Inject
  * [EncryptedFileCodec] for the envelope format and key handling.
  */
 internal class EncryptedFileSecureStore
-    @Inject
     internal constructor(
-        @ApplicationContext context: Context,
+        context: Context,
         private val dispatchers: AppDispatchers,
     ) : SecureStore {
         private val storeFile = File(context.noBackupFilesDir, FILE_NAME)

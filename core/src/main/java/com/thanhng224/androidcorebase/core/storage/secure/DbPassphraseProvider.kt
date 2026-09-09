@@ -5,8 +5,6 @@ import com.thanhng224.androidcorebase.core.foundation.SecureStoreKey
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.security.SecureRandom
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.io.encoding.Base64
 
 /**
@@ -15,9 +13,7 @@ import kotlin.io.encoding.Base64
  * stored value that fails to decode, or does not decode to exactly 32 bytes, is treated as absent
  * and atomically replaced with a freshly generated passphrase.
  */
-@Singleton
 public class DbPassphraseProvider
-    @Inject
     public constructor(
         private val secureStore: SecureStore,
     ) {

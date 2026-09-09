@@ -5,11 +5,9 @@ import com.thanhng224.androidcorebase.core.foundation.SecureStoreKey
 import com.thanhng224.androidcorebase.core.foundation.SecureStoreKeys
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
 
 public class AuthSession
-    @Inject
-    internal constructor(
+    public constructor(
         secureStore: SecureStore,
     ) {
         private val accessTokenSlot = TokenSlot(secureStore, SecureStoreKeys.AUTH_TOKEN)

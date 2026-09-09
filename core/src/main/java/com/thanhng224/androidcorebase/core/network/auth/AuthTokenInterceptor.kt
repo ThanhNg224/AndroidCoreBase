@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
-internal class AuthTokenInterceptor(
+public class AuthTokenInterceptor(
     private val authTokenProvider: AuthTokenProvider,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

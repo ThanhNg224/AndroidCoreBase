@@ -5,8 +5,6 @@ plugins {
     id("androidcorebase.quality")
     id("androidcorebase.published-library")
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -46,7 +44,6 @@ dependencies {
     api(libs.androidx.fragment.ktx)
     api(libs.androidx.appcompat)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.hilt.work)
     api(libs.material)
     implementation(libs.lottie)
 
@@ -55,19 +52,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     // Storage & Network
-    implementation(libs.androidx.datastore.preferences)
+    api(libs.androidx.datastore.preferences)
     api(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization.converter)
     api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-
-    // Dependency Injection
-    api(libs.hilt.android)
-
-    // KSP Annotation Processors
-    ksp(libs.hilt.compiler)
-    ksp(libs.androidx.hilt.compiler)
 
     // Test & Test Fixtures
     testFixturesApi(libs.junit)
@@ -92,15 +82,6 @@ kover {
                     "*.R",
                     "*.R$*",
                     "*.databinding.*",
-                    "*_Factory*",
-                    "*_HiltModules*",
-                    "*_MembersInjector*",
-                    "*Hilt_*",
-                    "dagger.hilt.*",
-                    "hilt_aggregated_deps.*",
-                    // Dependency Injection
-                    "*.core.di.*",
-                    "*.core.ui.theme.ThemeModule*",
                     // Android UI & Components
                     "*Activity",
                     "*Activity$*",
@@ -112,17 +93,13 @@ kover {
                     "*.core.navigation.IntentExtraNullableDelegate",
                     "*.core.navigation.FragmentArgumentDelegate",
                     "*.core.navigation.FragmentArgumentNullableDelegate",
-                    "*.core.ui.base.ResultStateOverlayKt",
                     "*.core.ui.base.DebouncerKt",
                     "*.core.ui.components.*",
                     "*.core.ui.window.*",
                     // Android System & Storage Services
                     "*.core.storage.secure.EncryptedFileSecureStore*",
                     "*.core.storage.secure.EncryptedFileCodec*",
-                    "*.core.storage.settings.AppDataStoreKt",
                     "*.core.localization.AppCompatLocaleApplier*",
-                    "*.core.localization.LocaleAppContext*",
-                    "*.core.navigation.ActivityNavigator*",
                 )
             }
         }

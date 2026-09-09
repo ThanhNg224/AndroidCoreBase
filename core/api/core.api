@@ -1,11 +1,4 @@
 // Signature format: 4.0
-package com.thanhng224.androidcorebase.core.di {
-
-  @kotlin.annotation.Retention(AnnotationRetention.BINARY) public @interface ApplicationScope {
-  }
-
-}
-
 package com.thanhng224.androidcorebase.core.foundation {
 
   public interface AppDispatchers {
@@ -15,6 +8,11 @@ package com.thanhng224.androidcorebase.core.foundation {
     property public abstract ErrorType default;
     property public abstract ErrorType io;
     property public abstract ErrorType main;
+    field public static final com.thanhng224.androidcorebase.core.foundation.AppDispatchers.Companion Companion;
+  }
+
+  public static final class AppDispatchers.Companion {
+    method public com.thanhng224.androidcorebase.core.foundation.AppDispatchers default();
   }
 
   public interface SecureStore {
@@ -127,65 +125,12 @@ package com.thanhng224.androidcorebase.core.localization {
 
 package com.thanhng224.androidcorebase.core.navigation {
 
-  public final class ActivityDestination {
-    ctor public ActivityDestination(kotlin.reflect.KClass<? extends android.app.Activity> activityClass, optional android.os.Bundle? extras, optional com.thanhng224.androidcorebase.core.navigation.NavigationOptions options);
-    method public kotlin.reflect.KClass<? extends android.app.Activity> component1();
-    method public android.os.Bundle? component2();
-    method public com.thanhng224.androidcorebase.core.navigation.NavigationOptions component3();
-    method public com.thanhng224.androidcorebase.core.navigation.ActivityDestination copy(optional kotlin.reflect.KClass<? extends android.app.Activity> activityClass, optional android.os.Bundle? extras, optional com.thanhng224.androidcorebase.core.navigation.NavigationOptions options);
-    method @InaccessibleFromKotlin public kotlin.reflect.KClass<? extends android.app.Activity> getActivityClass();
-    method @InaccessibleFromKotlin public android.os.Bundle? getExtras();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.navigation.NavigationOptions getOptions();
-    property public kotlin.reflect.KClass<? extends android.app.Activity> activityClass;
-    property public android.os.Bundle? extras;
-    property public com.thanhng224.androidcorebase.core.navigation.NavigationOptions options;
-  }
-
-  public final class ActivityNavigator {
-    ctor public ActivityNavigator();
-    method public void finish(android.app.Activity activity);
-    method public void navigate(android.content.Context context, com.thanhng224.androidcorebase.core.navigation.ActivityDestination destination);
-    field public static final com.thanhng224.androidcorebase.core.navigation.ActivityNavigator.Companion Companion;
-    field public static final String EXTRA_TRANSITION_TYPE = "extra_transition_type";
-  }
-
-  public static final class ActivityNavigator.Companion {
-    method public void applyTransition(android.app.Activity activity, com.thanhng224.androidcorebase.core.navigation.TransitionType type, boolean isOpen);
-    property public static String EXTRA_TRANSITION_TYPE;
-  }
-
   public final class ArgumentDelegatesKt {
     method @KotlinOnly public static inline <reified T> ErrorType fragmentArg(String key, optional T? defaultValue);
     method @KotlinOnly public static inline <reified T> ErrorType fragmentArgNullable(String key);
     method public static <T> T? getTyped(android.os.Bundle, String key, Class<T> clazz);
     method @KotlinOnly public static inline <reified T> ErrorType intentExtra(String key, optional T? defaultValue);
     method @KotlinOnly public static inline <reified T> ErrorType intentExtraNullable(String key);
-  }
-
-  public final class NavigationOptions {
-    ctor public NavigationOptions();
-    ctor public NavigationOptions(optional boolean clearTask, optional boolean singleTop, optional boolean noAnimation, optional com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType);
-    method public boolean component1();
-    method public boolean component2();
-    method public boolean component3();
-    method public com.thanhng224.androidcorebase.core.navigation.TransitionType component4();
-    method public com.thanhng224.androidcorebase.core.navigation.NavigationOptions copy(optional boolean clearTask, optional boolean singleTop, optional boolean noAnimation, optional com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType);
-    method @InaccessibleFromKotlin public boolean getClearTask();
-    method @InaccessibleFromKotlin public boolean getNoAnimation();
-    method @InaccessibleFromKotlin public boolean getSingleTop();
-    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.navigation.TransitionType getTransitionType();
-    method public int toIntentFlags();
-    property public boolean clearTask;
-    property public boolean noAnimation;
-    property public boolean singleTop;
-    property public com.thanhng224.androidcorebase.core.navigation.TransitionType transitionType;
-  }
-
-  public enum TransitionType {
-    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType DEFAULT;
-    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType FADE;
-    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType NONE;
-    enum_constant public static final com.thanhng224.androidcorebase.core.navigation.TransitionType SLIDE_HORIZONTAL;
   }
 
 }
@@ -275,16 +220,32 @@ package com.thanhng224.androidcorebase.core.network {
     property public T value;
   }
 
+  public final class NetworkClientFactory {
+    method public com.thanhng224.androidcorebase.core.network.ApiClient createApiClient();
+    method public com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider createAuthTokenProvider(com.thanhng224.androidcorebase.core.network.auth.AuthSession authSession);
+    method public Authenticator createAuthenticator(com.thanhng224.androidcorebase.core.network.auth.AuthSession authSession, optional kotlin.jvm.functions.Function0<? extends com.thanhng224.androidcorebase.core.network.auth.AuthTokenRefresher>? tokenRefresher);
+    method public com.thanhng224.androidcorebase.core.network.transfer.FileTransferClient createFileTransferClient(OkHttpClient okHttpClient, com.thanhng224.androidcorebase.core.foundation.AppDispatchers dispatchers);
+    method public OkHttpClient createOkHttpClient(com.thanhng224.androidcorebase.core.network.ApiConfig config, optional java.util.List<? extends Interceptor> interceptors, optional Authenticator authenticator);
+    method public Retrofit createRetrofit(com.thanhng224.androidcorebase.core.network.ApiConfig config, OkHttpClient okHttpClient);
+    field public static final com.thanhng224.androidcorebase.core.network.NetworkClientFactory INSTANCE;
+  }
+
 }
 
 package com.thanhng224.androidcorebase.core.network.auth {
 
   public final class AuthSession {
+    ctor public AuthSession(com.thanhng224.androidcorebase.core.foundation.SecureStore secureStore);
     method public suspend Object? clear(error.NonExistentClass);
     method public suspend Object? getAccessToken(error.NonExistentClass);
     method public suspend Object? getRefreshToken(error.NonExistentClass);
     method public String? peekAccessToken();
     method public suspend Object? setTokens(String accessToken, optional String? refreshToken, error.NonExistentClass);
+  }
+
+  public final class AuthTokenInterceptor {
+    ctor public AuthTokenInterceptor(com.thanhng224.androidcorebase.core.network.auth.AuthTokenProvider authTokenProvider);
+    method public Response intercept(Interceptor.Chain chain);
   }
 
   public interface AuthTokenProvider {
@@ -414,6 +375,11 @@ package com.thanhng224.androidcorebase.core.storage.secure {
     method public suspend Object? getOrCreate(error.NonExistentClass);
   }
 
+  public final class SecureStoreFactory {
+    method public com.thanhng224.androidcorebase.core.foundation.SecureStore encrypted(android.content.Context context, com.thanhng224.androidcorebase.core.foundation.AppDispatchers dispatchers);
+    field public static final com.thanhng224.androidcorebase.core.storage.secure.SecureStoreFactory INSTANCE;
+  }
+
 }
 
 package com.thanhng224.androidcorebase.core.storage.settings {
@@ -430,6 +396,11 @@ package com.thanhng224.androidcorebase.core.storage.settings {
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.IntKey OPEN_COUNT;
     property public com.thanhng224.androidcorebase.core.foundation.SettingsKey.StringKey THEME_MODE;
     field public static final com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys INSTANCE;
+  }
+
+  public final class SettingsStoreFactory {
+    method public com.thanhng224.androidcorebase.core.foundation.SettingsStore create(DataStore<Preferences!> dataStore);
+    field public static final com.thanhng224.androidcorebase.core.storage.settings.SettingsStoreFactory INSTANCE;
   }
 
 }
@@ -620,6 +591,11 @@ package com.thanhng224.androidcorebase.core.ui.theme {
     method public suspend Object? setTheme(com.thanhng224.androidcorebase.core.ui.theme.AppTheme theme, error.NonExistentClass);
     property public abstract ErrorType currentTheme;
     property public abstract ErrorType isThemeApplied;
+    field public static final com.thanhng224.androidcorebase.core.ui.theme.ThemeManager.Companion Companion;
+  }
+
+  public static final class ThemeManager.Companion {
+    method public com.thanhng224.androidcorebase.core.ui.theme.ThemeManager create(com.thanhng224.androidcorebase.core.foundation.SettingsStore settingsStore);
   }
 
 }

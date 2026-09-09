@@ -4,9 +4,9 @@ import android.app.Application
 import android.content.pm.ApplicationInfo
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.example.androidcorebase.di.ApplicationScope
 import com.example.androidcorebase.logging.AppReleaseTree
 import com.example.androidcorebase.startup.AppStartupCoordinator
-import com.thanhng224.androidcorebase.core.di.ApplicationScope
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

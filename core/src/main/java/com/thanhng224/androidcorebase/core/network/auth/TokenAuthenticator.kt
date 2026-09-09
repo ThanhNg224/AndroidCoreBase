@@ -7,17 +7,11 @@ import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import java.util.Optional
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
-@Singleton
 internal class TokenAuthenticator
-    @Inject
     internal constructor(
         private val authSession: AuthSession,
-        private val tokenRefresher: Optional<Provider<AuthTokenRefresher>>,
+        private val tokenRefresher: (() -> AuthTokenRefresher)? = null,
     ) : Authenticator {
         private val refreshMutex = Mutex()
 
@@ -53,7 +47,7 @@ internal class TokenAuthenticator
         }
 
         private suspend fun refreshAndPersist(): String? {
-            val refresher = tokenRefresher.orElse(null)?.get() ?: return null
+            val refresher = tokenRefresher?.invoke() ?: return null
             val newToken = refresher.refresh(authSession.getRefreshToken()) ?: return null
             authSession.setTokens(newToken)
             return newToken
