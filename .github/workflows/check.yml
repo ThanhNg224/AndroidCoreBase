@@ -3,8 +3,10 @@ name: check
 on:
   push:
     branches: [main, develop]
+    tags: ['*']
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 concurrency:
   group: check-${{ github.ref }}
@@ -30,6 +32,14 @@ jobs:
 
       - name: Verify the published library assembles
         run: ./gradlew :core:assembleRelease --stacktrace
+
+      - name: Verify Hilt-free artifacts with an isolated consumer (quick)
+        if: github.event_name == 'pull_request'
+        run: ./scripts/verify-publication.sh --quick
+
+      - name: Verify Hilt-free artifacts with an isolated consumer (release)
+        if: github.event_name != 'pull_request'
+        run: ./scripts/verify-publication.sh --release
 
       - name: Upload reports
         if: always()

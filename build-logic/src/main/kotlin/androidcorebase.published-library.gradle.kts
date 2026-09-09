@@ -62,6 +62,28 @@ afterEvaluate {
                             url.set("https://github.com/ThanhNg224/AndroidCoreBase/blob/main/LICENSE")
                         }
                     }
+
+                    // AGP folds this module's testFixtures dependencies (junit, kotlinx-coroutines-test)
+                    // into the flattened Maven POM alongside the release variant's real dependencies, even
+                    // though they're test-only and never reach a real consumer's compile/runtime classpath
+                    // under Gradle (which resolves the separate, variant-aware Gradle Module Metadata
+                    // instead). Strip them from the POM so POM-only tooling doesn't see them either.
+                    withXml {
+                        val testOnlyArtifactIds = setOf("junit", "kotlinx-coroutines-test")
+                        val dependenciesNode =
+                            asNode().children().filterIsInstance<groovy.util.Node>().find {
+                                it.name().toString().endsWith("dependencies")
+                            } ?: return@withXml
+                        dependenciesNode.children().filterIsInstance<groovy.util.Node>().toList().forEach { dependencyNode ->
+                            val artifactId =
+                                dependencyNode.children().filterIsInstance<groovy.util.Node>().find {
+                                    it.name().toString().endsWith("artifactId")
+                                }?.text()
+                            if (artifactId in testOnlyArtifactIds) {
+                                dependenciesNode.remove(dependencyNode)
+                            }
+                        }
+                    }
                 }
             }
         }

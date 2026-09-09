@@ -34,7 +34,7 @@ class AppStartupCoordinator
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 Timber.w("Failed to load the persisted theme; applying the system default")
                 themeManager.applyTheme(AppTheme.SYSTEM)
             } finally {

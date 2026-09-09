@@ -74,7 +74,7 @@ class SettingsViewModel
                     mutableState.update { it.copy(language = event.language) }
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     enqueueMessage(UiText.StringResource(R.string.settings_language_update_failed))
                 }
             }

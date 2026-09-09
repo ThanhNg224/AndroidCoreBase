@@ -60,9 +60,11 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Test & Test Fixtures
-    testFixturesApi(libs.junit)
-    testFixturesApi(libs.kotlinx.coroutines.test)
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
     testImplementation(testFixtures(project(":core")))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
