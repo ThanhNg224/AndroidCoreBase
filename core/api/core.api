@@ -378,9 +378,9 @@ package com.thanhng224.androidcorebase.core.network.auth {
 package com.thanhng224.androidcorebase.core.network.transfer {
 
   public interface FileTransferClient {
-    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<java.io.File!>!> download(Request request, java.io.File destination);
-    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.StreamChunk!>!> stream(Request request, optional int chunkSizeBytes);
-    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse!>!> upload(Request request);
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferEvent!> download(Request request, java.io.File destination);
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferEvent<byte[]!,kotlin.Unit!>!> stream(Request request, optional int chunkSizeBytes);
+    method public Flow<com.thanhng224.androidcorebase.core.network.transfer.TransferEvent!> upload(Request request);
     field public static final com.thanhng224.androidcorebase.core.network.transfer.FileTransferClient.Companion Companion;
     field public static final int DEFAULT_STREAM_CHUNK_SIZE_BYTES = 8192; // 0x2000
   }
@@ -390,68 +390,91 @@ package com.thanhng224.androidcorebase.core.network.transfer {
     field public static final int DEFAULT_STREAM_CHUNK_SIZE_BYTES = 8192; // 0x2000
   }
 
-  public final class HttpTransferResponse {
-    ctor public HttpTransferResponse(int code, String? body);
+  public final class HttpTransferMetadata {
+    ctor public HttpTransferMetadata(int code, java.util.Map<java.lang.String,? extends java.util.List<java.lang.String>> headers);
     method public int component1();
-    method public String? component2();
-    method public com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse copy(optional int code, optional String? body);
-    method @InaccessibleFromKotlin public String? getBody();
+    method public java.util.Map<java.lang.String,java.util.List<java.lang.String>> component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.HttpTransferMetadata copy(optional int code, optional java.util.Map<java.lang.String,? extends java.util.List<java.lang.String>> headers);
     method @InaccessibleFromKotlin public int getCode();
-    property public String? body;
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.util.List<java.lang.String>> getHeaders();
+    property public int code;
+    property public java.util.Map<java.lang.String,java.util.List<java.lang.String>> headers;
+  }
+
+  public sealed exhaustive interface TransferError {
+  }
+
+  public static final class TransferError.EmptyBody implements com.thanhng224.androidcorebase.core.network.transfer.TransferError {
+    field public static final com.thanhng224.androidcorebase.core.network.transfer.TransferError.EmptyBody INSTANCE;
+  }
+
+  public static final class TransferError.FileSystem implements com.thanhng224.androidcorebase.core.network.transfer.TransferError {
+    ctor public TransferError.FileSystem(java.io.IOException cause);
+    method public java.io.IOException component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferError.FileSystem copy(optional java.io.IOException cause);
+    method @InaccessibleFromKotlin public java.io.IOException getCause();
+    property public java.io.IOException cause;
+  }
+
+  public static final class TransferError.Http implements com.thanhng224.androidcorebase.core.network.transfer.TransferError {
+    ctor public TransferError.Http(int code);
+    method public int component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferError.Http copy(optional int code);
+    method @InaccessibleFromKotlin public int getCode();
     property public int code;
   }
 
-  public final class StreamChunk {
-    ctor public StreamChunk(byte[] bytes, long bytesRead);
-    method public byte[] component1();
-    method public long component2();
-    method public com.thanhng224.androidcorebase.core.network.transfer.StreamChunk copy(optional byte[] bytes, optional long bytesRead);
-    method @InaccessibleFromKotlin public byte[] getBytes();
-    method @InaccessibleFromKotlin public long getBytesRead();
-    property public byte[] bytes;
-    property public long bytesRead;
+  public static final class TransferError.Network implements com.thanhng224.androidcorebase.core.network.transfer.TransferError {
+    ctor public TransferError.Network(java.io.IOException cause);
+    method public java.io.IOException component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferError.Network copy(optional java.io.IOException cause);
+    method @InaccessibleFromKotlin public java.io.IOException getCause();
+    property public java.io.IOException cause;
   }
 
-  public sealed exhaustive interface TransferResult<T> {
+  public sealed exhaustive interface TransferEvent<P, R> {
   }
 
-  public static final class TransferResult.Failure implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult {
-    ctor public TransferResult.Failure(String message, optional Throwable? cause);
-    method public String component1();
-    method public Throwable? component2();
-    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Failure copy(optional String message, optional Throwable? cause);
-    method @InaccessibleFromKotlin public Throwable? getCause();
-    method @InaccessibleFromKotlin public String getMessage();
-    property public Throwable? cause;
-    property public String message;
+  public static final class TransferEvent.Completed<R> implements com.thanhng224.androidcorebase.core.network.transfer.TransferEvent {
+    ctor public TransferEvent.Completed(R value);
+    method public R component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferEvent.Completed<R> copy(optional R value);
+    method @InaccessibleFromKotlin public R getValue();
+    property public R value;
   }
 
-  public static final class TransferResult.Progress implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult {
-    ctor public TransferResult.Progress(long bytesTransferred, long totalBytes);
+  public static final class TransferEvent.Failed implements com.thanhng224.androidcorebase.core.network.transfer.TransferEvent {
+    ctor public TransferEvent.Failed(com.thanhng224.androidcorebase.core.network.transfer.TransferError error);
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferError component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferEvent.Failed copy(optional com.thanhng224.androidcorebase.core.network.transfer.TransferError error);
+    method @InaccessibleFromKotlin public com.thanhng224.androidcorebase.core.network.transfer.TransferError getError();
+    property public com.thanhng224.androidcorebase.core.network.transfer.TransferError error;
+  }
+
+  public static final class TransferEvent.Payload<P> implements com.thanhng224.androidcorebase.core.network.transfer.TransferEvent {
+    ctor public TransferEvent.Payload(P value);
+    method public P component1();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferEvent.Payload<P> copy(optional P value);
+    method @InaccessibleFromKotlin public P getValue();
+    property public P value;
+  }
+
+  public static final class TransferEvent.Progress implements com.thanhng224.androidcorebase.core.network.transfer.TransferEvent {
+    ctor public TransferEvent.Progress(long bytesTransferred, Long? totalBytes);
     method public long component1();
-    method public long component2();
-    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Progress copy(optional long bytesTransferred, optional long totalBytes);
+    method public Long? component2();
+    method public com.thanhng224.androidcorebase.core.network.transfer.TransferEvent.Progress copy(optional long bytesTransferred, optional Long? totalBytes);
     method @InaccessibleFromKotlin public long getBytesTransferred();
-    method @InaccessibleFromKotlin public Integer? getPercent();
-    method @InaccessibleFromKotlin public long getTotalBytes();
+    method @InaccessibleFromKotlin public Long? getTotalBytes();
     property public long bytesTransferred;
-    property public Integer? percent;
-    property public long totalBytes;
+    property public Long? totalBytes;
   }
 
-  public static final class TransferResult.Success<T> implements com.thanhng224.androidcorebase.core.network.transfer.TransferResult<T> {
-    ctor public TransferResult.Success(T data);
-    method public T component1();
-    method public com.thanhng224.androidcorebase.core.network.transfer.TransferResult.Success<T> copy(optional T data);
-    method @InaccessibleFromKotlin public T getData();
-    property public T data;
-  }
+  public typealias DownloadEvent = com.thanhng224.androidcorebase.core.network.transfer.TransferEvent<java.lang.Void,java.io.File>;
 
-  public typealias DownloadResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<java.io.File>;
+  public typealias StreamEvent = com.thanhng224.androidcorebase.core.network.transfer.TransferEvent<byte[],kotlin.Unit>;
 
-  public typealias StreamResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.StreamChunk>;
-
-  public typealias UploadResult = com.thanhng224.androidcorebase.core.network.transfer.TransferResult<com.thanhng224.androidcorebase.core.network.transfer.HttpTransferResponse>;
+  public typealias UploadEvent = com.thanhng224.androidcorebase.core.network.transfer.TransferEvent<java.lang.Void,com.thanhng224.androidcorebase.core.network.transfer.HttpTransferMetadata>;
 
 }
 

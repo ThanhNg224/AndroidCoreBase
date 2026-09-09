@@ -1,48 +1,48 @@
 package com.thanhng224.androidcorebase.core.network.transfer
 
 import java.io.File
+import java.io.IOException
 
-public sealed interface TransferResult<out T> {
+public sealed interface TransferEvent<out P, out R> {
     public data class Progress(
-        val bytesTransferred: Long,
-        val totalBytes: Long,
-    ) : TransferResult<Nothing> {
-        val percent: Int?
-            get() = totalBytes.takeIf { it > 0L }?.let { ((bytesTransferred * 100) / it).toInt() }
-    }
+        public val bytesTransferred: Long,
+        public val totalBytes: Long?,
+    ) : TransferEvent<Nothing, Nothing>
 
-    public data class Success<T>(
-        val data: T,
-    ) : TransferResult<T>
+    public data class Payload<P>(
+        public val value: P,
+    ) : TransferEvent<P, Nothing>
 
-    public data class Failure(
-        val message: String,
-        val cause: Throwable? = null,
-    ) : TransferResult<Nothing>
+    public data class Completed<R>(
+        public val value: R,
+    ) : TransferEvent<Nothing, R>
+
+    public data class Failed(
+        public val error: TransferError,
+    ) : TransferEvent<Nothing, Nothing>
 }
 
-public data class HttpTransferResponse(
-    val code: Int,
-    val body: String?,
+public sealed interface TransferError {
+    public data class Http(
+        public val code: Int,
+    ) : TransferError
+
+    public data class Network(
+        public val cause: IOException,
+    ) : TransferError
+
+    public data class FileSystem(
+        public val cause: IOException,
+    ) : TransferError
+
+    public data object EmptyBody : TransferError
+}
+
+public data class HttpTransferMetadata(
+    public val code: Int,
+    public val headers: Map<String, List<String>>,
 )
 
-public data class StreamChunk(
-    val bytes: ByteArray,
-    val bytesRead: Long,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is StreamChunk) return false
-        return bytes.contentEquals(other.bytes) && bytesRead == other.bytesRead
-    }
-
-    override fun hashCode(): Int {
-        var result = bytes.contentHashCode()
-        result = 31 * result + bytesRead.hashCode()
-        return result
-    }
-}
-
-public typealias DownloadResult = TransferResult<File>
-public typealias UploadResult = TransferResult<HttpTransferResponse>
-public typealias StreamResult = TransferResult<StreamChunk>
+public typealias DownloadEvent = TransferEvent<Nothing, File>
+public typealias UploadEvent = TransferEvent<Nothing, HttpTransferMetadata>
+public typealias StreamEvent = TransferEvent<ByteArray, Unit>
