@@ -46,12 +46,9 @@ dependencies {
     api(libs.androidx.fragment.ktx)
     api(libs.androidx.appcompat)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.startup.runtime)
-    implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
     api(libs.material)
     implementation(libs.lottie)
-    api(libs.timber)
 
     // Coroutines
     api(libs.kotlinx.coroutines.core)
@@ -80,7 +77,6 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.work.testing)
 }
 
 kover {
@@ -121,17 +117,12 @@ kover {
                     "*.core.ui.components.*",
                     "*.core.ui.window.*",
                     // Android System & Storage Services
-                    "*.core.startup.*",
                     "*.core.storage.secure.EncryptedFileSecureStore*",
                     "*.core.storage.secure.EncryptedFileCodec*",
                     "*.core.storage.settings.AppDataStoreKt",
                     "*.core.localization.AppCompatLocaleApplier*",
                     "*.core.localization.LocaleAppContext*",
                     "*.core.navigation.ActivityNavigator*",
-                    "*.core.network.connectivity.AndroidConnectivityChecker*",
-                    "*.core.time.AndroidElapsedRealtimeClock*",
-                    "*.core.ui.text.AndroidStringProvider*",
-                    "*.core.work.*",
                 )
             }
         }

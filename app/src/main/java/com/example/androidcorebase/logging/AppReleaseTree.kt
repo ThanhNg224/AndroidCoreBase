@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.logging
+package com.example.androidcorebase.logging
 
 import android.util.Log
 import timber.log.Timber
@@ -6,10 +6,10 @@ import timber.log.Timber
 /**
  * Release-build Timber tree: drops VERBOSE/DEBUG/INFO entirely and forwards only WARN+ to
  * `android.util.Log`. Hook a crash-reporting SDK's `log()`/`recordException()` into [log] once
- * this base picks one — kept as plain `Log.println` until then so no reporting vendor is
- * hardcoded into the base.
+ * this app picks one -- kept as plain `Log.println` until then so no reporting vendor is
+ * hardcoded here.
  */
-public class ReleaseTree : Timber.Tree() {
+class AppReleaseTree : Timber.Tree() {
     public override fun isLoggable(
         tag: String?,
         priority: Int,

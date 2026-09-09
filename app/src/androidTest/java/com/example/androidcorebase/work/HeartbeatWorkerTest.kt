@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.work
+package com.example.androidcorebase.work
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider

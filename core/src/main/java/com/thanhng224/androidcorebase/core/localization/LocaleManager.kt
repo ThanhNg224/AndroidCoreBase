@@ -6,21 +6,15 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.LocaleManagerCompat
 import androidx.core.os.LocaleListCompat
 
-/**
- * Process-wide application [Context] captured at startup for API 33+ locale resolution.
- */
-internal object LocaleAppContext {
-    @Volatile
-    var applicationContext: Context? = null
-}
-
 public interface AppLocaleApplier {
     public fun applyLocales(tag: String)
 
     public fun currentLocaleTags(): String
 }
 
-public class AppCompatLocaleApplier : AppLocaleApplier {
+public class AppCompatLocaleApplier(
+    private val context: Context,
+) : AppLocaleApplier {
     override fun applyLocales(tag: String) {
         val locales =
             if (tag.isBlank()) {
@@ -31,21 +25,16 @@ public class AppCompatLocaleApplier : AppLocaleApplier {
         AppCompatDelegate.setApplicationLocales(locales)
     }
 
-    override fun currentLocaleTags(): String {
+    override fun currentLocaleTags(): String =
         if (Build.VERSION.SDK_INT < 33) {
-            return AppCompatDelegate.getApplicationLocales().toLanguageTags()
-        }
-        val context = LocaleAppContext.applicationContext
-        return if (context != null) {
-            LocaleManagerCompat.getApplicationLocales(context).toLanguageTags()
-        } else {
             AppCompatDelegate.getApplicationLocales().toLanguageTags()
+        } else {
+            LocaleManagerCompat.getApplicationLocales(context).toLanguageTags()
         }
-    }
 }
 
 public class LocaleManager(
-    private val localeApplier: AppLocaleApplier = AppCompatLocaleApplier(),
+    private val localeApplier: AppLocaleApplier,
     private val supportedLanguages: List<AppLanguage> = AppLanguage.BUILT_IN,
 ) {
     public fun setLanguage(language: AppLanguage) {

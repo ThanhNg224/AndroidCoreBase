@@ -135,7 +135,7 @@ package com.thanhng224.androidcorebase.core.foundation {
 package com.thanhng224.androidcorebase.core.localization {
 
   public final class AppCompatLocaleApplier implements com.thanhng224.androidcorebase.core.localization.AppLocaleApplier {
-    ctor public AppCompatLocaleApplier();
+    ctor public AppCompatLocaleApplier(android.content.Context context);
     method public void applyLocales(String tag);
     method public String currentLocaleTags();
   }
@@ -168,8 +168,7 @@ package com.thanhng224.androidcorebase.core.localization {
   }
 
   public final class LocaleManager {
-    ctor public LocaleManager();
-    ctor public LocaleManager(optional com.thanhng224.androidcorebase.core.localization.AppLocaleApplier localeApplier, optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> supportedLanguages);
+    ctor public LocaleManager(com.thanhng224.androidcorebase.core.localization.AppLocaleApplier localeApplier, optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> supportedLanguages);
     method public com.thanhng224.androidcorebase.core.localization.AppLanguage? currentLanguage();
     method public void setLanguage(com.thanhng224.androidcorebase.core.localization.AppLanguage language);
     method public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> supportedLanguages();
@@ -182,16 +181,6 @@ package com.thanhng224.androidcorebase.core.localization {
     method public com.thanhng224.androidcorebase.core.localization.SupportedLanguages copy(optional java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> values);
     method @InaccessibleFromKotlin public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> getValues();
     property public java.util.List<com.thanhng224.androidcorebase.core.localization.AppLanguage> values;
-  }
-
-}
-
-package com.thanhng224.androidcorebase.core.logging {
-
-  public final class ReleaseTree {
-    ctor public ReleaseTree();
-    method public boolean isLoggable(String? tag, int priority);
-    method public void log(int priority, String? tag, String message, Throwable? t);
   }
 
 }

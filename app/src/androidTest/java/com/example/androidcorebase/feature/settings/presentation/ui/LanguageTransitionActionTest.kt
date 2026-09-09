@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.thanhng224.androidcorebase.core.localization.AppCompatLocaleApplier
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
 import com.thanhng224.androidcorebase.core.localization.LocaleManager
 import com.thanhng224.androidcorebase.core.ui.base.TransitionActivity
@@ -17,7 +18,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LanguageTransitionActionTest {
-    private val localeManager = LocaleManager()
+    private val localeManager =
+        LocaleManager(
+            localeApplier = AppCompatLocaleApplier(InstrumentationRegistry.getInstrumentation().targetContext),
+        )
 
     @get:Rule
     val activityRule =
@@ -44,12 +48,18 @@ class LanguageTransitionActionTest {
 
     @Test
     fun transitionActivity_runsActionThenFinishes() {
-        val deadline = System.currentTimeMillis() + TIMEOUT_MS
-        while (activityRule.scenario.state != Lifecycle.State.DESTROYED && System.currentTimeMillis() < deadline) {
+        val activityDeadline = System.currentTimeMillis() + TIMEOUT_MS
+        while (activityRule.scenario.state != Lifecycle.State.DESTROYED && System.currentTimeMillis() < activityDeadline) {
             Thread.sleep(POLL_INTERVAL_MS)
         }
-
         assertEquals(Lifecycle.State.DESTROYED, activityRule.scenario.state)
+
+        // Poll rather than assert immediately, the same way the Activity's own destroyed-state
+        // is polled above: applying a locale is not guaranteed to be instantly observable.
+        val localeDeadline = System.currentTimeMillis() + TIMEOUT_MS
+        while (localeManager.currentLanguage() != AppLanguage.VIETNAMESE && System.currentTimeMillis() < localeDeadline) {
+            Thread.sleep(POLL_INTERVAL_MS)
+        }
         assertEquals(AppLanguage.VIETNAMESE, localeManager.currentLanguage())
     }
 

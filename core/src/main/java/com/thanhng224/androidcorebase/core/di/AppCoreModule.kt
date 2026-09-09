@@ -5,6 +5,7 @@ import com.thanhng224.androidcorebase.core.architecture.DefaultAppDispatchers
 import com.thanhng224.androidcorebase.core.foundation.AppDispatchers
 import com.thanhng224.androidcorebase.core.foundation.SecureStore
 import com.thanhng224.androidcorebase.core.foundation.SettingsStore
+import com.thanhng224.androidcorebase.core.localization.AppCompatLocaleApplier
 import com.thanhng224.androidcorebase.core.localization.AppLanguage
 import com.thanhng224.androidcorebase.core.localization.LocaleManager
 import com.thanhng224.androidcorebase.core.localization.SupportedLanguages
@@ -53,8 +54,12 @@ internal object AppCoreModule {
 
     @Provides
     @Singleton
-    fun provideLocaleManager(supportedLanguages: Optional<SupportedLanguages>): LocaleManager =
+    fun provideLocaleManager(
+        @ApplicationContext context: Context,
+        supportedLanguages: Optional<SupportedLanguages>,
+    ): LocaleManager =
         LocaleManager(
+            localeApplier = AppCompatLocaleApplier(context),
             supportedLanguages = supportedLanguages.map(SupportedLanguages::values).orElse(AppLanguage.BUILT_IN),
         )
 }

@@ -1,4 +1,4 @@
-package com.thanhng224.androidcorebase.core.work
+package com.example.androidcorebase.work
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -11,12 +11,12 @@ import timber.log.Timber
 /**
  * Reference implementation showing the `@HiltWorker` + `CoroutineWorker` pattern this base wires
  * up (Hilt worker factory, `Configuration.Provider` in `AndroidCoreBaseApplication`). Copy this
- * shape for real background work — this worker itself is not scheduled anywhere by default.
+ * shape for real background work -- this worker itself is not scheduled anywhere by default.
  */
 @HiltWorker
-internal class HeartbeatWorker
+class HeartbeatWorker
     @AssistedInject
-    internal constructor(
+    constructor(
         @Assisted context: Context,
         @Assisted workerParameters: WorkerParameters,
     ) : CoroutineWorker(context, workerParameters) {

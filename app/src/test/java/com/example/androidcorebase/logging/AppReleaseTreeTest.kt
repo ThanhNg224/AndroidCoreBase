@@ -1,12 +1,12 @@
-package com.thanhng224.androidcorebase.core.logging
+package com.example.androidcorebase.logging
 
 import android.util.Log
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ReleaseTreeTest {
-    private val tree = ReleaseTree()
+class AppReleaseTreeTest {
+    private val tree = AppReleaseTree()
 
     @Test
     fun `treats warnings and errors as loggable`() {
