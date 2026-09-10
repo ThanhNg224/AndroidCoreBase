@@ -95,5 +95,5 @@ jobs:
           name: baseline-profile-reports
           path: |
             baselineprofile/build/outputs/**
-            app/src/main/baseline-prof.txt
+            app/src/release/generated/baselineProfiles/baseline-prof.txt
           retention-days: 30
