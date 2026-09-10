@@ -1,5 +1,6 @@
 package com.thanhng224.androidcorebase.core.ui.theme
 
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatDelegate
 import com.thanhng224.androidcorebase.core.foundation.SettingsStore
 import com.thanhng224.androidcorebase.core.storage.settings.AppSettingsKeys
@@ -17,8 +18,23 @@ public interface ThemeManager {
 
     public suspend fun getTheme(): AppTheme
 
+    /**
+     * Persists [theme] and applies it. Applying recreates live Activities, so call this from a
+     * coroutine on the main dispatcher -- `viewModelScope` already is one.
+     */
+    @MainThread
     public suspend fun setTheme(theme: AppTheme)
 
+    /**
+     * Applies [theme] without persisting it.
+     *
+     * Delegates to [AppCompatDelegate.setDefaultNightMode], which calls `Activity.recreate()` on
+     * every live Activity and therefore throws `IllegalStateException: Must be called from main
+     * thread` off the main thread. It only throws once an Activity delegate exists, so calling it
+     * from a background thread during startup is a race that passes on fast devices and crashes on
+     * slow ones.
+     */
+    @MainThread
     public fun applyTheme(theme: AppTheme)
 
     public companion object {
