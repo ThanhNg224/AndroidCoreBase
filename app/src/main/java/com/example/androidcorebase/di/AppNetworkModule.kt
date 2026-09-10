@@ -20,7 +20,18 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
-/** Supplies application-level network configuration and wiring for network clients. */
+/**
+ * Supplies application-level network configuration and wiring for network clients.
+ *
+ * This module is deliberately complete rather than minimal: it is the starter's worked example of
+ * wiring every `:core` network capability into an app-owned Hilt graph, since `:core` itself ships
+ * no DI framework (see `docs/CORE_V2_DESIGN.md`, "Dependency Injection Contract").
+ *
+ * Only [ApiClient] currently has a consumer ([com.example.androidcorebase.sample.demo.data.datasource.DemoRemoteDataSource]).
+ * [AuthSession], [AuthTokenProvider], [Authenticator] and [FileTransferClient] are example wiring:
+ * delete the providers your app does not use when you clone this starter. Unused `@Provides`
+ * members are never instantiated, so leaving them costs nothing at runtime.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppNetworkModule {

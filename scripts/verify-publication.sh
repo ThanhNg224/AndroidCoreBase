@@ -19,6 +19,26 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONSUMER_DIR="$REPO_ROOT/integration/consumer"
 VERIFY_VERSION="0.0.0-verify"
 
+# integration/consumer is a standalone Gradle build, so it does not inherit the root project's
+# local.properties. Android Studio setups usually define the SDK there rather than exporting
+# ANDROID_HOME, which would make this gate fail locally while still passing on CI runners that set
+# the variable. Bridge the two.
+if [[ -z "${ANDROID_HOME:-}" ]]; then
+    if [[ -n "${ANDROID_SDK_ROOT:-}" ]]; then
+        export ANDROID_HOME="$ANDROID_SDK_ROOT"
+    elif [[ -f "$REPO_ROOT/local.properties" ]]; then
+        sdk_dir="$(sed -n 's/^sdk\.dir=//p' "$REPO_ROOT/local.properties" | tail -n 1)"
+        if [[ -n "$sdk_dir" && -d "$sdk_dir" ]]; then
+            export ANDROID_HOME="$sdk_dir"
+            echo "==> Using sdk.dir from local.properties as ANDROID_HOME: $ANDROID_HOME"
+        fi
+    fi
+fi
+if [[ -z "${ANDROID_HOME:-}" || ! -d "$ANDROID_HOME" ]]; then
+    echo "FAIL: no Android SDK found. Export ANDROID_HOME, or set sdk.dir in $REPO_ROOT/local.properties." >&2
+    exit 1
+fi
+
 TEMP_REPO_DIR="$(mktemp -d)"
 trap 'rm -rf "$TEMP_REPO_DIR"' EXIT
 
