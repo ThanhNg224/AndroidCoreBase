@@ -103,6 +103,22 @@ Samsung/Pixel/AOSP device or the Google-API emulator. To unblock a Xiaomi anyway
 Autostart → enable for the app, and/or Developer options → turn off "MIUI optimization" (reboot
 required). Neither is settable over adb.
 
+## CI coverage
+
+The `baseline-profile` job (manual dispatch / weekly) runs `:app:generateBaselineProfile` on an
+API 34 `google_apis` emulator. It **collects** the profile and does not measure it:
+androidx.benchmark refuses to report timings on an emulator (`ERRORS (not suppressed): EMULATOR`)
+because they are not representative, and suppressing that guard would publish numbers that look
+real and are not. Every figure in the table above therefore comes from the physical device named
+at the top of this file.
+
+Collection in CI still earns its slot. It is deterministic, it proves the generator and
+`CriticalJourney` survive a cold, uncompiled, non-minified build, and on its first real run it
+caught a startup crash that both physical devices raced past: `AppStartupCoordinator` applied the
+persisted theme from a background dispatcher, and `AppCompatDelegate.setDefaultNightMode`
+recreates live Activities, so the process died with `Must be called from main thread` as soon as
+`MainActivity` existed by the time the theme arrived. Fixed in `9abb1a7`.
+
 ## Reproducing
 
 ```bash
