@@ -29,6 +29,11 @@ dependencies {
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.junit)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 // The spec exempts this module from a line-coverage percentage gate: it is 89 lines of
