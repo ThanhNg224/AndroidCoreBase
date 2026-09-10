@@ -6,7 +6,10 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 
-private const val WAIT_TIMEOUT_MS = 5_000L
+// Profile collection runs against a non-minified, uncompiled build, and CI collects on an
+// emulator that is slower again than a physical device. Waits return as soon as the node appears,
+// so a generous ceiling costs nothing on fast hardware and prevents flakes on slow hardware.
+private const val WAIT_TIMEOUT_MS = 15_000L
 
 /** Keeps the scroll gesture clear of the system back-gesture edges. */
 private const val GESTURE_MARGIN_DIVISOR = 5
