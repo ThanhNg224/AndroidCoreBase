@@ -2,4 +2,7 @@
 jdk:
   - openjdk21
 install:
-  - ./gradlew :core:publishToMavenLocal -x test
+  # Both published modules must be listed. JitPack scans ~/.m2 after this command, so a module
+  # missing here simply never gets a coordinate -- scripts/verify-publication.sh cannot catch it,
+  # because that script publishes to its own temporary repository and never reads jitpack.yml.
+  - ./gradlew :core:publishToMavenLocal :core:ui-compose:publishToMavenLocal -x test
