@@ -7,6 +7,22 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ## [Unreleased]
 
+## [v2.0.1] - 2026-09-11
+
+Republish of [v2.0.0] with no source changes to the published API.
+
+### Fixed
+
+- `jitpack.yml` still ran `:core:publishToMavenLocal` from the v1 layout, so JitPack produced only
+  `com.github.ThanhNg224:AndroidCoreBase` and never the second v2 coordinate,
+  `AndroidCoreBase-ui-compose`, even though the README and this changelog advertise it. Both
+  modules are now published. `scripts/verify-publication.sh` could not catch this: it publishes to
+  its own temporary Maven repository and never reads `jitpack.yml`.
+
+**Use `v2.0.1`, not `v2.0.0`.** `v2.0.0` remains tagged and its main artifact resolves, but
+`com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0` does not exist and never will -- JitPack
+caches builds per version.
+
 ## [v2.0.0] - 2026-09-09
 
 Breaking release. `:core` and the new `:core:ui-compose` module are now dependency-injection-agnostic:
@@ -74,6 +90,7 @@ First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v
 - Redacted `Authorization` header in OkHttp logging interceptor to avoid leaking bearer tokens.
 - `TimberInitializer` respects consumer application's `FLAG_DEBUGGABLE` status instead of AAR build flag.
 
-[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.1...HEAD
+[v2.0.1]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.0
 [v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0

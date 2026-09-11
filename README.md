@@ -70,12 +70,12 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.1")
 
     // Optional: only if you write Compose screens against AndroidCoreBaseTheme/setThemedContent.
-    implementation("com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0")
+    implementation("com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.1")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v2.0.0"))
+    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v2.0.1"))
 }
 ```
 
@@ -345,7 +345,7 @@ AndroidCoreBase/
 ./gradlew check :core:assembleRelease :core:ui-compose:assembleRelease
 ./scripts/verify-publication.sh --release
 # 3. tag with the same value and push
-git tag v2.0.0 && git push origin v2.0.0
+git tag v2.0.1 && git push origin v2.0.1
 ```
 
 JitPack builds the tag using `jitpack.yml` (pinned to JDK 21). Semantic versioning applies to the
