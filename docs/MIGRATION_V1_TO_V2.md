@@ -33,10 +33,10 @@ compatibility shim — a v1 consumer must update call sites at the points below.
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.1")
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1")
 
     // New, optional: only if you write Compose screens.
-    implementation("com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.1")
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase-ui-compose:v2.0.1")
 }
 ```
 

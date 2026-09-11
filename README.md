@@ -70,14 +70,24 @@ In your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.ThanhNg224:AndroidCoreBase:v2.0.1")
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1")
 
     // Optional: only if you write Compose screens against AndroidCoreBaseTheme/setThemedContent.
-    implementation("com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.1")
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase-ui-compose:v2.0.1")
 
-    testImplementation(testFixtures("com.github.ThanhNg224:AndroidCoreBase:v2.0.1"))
+    testImplementation(testFixtures("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1"))
 }
 ```
+
+> **The group is `com.github.ThanhNg224.AndroidCoreBase`, with the repository name appended.** Once
+> a JitPack build publishes more than one module it namespaces every module under
+> `com.github.<user>.<repo>` and turns the short `com.github.ThanhNg224:AndroidCoreBase` coordinate
+> into an aggregator POM that depends on **both** modules. Using the short coordinate therefore
+> drags Compose into an XML-only app — exactly what splitting `:core:ui-compose` out was meant to
+> prevent. `com.github.ThanhNg224:AndroidCoreBase-ui-compose` does not exist at all (HTTP 401).
+>
+> `v2.0.0` predates the second module, so there the short coordinate *was* the real AAR. Anyone
+> moving from `v2.0.0` to `v2.0.1` must change the group, not just the version.
 
 Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
 

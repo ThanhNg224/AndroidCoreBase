@@ -23,6 +23,25 @@ Republish of [v2.0.0] with no source changes to the published API.
 `com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0` does not exist and never will -- JitPack
 caches builds per version.
 
+### Changed -- the JitPack group changed
+
+Publishing a second module changes how JitPack names **both** of them:
+
+| | `v2.0.0` | `v2.0.1` |
+|---|---|---|
+| Main | `com.github.ThanhNg224:AndroidCoreBase` | `com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase` |
+| Compose interop | not published | `com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase-ui-compose` |
+
+Once a build publishes more than one module, JitPack namespaces every module under
+`com.github.<user>.<repo>` and repurposes the short `com.github.ThanhNg224:AndroidCoreBase`
+coordinate as an **aggregator POM depending on both modules**. It still resolves, so an upgrade
+that changes only the version silently starts pulling `ui-compose`, and with it Compose, into an
+XML-only app. Change the group as well as the version.
+
+`scripts/verify-publication.sh` cannot catch this either: it publishes to a plain temporary Maven
+repository, where the coordinates are exactly what the Gradle publication declares. The rename is
+JitPack-specific.
+
 ## [v2.0.0] - 2026-09-09
 
 Breaking release. `:core` and the new `:core:ui-compose` module are now dependency-injection-agnostic:
