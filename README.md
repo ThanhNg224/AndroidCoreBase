@@ -86,8 +86,10 @@ dependencies {
 > drags Compose into an XML-only app — exactly what splitting `:core:ui-compose` out was meant to
 > prevent. `com.github.ThanhNg224:AndroidCoreBase-ui-compose` does not exist at all (HTTP 401).
 >
-> `v2.0.0` predates the second module, so there the short coordinate *was* the real AAR. Anyone
-> moving from `v2.0.0` to `v2.0.1` must change the group, not just the version.
+> `v2.0.0` is **withdrawn** (tag deleted, superseded by `v2.0.1`), but its JitPack build is cached
+> permanently and still resolves. It predates the second module, so there the short coordinate
+> *was* the real AAR — anyone who picked it up during its short life must change the group, not
+> just the version.
 
 Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
 

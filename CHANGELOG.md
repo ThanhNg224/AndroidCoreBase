@@ -9,7 +9,7 @@ All notable changes to the published `:core` library are recorded here. Format f
 
 ## [v2.0.1] - 2026-09-11
 
-Republish of [v2.0.0] with no source changes to the published API.
+Republish of the withdrawn `v2.0.0` with no source changes to the published API.
 
 ### Fixed
 
@@ -19,9 +19,12 @@ Republish of [v2.0.0] with no source changes to the published API.
   modules are now published. `scripts/verify-publication.sh` could not catch this: it publishes to
   its own temporary Maven repository and never reads `jitpack.yml`.
 
-**Use `v2.0.1`, not `v2.0.0`.** `v2.0.0` remains tagged and its main artifact resolves, but
-`com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0` does not exist and never will -- JitPack
-caches builds per version.
+**Use `v2.0.1`. `v2.0.0` is withdrawn.** Its tag has been deleted from the repository, but
+deleting a tag does not unpublish anything: JitPack caches builds per version, so
+`com.github.ThanhNg224:AndroidCoreBase:v2.0.0` still resolves (verified, HTTP 200) and will keep
+resolving. It is an incomplete release --
+`com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0` does not exist and never can. Nothing
+consumed it; the tag lived for under an hour.
 
 ### Changed -- the JitPack group changed
 
@@ -42,7 +45,10 @@ XML-only app. Change the group as well as the version.
 repository, where the coordinates are exactly what the Gradle publication declares. The rename is
 JitPack-specific.
 
-## [v2.0.0] - 2026-09-09
+## v2.0.0 - 2026-09-09 -- withdrawn
+
+Tag deleted; superseded by `v2.0.1`. Kept here because its JitPack artifact is permanently cached
+and because everything below is the actual v2 change set, which `v2.0.1` ships unchanged.
 
 Breaking release. `:core` and the new `:core:ui-compose` module are now dependency-injection-agnostic:
 neither applies a Hilt/KSP plugin or ships DI annotations. See `docs/MIGRATION_V1_TO_V2.md` for the
@@ -110,6 +116,5 @@ First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v
 - `TimberInitializer` respects consumer application's `FLAG_DEBUGGABLE` status instead of AAR build flag.
 
 [Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.1...HEAD
-[v2.0.1]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.0...v2.0.1
-[v2.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.0
+[v2.0.1]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.1
 [v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0

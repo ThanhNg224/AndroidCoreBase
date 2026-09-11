@@ -95,9 +95,20 @@ build-logic
 The published coordinates are:
 
 ```text
-com.github.ThanhNg224:AndroidCoreBase:v2.0.0
-com.github.ThanhNg224:AndroidCoreBase-ui-compose:v2.0.0
+com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1
+com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase-ui-compose:v2.0.1
 ```
+
+The group carries the repository name. Once a JitPack build publishes more than one module it
+namespaces every module under `com.github.<user>.<repo>`, and repurposes the short
+`com.github.ThanhNg224:AndroidCoreBase` coordinate as an aggregator POM depending on **both**
+modules -- which would pull Compose into an XML-only consumer and defeat this whole split. The
+short coordinate must not be advertised. `scripts/verify-publication.sh` cannot detect this: it
+publishes to a plain temporary Maven repository, where the coordinates are whatever the Gradle
+publication declares. The rename is JitPack-specific and only shows up on a real JitPack build.
+
+`v2.0.0` was withdrawn: its `jitpack.yml` still listed only `:core`, so the Compose coordinate was
+never published. See `CHANGELOG.md`.
 
 The starter consumes project dependencies. The independent consumer resolves both artifacts from a
 temporary Maven repository and must never substitute project dependencies or `mavenLocal()`.
