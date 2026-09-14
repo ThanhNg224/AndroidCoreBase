@@ -58,7 +58,7 @@ python3 scripts/init_project.py \
 - **Baseline Profile**: Updates committed descriptors in `baseline-prof.txt`, benchmark target package, and test journeys.
 - **Full Scope Refactor (Default)**: Renames `:core` and `:core:ui-compose` packages, themes (`Theme.<Project>`, `<Project>Theme`), styles, and `build-logic` convention plugins (`<project>.android-library`, `<project>.quality`).
 - **Sample Code Clean Up (Optional)**: Pass `--clean-samples` to prune demo weather / UI kit features, leaving a clean shell ready for feature development.
-- **Safety First**: Supports `--dry-run` to inspect all operations beforehand and verifies build correctness via `./gradlew check`.
+- **Safety First**: Supports `--dry-run` to inspect all operations beforehand and verifies build correctness via the same full `./gradlew check` gate used by CI.
 
 ## Key Features
 

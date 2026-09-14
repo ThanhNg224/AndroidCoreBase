@@ -89,6 +89,8 @@ A Pull Request should:
 ## Before Opening a Pull Request
 
 - Build passes.
+- Run the full quality gate: `./gradlew check`.
+- For published-library changes, run `./scripts/verify-publication.sh --quick`.
 - No merge conflicts.
 - Self-review completed.
 - No duplicated logic.

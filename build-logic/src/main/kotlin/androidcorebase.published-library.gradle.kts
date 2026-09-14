@@ -48,9 +48,27 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.github.ThanhNg224"
                 artifactId = publishedLibrary.artifactId.get()
-                version = System.getenv("VERSION") ?: project.property("VERSION_NAME") as String
+                // VERSION_NAME lives in :core/gradle.properties. Resolve it explicitly for both
+                // published modules instead of relying on Gradle's deprecated parent-project
+                // property lookup from :core:ui-compose.
+                val localVersionName = if (project.path == ":core") {
+                    project.findProperty("VERSION_NAME") as? String
+                } else {
+                    rootProject.project(":core").findProperty("VERSION_NAME") as? String
+                }
+                version = System.getenv("VERSION")
+                    ?: localVersionName
+                    ?: error("VERSION_NAME is required to publish ${project.path}")
 
                 from(components["release"])
+
+                // AGP publishes test-fixtures capabilities as additional Maven variants. Maven
+                // POM cannot represent those capabilities, while Gradle Module Metadata keeps
+                // them intact and is the format used by Gradle 6+ consumers. The publication
+                // gate verifies the resulting POM/AAR separately, so suppress only these known,
+                // intentional metadata-loss warnings.
+                suppressPomMetadataWarningsFor("releaseTestFixturesVariantReleaseApiPublication")
+                suppressPomMetadataWarningsFor("releaseTestFixturesVariantReleaseRuntimePublication")
 
                 pom {
                     name.set(publishedLibrary.displayName.get())
