@@ -743,10 +743,10 @@ def post_verification(config: InitConfig) -> None:
         log_info("Skipping Gradle build check (--skip-build-check requested).")
         return
 
-    log_info("Running Gradle verification check (./gradlew check -x lint)...")
+    log_info("Running Gradle verification check (./gradlew check)...")
     try:
         subprocess.run(
-            [str(gradlew), "check", "-x", "lint", "--stacktrace"],
+            [str(gradlew), "check", "--stacktrace"],
             cwd=root,
             check=True,
         )
