@@ -17,6 +17,49 @@ See [docs/MIGRATION_V1_TO_V2.md](docs/MIGRATION_V1_TO_V2.md) if you have a v1 co
 
 ---
 
+## 🚀 Quick Start: Initializing a New Project
+
+When cloning this repository to build a new app, run the automated setup script to rename and refactor the base in seconds:
+
+### Quick Setup Commands:
+
+```bash
+# 1. Clone into your new project folder
+git clone https://github.com/ThanhNg224/AndroidCoreBase.git my-awesome-app
+cd my-awesome-app
+
+# 2. Run the interactive wizard (asks project name, package, clean sample option, etc.)
+python3 scripts/init_project.py
+```
+
+Or run directly in non-interactive CLI mode (example: creating a clean standalone project without demo samples):
+
+```bash
+python3 scripts/init_project.py \
+  --project-name "AcmeShop" \
+  --app-name "Acme Shop" \
+  --package "com.acme.shop" \
+  --clean-samples
+```
+
+### Next Steps for Developers:
+1. **Open in Android Studio**: Open the cloned directory in Android Studio (Jellyfish / Koala or newer, JDK 21 configured).
+2. **Gradle Sync & Run**: Let Gradle sync and run `:app` on your Android device or emulator.
+3. **Build Features**: Add your production features under `app/src/main/java/<package>/feature/<name>/` following our Clean Architecture guide in [docs/FEATURE_TEMPLATE.md](docs/FEATURE_TEMPLATE.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+4. **Baseline Profiles (Optional)**: After creating your key user journeys, generate a tailored baseline profile with:
+   ```bash
+   ./gradlew :baselineprofile:generateBaselineProfile
+   ```
+
+### What the script refactors automatically:
+- **Project & Application**: Updates `rootProject.name`, `app_name`, `applicationId`, and `namespace`.
+- **Package Hierarchy**: Safely moves source folders across `src/main`, `src/test`, and `src/androidTest`.
+- **Application Class**: Renames `AndroidCoreBaseApplication.kt` and its Manifest / DI / Kover references to `<ProjectName>Application`.
+- **Baseline Profile**: Updates committed descriptors in `baseline-prof.txt`, benchmark target package, and test journeys.
+- **Full Scope Refactor (Default)**: Renames `:core` and `:core:ui-compose` packages, themes (`Theme.<Project>`, `<Project>Theme`), styles, and `build-logic` convention plugins (`<project>.android-library`, `<project>.quality`).
+- **Sample Code Clean Up (Optional)**: Pass `--clean-samples` to prune demo weather / UI kit features, leaving a clean shell ready for feature development.
+- **Safety First**: Supports `--dry-run` to inspect all operations beforehand and verifies build correctness via `./gradlew check`.
+
 ## Key Features
 
 * **Modular Clean Architecture**: `:core` (and `:core:ui-compose`) are published libraries; `:app` is the consuming application and reference/sample code.
