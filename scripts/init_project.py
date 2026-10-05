@@ -1022,10 +1022,40 @@ def main() -> None:
         log_info("Phase 3: Pruning sample code...")
         clean_sample_code(config)
 
+def configure_gitflow_for_new_project(config: ProjectConfig) -> None:
+    """Setup GitFlow develop branch and configure dependabot for production."""
+    root_dir = config.root_dir
+    dependabot_file = root_dir / ".github" / "dependabot.yml"
+    if dependabot_file.exists():
+        try:
+            content = dependabot_file.read_text(encoding="utf-8")
+            if "target-branch:" not in content:
+                content = content.replace('directory: "/"\n', 'directory: "/"\n    target-branch: "develop"\n')
+                dependabot_file.write_text(content, encoding="utf-8")
+                log_info("Updated .github/dependabot.yml to target 'develop' branch.")
+        except Exception:
+            pass
+
+    if (root_dir / ".git").exists():
+        try:
+            branch_res = subprocess.run(["git", "branch", "--show-current"], cwd=root_dir, capture_output=True, text=True)
+            current_branch = branch_res.stdout.strip()
+            if current_branch != "develop":
+                check_res = subprocess.run(["git", "rev-parse", "--verify", "develop"], cwd=root_dir, capture_output=True)
+                if check_res.returncode == 0:
+                    subprocess.run(["git", "checkout", "develop"], cwd=root_dir, check=True, capture_output=True)
+                else:
+                    subprocess.run(["git", "checkout", "-b", "develop"], cwd=root_dir, check=True, capture_output=True)
+                log_success("GitFlow: Checked out branch 'develop'.")
+        except Exception:
+            pass
+
+
     # 4. Post-verification and build check
     if not config.dry_run:
         log_info("Phase 4: Running verification...")
         post_verification(config)
+        configure_gitflow_for_new_project(config)
     else:
         log_info("Dry-run completed. No files were modified on disk.")
 
@@ -1036,6 +1066,10 @@ def main() -> None:
             "To re-generate an optimal profile after creating your own user journeys, run:\n"
             f"      {style('./gradlew :baselineprofile:generateBaselineProfile', '32')}\n"
         )
+        print("Next steps:")
+        print("  1. Review changes: git status && git diff")
+        print("  2. Push branches to your new remote:")
+        print("       git push -u origin main && git push -u origin develop\n")
 
 
 if __name__ == "__main__":
