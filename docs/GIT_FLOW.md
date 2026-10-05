@@ -8,6 +8,10 @@ This document defines the Git workflow and collaboration rules for the project. 
 
 ## Branch Strategy
 
+> **Lưu ý về Repository Base Template (Giai đoạn Solo Maintainer):**
+> - Đối với repo base template này, maintainer phát triển trực tiếp trên nhánh `main` để giữ quy trình tinh gọn.
+> - Khi dự án được khởi tạo thành dự án thực tế qua `scripts/init_project.py`, dự án sẽ vận hành đầy đủ theo mô hình GitFlow dưới đây.
+
 Primary branches:
 
 - main
