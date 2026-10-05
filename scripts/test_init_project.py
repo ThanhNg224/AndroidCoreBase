@@ -15,6 +15,9 @@ Covers:
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
+import init_project
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -665,6 +668,32 @@ class TestInitProject(unittest.TestCase):
             self.assertNotIn("/sample/", new_prof)
             self.assertIn("Lcom/acme/shop/MainActivity;", new_prof)
             self.assertIn("Lcom/acme/shop/core/CoreClass;", new_prof)
+
+
+class TestInitializationPipeline(unittest.TestCase):
+    def test_main_verifies_then_configures_gitflow_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config = InitConfig(Path(tmp), "SmokeXml", "Smoke XML", "org.example.smokexml",
+                                "org.example.smokexml.core", "full", False, False, True, True)
+            calls = []
+            with (patch("init_project.parse_arguments", return_value=config),
+                  patch("init_project.validate_config"),
+                  patch("init_project.get_source_moves", return_value=[]),
+                  patch("init_project.build_replacements_table", return_value=[]),
+                  patch("init_project.apply_text_replacements", return_value=0),
+                  patch("init_project.post_verification", side_effect=lambda cfg: calls.append(("verify", cfg))),
+                  patch("init_project.configure_gitflow_for_new_project", side_effect=lambda cfg: calls.append(("gitflow", cfg))),
+                  contextlib.redirect_stdout(io.StringIO())):
+                init_project.main()
+            self.assertEqual(calls, [("verify", config), ("gitflow", config)])
+
+    def test_gitflow_helper_does_not_reenter_verification(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config = InitConfig(Path(tmp), "SmokeXml", "Smoke XML", "org.example.smokexml",
+                                "org.example.smokexml.core", "full", False, False, True, True)
+            with patch("init_project.post_verification", side_effect=AssertionError("reentered verification")) as verify:
+                init_project.configure_gitflow_for_new_project(config)
+                verify.assert_not_called()
 
 
 if __name__ == "__main__":

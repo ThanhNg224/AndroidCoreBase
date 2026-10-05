@@ -1,5 +1,7 @@
 # MODERNIZATION.md
 
+> Historical design/phase record. Current operating rules and module contracts live in [Architecture](ARCHITECTURE.md), [Standards](STANDARD.md), and [Core modules](CORE_MODULES.md). Preserve the decisions and any open plan items below; this label does not mark them complete.
+
 Rolling plan for hardening `:core` into a genuinely consumable, modern Android library.
 Written 2026-07-29. Each phase lands independently; this file is updated as phases complete,
 not rewritten at the end.

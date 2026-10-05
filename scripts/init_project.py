@@ -399,7 +399,7 @@ def should_skip_file(path: Path, root_dir: Path) -> bool:
     if path.suffix.lower() in ignored_extensions:
         return True
 
-    if rel.name in ("gradlew", "gradlew.bat", "init_project.py", "test_init_project.py"):
+    if rel.name in ("gradlew", "gradlew.bat", "init_project.py", "test_init_project.py", "smoke_init_project.py"):
         return True
 
     return False
@@ -1022,7 +1022,28 @@ def main() -> None:
         log_info("Phase 3: Pruning sample code...")
         clean_sample_code(config)
 
-def configure_gitflow_for_new_project(config: ProjectConfig) -> None:
+    # 4. Post-verification and build check
+    if not config.dry_run:
+        log_info("Phase 4: Running verification...")
+        post_verification(config)
+        configure_gitflow_for_new_project(config)
+    else:
+        log_info("Dry-run completed. No files were modified on disk.")
+
+    log_success(f"Project initialized successfully for '{config.project_name}'!")
+    if not config.dry_run:
+        print(
+            f"\n{style('Tip:', '36;1')} Baseline Profile was updated for {config.app_package}. "
+            "To re-generate an optimal profile after creating your own user journeys, run:\n"
+            f"      {style('./gradlew :baselineprofile:generateBaselineProfile', '32')}\n"
+        )
+        print("Next steps:")
+        print("  1. Review changes: git status && git diff")
+        print("  2. Push branches to your new remote:")
+        print("       git push -u origin main && git push -u origin develop\n")
+
+
+def configure_gitflow_for_new_project(config: InitConfig) -> None:
     """Setup GitFlow develop branch and configure dependabot for production."""
     root_dir = config.root_dir
     dependabot_file = root_dir / ".github" / "dependabot.yml"
@@ -1049,28 +1070,6 @@ def configure_gitflow_for_new_project(config: ProjectConfig) -> None:
                 log_success("GitFlow: Checked out branch 'develop'.")
         except Exception:
             pass
-
-
-    # 4. Post-verification and build check
-    if not config.dry_run:
-        log_info("Phase 4: Running verification...")
-        post_verification(config)
-        configure_gitflow_for_new_project(config)
-    else:
-        log_info("Dry-run completed. No files were modified on disk.")
-
-    log_success(f"Project initialized successfully for '{config.project_name}'!")
-    if not config.dry_run:
-        print(
-            f"\n{style('Tip:', '36;1')} Baseline Profile was updated for {config.app_package}. "
-            "To re-generate an optimal profile after creating your own user journeys, run:\n"
-            f"      {style('./gradlew :baselineprofile:generateBaselineProfile', '32')}\n"
-        )
-        print("Next steps:")
-        print("  1. Review changes: git status && git diff")
-        print("  2. Push branches to your new remote:")
-        print("       git push -u origin main && git push -u origin develop\n")
-
 
 if __name__ == "__main__":
     main()

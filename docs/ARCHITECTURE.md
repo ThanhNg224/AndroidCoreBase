@@ -13,13 +13,9 @@ This document defines the architectural principles for Android projects using Cl
 
 ## High Level Architecture  
 The architecture is divided into three layers:  
-**Presentation**  
-↓  
-**Domain**  
-↓  
-**Data**  
+**Presentation → Domain ← Data**
 
-Dependencies always point inward, from Presentation to Domain to Data.
+Compile dependencies point inward: Presentation and Data depend on Domain, while Domain depends on neither.
 
 ## Layer Responsibilities  
 
@@ -59,7 +55,7 @@ Must not:
 - Leak API or database models to Presentation  
 
 ## Dependency Rule  
-Dependencies always flow from Presentation → Domain → Data. Reverse dependencies are strictly prohibited to maintain clear separation and independence.
+Compile dependencies are Presentation → Domain ← Data. Runtime calls flow through the repository interface to its data implementation; this does not create a Domain → Data compile dependency.
 
 ## Dependency Matrix  
 | From / To         | Presentation | Domain | Data | Feature | Shared/Core |
@@ -233,7 +229,7 @@ Improve architecture incrementally by making small, safe refactors that preserve
 
 ## Architecture Review Checklist  
 - [ ] Are layer boundaries clearly defined and respected?  
-- [ ] Do dependencies flow inward only (Presentation → Domain → Data)?  
+- [ ] Do dependencies flow inward only (Presentation → Domain ← Data)?
 - [ ] Is business logic contained exclusively in the Domain layer?  
 - [ ] Are UI components free of business and data access logic?  
 - [ ] Are repository interfaces defined in Domain and implementations in Data?  
@@ -305,3 +301,11 @@ app/src/main/java/com/example/androidcorebase/
 `sample/demo` remains the data/network reference: its counter persists through `DemoRepositoryImpl`, backed by the real `DataStoreSettingsStore` (via `:core`'s `SettingsStoreFactory`), and it fetches live weather for Ho Chi Minh City through `DemoRemoteDataSourceImpl` -> `DemoRepositoryImpl.fetchWeather()` -> `FetchDemoWeatherUseCase`. `DemoWeatherResponseDto` is mapped to the pure `DemoWeather` domain model before presentation sees it; a feature-owned `WeatherResult`/`WeatherError` sealed hierarchy (not a core `DomainResult`/`AppError`) carries the outcome. Sample-specific Retrofit service providers stay in the sample package, while `app/di/AppNetworkModule` only provides reusable Retrofit/OkHttp infrastructure built from `:core`'s `NetworkClientFactory`. Product feature providers follow the same ownership rule under their own `feature/<name>/di` package. `SecureStore` handles auth/refresh tokens separately from normal settings, and backup/data-extraction rules exclude the secure store's file.
 
 `MainActivity` extends `core/ui/base/BaseBindingActivity`; `HomeFragment`, `SettingsFragment`, `DemoFragment`, and `DesignSystemFragment` extend `BaseFragment`. Both base hosts own ViewBinding inflation and expose lifecycle-safe `collectOnStarted`. `MainActivity` is the single-Activity composition root: it owns the `NavController` and `AppBarConfiguration`, and delegates all destination content — including Settings — to Fragments. `DesignSystemFragment.render()` consumes its own screen-owned `DesignSystemDemoState` (loading/success/error), while `DemoFragment` maps `DemoWeatherState` to localized strings. Its increment and refresh controls use `View.setOnDebouncedClickListener` to avoid accidental duplicate actions.
+
+## Starter boundaries and reference reuse
+
+The current Gradle projects are `:app`, `:core`, `:core:ui-compose`, and `:baselineprofile`. The reusable libraries expose constructors/factories without Hilt; the app owns the Hilt graph. Keep application UI in XML + ViewBinding; Compose is optional interop in its published library.
+
+Reference project `/Users/thanhng224/Dev/Kalapa/heyjapan-android-main` is read-only and supplies generic ideas only. Do not port its lesson domain, IAP/paywall/sales, ads logic, DBFlow, concrete Firebase/Facebook analytics, legacy singleton Preference, mixed-responsibility helpers, or feature-specific remote-config keys.
+
+Do not split further Gradle modules unless explicitly requested after a real ownership boundary is justified.

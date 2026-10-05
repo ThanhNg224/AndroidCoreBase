@@ -222,3 +222,247 @@ interface/factory.
 Metalava (`apiDump`/`apiCheck`, gated in `check`) tracks both modules' public API against a committed
 `core/api/core.api` / `core/ui-compose/api/ui-compose.api` signature file — the automated
 binary-compatibility gate the pre-v2 base was missing.
+
+## Consuming `:core` via JitPack
+
+### 1. Add the JitPack repository
+
+In your project's `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+
+### 2. Add the library dependency
+
+In your module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1")
+
+    // Optional: only if you write Compose screens against AndroidCoreBaseTheme/setThemedContent.
+    implementation("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase-ui-compose:v2.0.1")
+
+    testImplementation(testFixtures("com.github.ThanhNg224.AndroidCoreBase:AndroidCoreBase:v2.0.1"))
+}
+```
+
+> **The group is `com.github.ThanhNg224.AndroidCoreBase`, with the repository name appended.** Once
+> a JitPack build publishes more than one module it namespaces every module under
+> `com.github.<user>.<repo>` and turns the short `com.github.ThanhNg224:AndroidCoreBase` coordinate
+> into an aggregator POM that depends on **both** modules. Using the short coordinate therefore
+> drags Compose into an XML-only app — exactly what splitting `:core:ui-compose` out was meant to
+> prevent. `com.github.ThanhNg224:AndroidCoreBase-ui-compose` does not exist at all (HTTP 401).
+>
+> `v2.0.0` is **withdrawn** (tag deleted, superseded by `v2.0.1`), but its JitPack build is cached
+> permanently and still resolves. It predates the second module, so there the short coordinate
+> *was* the real AAR — anyone who picked it up during its short life must change the group, not
+> just the version.
+
+Check available tags and builds on [JitPack: ThanhNg224/AndroidCoreBase](https://jitpack.io/#ThanhNg224/AndroidCoreBase).
+
+### 3. Configure your own module
+
+`:core` is a plain Android library with no DI framework, so a consuming module needs only:
+
+```kotlin
+plugins {
+    id("com.android.application")   // AGP 9's built-in Kotlin support covers Kotlin sources too
+}
+
+android {
+    defaultConfig { minSdk = 24 }   // :core's minSdk
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+    buildFeatures { viewBinding = true }   // needed for BaseActivity/BaseFragment
+}
+```
+
+Retrofit, OkHttp, coroutines, AppCompat, Fragment, lifecycle-viewmodel, Material, and DataStore
+arrive transitively as `api` dependencies — you do not need to redeclare them to use `:core`'s API.
+Add your own DI framework (Hilt, Koin, or manual construction) on top; nothing in `:core` requires
+one.
+
+`INTERNET` is not declared by `:core`'s manifest. Add it yourself if you use the network APIs:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+---
+
+## Wiring `:core` into your app
+
+`:core` and `:core:ui-compose` expose every contract as a public interface plus either a public
+constructor or a small factory object. Nothing in this section is Hilt-specific — the same calls
+work with any DI framework, or with no framework at all. `app/src/main/java/com/example/androidcorebase/di/`
+is a complete, working example of this wiring (`AppCoreModule.kt`, `AppNetworkModule.kt`) if you'd
+rather read real code than this table.
+
+| Capability | How to construct it |
+|---|---|
+| Coroutine dispatchers | `AppDispatchers.default()` |
+| Preferences storage | `SettingsStoreFactory.create(dataStore: DataStore<Preferences>)` |
+| Secure storage | `SecureStoreFactory.encrypted(context, dispatchers)` |
+| Theme | `ThemeManager.create(settingsStore)`, then call `applyTheme(...)` once at startup |
+| Locale | `LocaleManager(localeApplier = AppCompatLocaleApplier(context))` |
+| API execution | `NetworkClientFactory.createApiClient()` |
+| OkHttp/Retrofit | `NetworkClientFactory.createOkHttpClient(config, interceptors, authenticator)` / `createRetrofit(config, okHttpClient)` |
+| File transfer | `NetworkClientFactory.createFileTransferClient(okHttpClient, dispatchers)` |
+| Auth session | `AuthSession(secureStore)` |
+| Token provider / authenticator | `NetworkClientFactory.createAuthTokenProvider(authSession)` / `createAuthenticator(authSession, tokenRefresher)` |
+| DB passphrase | `DbPassphraseProvider(secureStore)` |
+
+A minimal Hilt module wiring the pieces a typical app needs:
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+object AppCoreModule {
+    @Provides
+    @Singleton
+    fun provideAppDispatchers(): AppDispatchers = AppDispatchers.default()
+
+    @Provides
+    @Singleton
+    fun provideSettingsStore(@ApplicationContext context: Context): SettingsStore =
+        SettingsStoreFactory.create(context.appSettingsDataStore) // your own DataStore<Preferences> delegate
+
+    @Provides
+    @Singleton
+    fun provideSecureStore(@ApplicationContext context: Context, dispatchers: AppDispatchers): SecureStore =
+        SecureStoreFactory.encrypted(context, dispatchers)
+
+    @Provides
+    @Singleton
+    fun provideThemeManager(settingsStore: SettingsStore): ThemeManager = ThemeManager.create(settingsStore)
+}
+```
+
+### If you write Compose screens
+
+Depend on `AndroidCoreBase-ui-compose` and apply `org.jetbrains.kotlin.plugin.compose` (matching
+your Kotlin version) in **any module** that declares or calls `@Composable` code against
+`AndroidCoreBaseTheme`/`ComposeView.setThemedContent` — not only where you first add it. The Compose
+compiler transforms `@Composable` lambda parameters at the bytecode level per module; a module
+missing the plugin produces a call site that compiles cleanly but throws `NoSuchMethodError` at
+runtime.
+
+### Optional: your own encrypted database
+
+`:core` ships **no** database — Room's `@Database` fixes its `entities` list at compile time in the
+annotated class, so a library cannot hand you one to extend. Add Room + SQLCipher in your own module
+and declare your own `@Database`. What `:core` does give you is `DbPassphraseProvider`: a stable
+random passphrase, generated once and persisted behind the Keystore via `SecureStore`.
+
+```kotlin
+@Provides
+@Singleton
+fun provideDatabase(
+    @ApplicationContext context: Context,
+    passphraseProvider: DbPassphraseProvider,
+): MyDatabase {
+    val passphrase = runBlocking { passphraseProvider.getOrCreate() }
+    return Room.databaseBuilder(context, MyDatabase::class.java, "my_database.db")
+        .openHelperFactory(SupportOpenHelperFactory(passphrase.toByteArray()))
+        .build()
+}
+```
+
+`getOrCreate()` is `suspend` because the first call reads encrypted storage from disk, while a Hilt
+`@Provides` boundary is synchronous — hence the `runBlocking`. That is tolerable because it happens
+once and Room builds lazily on first query. To keep it off the critical path entirely, warm it from
+your own `Application.onCreate()` on a background dispatcher so the `@Provides` call hits the
+memoized value.
+
+### Required: supply an `ApiConfig`
+
+`:core` deliberately ships **no** base URL. `NetworkClientFactory.createOkHttpClient`/`createRetrofit`
+both take an `ApiConfig` you construct yourself:
+
+```kotlin
+@Provides
+@Singleton
+fun provideApiConfig() =
+    ApiConfig(
+        baseUrl = BuildConfig.API_BASE_URL,
+        enableLogging = BuildConfig.DEBUG,
+        readTimeoutSeconds = 20, // per-timeout overrides are optional
+    )
+```
+
+### Optional: enable real token refresh
+
+`NetworkClientFactory.createAuthenticator(authSession, tokenRefresher)` retries a 401 once with a
+fresh token, but only if you pass a `tokenRefresher` lambda — refreshing needs an API contract
+`:core` can't know. Concurrent 401s share a single refresh, and the result is persisted through
+`AuthSession`.
+
+```kotlin
+class MyTokenRefresher @Inject constructor(
+    private val api: AuthApi, // built on a plain client, NOT the :core one, or you recurse into this same auth flow
+) : AuthTokenRefresher {
+    override suspend fun refresh(refreshToken: String?): String? =
+        refreshToken?.let { runCatching { api.refresh(it).accessToken }.getOrNull() }
+}
+
+@Provides
+@Singleton
+fun provideAuthenticator(authSession: AuthSession, refresher: MyTokenRefresher): Authenticator =
+    NetworkClientFactory.createAuthenticator(authSession) { refresher }
+```
+
+Read and write the tokens themselves through the injectable `AuthSession`
+(`getAccessToken()`, `setTokens(...)`, `clear()` on logout).
+
+### Optional: add languages
+
+`AppLanguage` is a data class, not a closed enum, so you can ship locales `:core` has no strings for.
+Declare them in your own `@xml/locales_config` and pass the list directly:
+
+```kotlin
+LocaleManager(
+    localeApplier = AppCompatLocaleApplier(context),
+    supportedLanguages = AppLanguage.BUILT_IN + AppLanguage("ja", R.string.language_japanese),
+)
+```
+
+### Screens
+
+```kotlin
+@AndroidEntryPoint
+class ProfileActivity : BaseBindingActivity<ActivityProfileBinding>() {
+    private val viewModel: ProfileViewModel by viewModels()
+    private val userId: String by intentExtra(EXTRA_USER_ID) // type-safe extras
+
+    override fun inflateBinding(inflater: LayoutInflater) = ActivityProfileBinding.inflate(inflater)
+
+    override fun onBindingReady(savedInstanceState: Bundle?) {
+        viewModel.state.collectOnStarted(::render) // lifecycle-aware, STARTED
+    }
+}
+```
+
+ViewModels are plain `androidx.lifecycle.ViewModel` with a `MutableStateFlow`/`StateFlow` and named
+intent functions (`onEvent`, or direct methods like `selectTheme`). A transient one-shot request
+(snackbar, navigation) is modeled as a small `pendingMessages: List<PendingMessage>` field on the
+state itself — acknowledged (`onMessageHandled(id)`) once shown — not a `Channel`-backed effect
+type, so it survives configuration changes without a lost or duplicated emission. See
+[docs/FEATURE_TEMPLATE.md](FEATURE_TEMPLATE.md) for a full vertical slice, and
+[docs/DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for the theme, `core_`-prefixed resources and
+components (`FrameButton`, `ShadowLayout`, `ThemedSwitch`, `StyledSnackbar`).
+
+> **Note on resources:** every `:core` layout, anim, drawable, raw asset and styleable is
+> `core_`-prefixed so your own same-named resources can't silently override them. Styles keep
+> `TextAppearance.AndroidCoreBase.*` / `Theme.AndroidCoreBase.*` naming.
+
+---

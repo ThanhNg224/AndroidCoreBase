@@ -1,5 +1,7 @@
 # AndroidCoreBase v2 Design
 
+> Historical design/phase record. Current operating rules and module contracts live in [Architecture](ARCHITECTURE.md), [Standards](STANDARD.md), and [Core modules](CORE_MODULES.md). Preserve the decisions and any open plan items below; this label does not mark them complete.
+
 ## Status
 
 Revised proposal for the approved breaking `v2.0.0` direction. This version incorporates the first

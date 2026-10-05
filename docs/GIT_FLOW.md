@@ -93,7 +93,7 @@ A Pull Request should:
 ## Before Opening a Pull Request
 
 - Build passes.
-- Run the full quality gate: `./gradlew check`.
+- Run the applicable risk level in [Verification](VERIFICATION.md).
 - For published-library changes, run `./scripts/verify-publication.sh --quick`.
 - No merge conflicts.
 - Self-review completed.
@@ -158,3 +158,29 @@ When resolving conflicts:
 - [ ] Coding standards followed.
 - [ ] Self-review completed.
 - [ ] Ready for review.
+
+## Library release recipe
+
+`:core`'s version comes from `VERSION` (set by JitPack from the tag) falling back to
+`VERSION_NAME` in `core/gradle.properties`. To release:
+
+```bash
+# 1. update CHANGELOG.md and bump VERSION_NAME in core/gradle.properties to match
+# 2. verify the gate and that the published artifacts assemble
+./gradlew check :core:assembleRelease :core:ui-compose:assembleRelease
+./scripts/verify-publication.sh --release
+# 3. tag with the same value and push
+git tag v2.0.1 && git push origin v2.0.1
+```
+
+JitPack builds the tag using `jitpack.yml` (pinned to JDK 21). Semantic versioning applies to the
+published modules' **public** API only — `internal` declarations are not part of the contract.
+
+Test a candidate against a real consumer before tagging:
+
+```bash
+./gradlew :core:publishToMavenLocal :core:ui-compose:publishToMavenLocal
+# then add mavenLocal() in the consumer project, or use scripts/verify-publication.sh directly
+```
+
+---

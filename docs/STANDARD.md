@@ -306,3 +306,11 @@ Excellent code is:
 - Consistent with the rest of the project.
 
 Future maintainability always has higher priority than short-term implementation speed.
+
+## Starter UI resource and DI contracts
+
+Use constructor injection, `@HiltViewModel`, and `@AndroidEntryPoint` in the application; app Hilt modules call the reusable libraries' public factories. Reusable library modules apply no DI framework.
+
+For XML, use the fixed `core_space_<n>`, `core_radius_<n>`, `core_size_<n>`, `core_stroke_width`, and `core_text_size_<n>` dimension tokens. A local decorative dimension belongs in the consuming module with a semantic name. No hardcoded non-zero dp/sp or hex colors in layouts except launcher assets. Do not reintroduce `com.intuit.sdp`/`com.intuit.ssp`; see [Design system](DESIGN_SYSTEM.md) and the historical migration record. All user-facing text uses string resources.
+
+Use plain ViewModels and screen-owned StateFlow state. Keep one-shot requests in the acknowledged pendingMessages queue described above, rather than a generic Channel-backed effect type. Preserve public APIs and behavior unless explicitly requested otherwise.
