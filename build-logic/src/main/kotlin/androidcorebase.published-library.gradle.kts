@@ -73,11 +73,11 @@ afterEvaluate {
                 pom {
                     name.set(publishedLibrary.displayName.get())
                     description.set(publishedLibrary.description.get())
-                    url.set("https://github.com/ThanhNg224/AndroidCoreBase")
+                    url.set("https://github.com/ThanhNg224/android-app-starter-xml")
                     licenses {
                         license {
                             name.set("MIT License")
-                            url.set("https://github.com/ThanhNg224/AndroidCoreBase/blob/main/LICENSE")
+                            url.set("https://github.com/ThanhNg224/android-app-starter-xml/blob/main/LICENSE")
                         }
                     }
 

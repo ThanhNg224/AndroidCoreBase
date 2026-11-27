@@ -1,4 +1,4 @@
-# AndroidCoreBase
+# Android App Starter (XML)
 
 An Android XML + ViewBinding application starter with DI-agnostic core libraries and optional Compose interop.
 

@@ -115,6 +115,6 @@ First stable public release of `:core` (`com.github.ThanhNg224:AndroidCoreBase:v
 - Redacted `Authorization` header in OkHttp logging interceptor to avoid leaking bearer tokens.
 - `TimberInitializer` respects consumer application's `FLAG_DEBUGGABLE` status instead of AAR build flag.
 
-[Unreleased]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v2.0.1...HEAD
-[v2.0.1]: https://github.com/ThanhNg224/AndroidCoreBase/compare/v1.0.0...v2.0.1
-[v1.0.0]: https://github.com/ThanhNg224/AndroidCoreBase/releases/tag/v1.0.0
+[Unreleased]: https://github.com/ThanhNg224/android-app-starter-xml/compare/v2.0.1...HEAD
+[v2.0.1]: https://github.com/ThanhNg224/android-app-starter-xml/compare/v1.0.0...v2.0.1
+[v1.0.0]: https://github.com/ThanhNg224/android-app-starter-xml/releases/tag/v1.0.0
